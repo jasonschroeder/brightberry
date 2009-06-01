@@ -61,11 +61,27 @@ public class BrightBerry extends UiApplication {
 		int numRecords = ippprecordArray.length;
 		for (int i = 0; i < numRecords; ++i) {
 			ServiceRecord ipppRecord = ippprecordArray[i];
-
 			if ((ipppRecord.isValid()) && (ipppRecord.getName().equals("IPPP for BIBS"))) {
-				return ";deviceside=false;ConnectionUID=" + ipppRecord.getUid();
+				//return ";deviceside=false;ConnectionUID=" + ipppRecord.getUid();
+				return ";deviceside=true";
 			}
 		}
 		return ";deviceside=true";
+	}
+	
+	public static String connectionInfo() {
+		ServiceRecord[] ippprecordArray = ServiceBook.getSB().findRecordsByCid("IPPP");
+		if (ippprecordArray == null) {
+			return "device (No Records)";
+		}
+
+		int numRecords = ippprecordArray.length;
+		for (int i = 0; i < numRecords; ++i) {
+			ServiceRecord ipppRecord = ippprecordArray[i];
+			if ((ipppRecord.isValid()) && (ipppRecord.getName().equals("IPPP for BIBS"))) {
+				return "BIS-B " + ipppRecord.getUid();
+			}
+		}
+		return "device";
 	}
 }

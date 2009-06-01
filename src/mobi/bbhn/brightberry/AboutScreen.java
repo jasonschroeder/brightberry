@@ -38,6 +38,7 @@ public class AboutScreen extends MainScreen {
 	public AboutScreen() {
         super.setTitle(new LabelField("BrightBerry About", 1152921504606846980L));
         add(new RichTextField("Version: " + BrightBerry.version + " Alpha"));
+        add(new RichTextField("Connection: " + BrightBerry.connectionInfo()));
         add(new SeparatorField());
         add(new RichTextField("Written by Chris Hallgren (@challgren)"));
         add(new SeparatorField());
