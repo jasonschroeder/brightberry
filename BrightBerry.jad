@@ -1,0 +1,35 @@
+Manifest-Version: 1.0
+RIM-MIDlet-Icon-1-9: img/icon_note.gif
+RIM-MIDlet-Icon-1-8: img/icon_nearby.gif
+MIDlet-Version: 0.1.2
+RIM-MIDlet-Icon-1-7: img/icon_messages.gif
+RIM-MIDlet-Icon-1-6: img/icon_mentions.gif
+MIDlet-Jar-Size: 231748
+RIM-MIDlet-Icon-1-5: img/icon_happening.gif
+RIM-MIDlet-Icon-1-4: img/icon_comments.gif
+RIM-MIDlet-Icon-1-3: img/icon_checkin.gif
+RIM-MIDlet-Icon-1-2: img/default_avator.gif
+RIM-COD-Module-Dependencies: net_rim_cldc,net_rim_os,net_rim_bbapi_browser,net_rim_locationapi
+MicroEdition-Configuration: CLDC-1.1
+MIDlet-Jar-URL: BrightBerry.jar
+RIM-MIDlet-Icon-1-1: img/listArrow.png
+RIM-COD-URL-1: BrightBerry-1.cod
+RIM-COD-SHA1-1: f1 68 40 e1 6f b6 22 9f e3 a1 83 b1 28 95 e1 38 38 7b d0 03
+RIM-MIDlet-Flags-1: 0
+RIM-COD-Size-1: 25700
+RIM-COD-Module-Name: BrightBerry
+RIM-COD-Size: 58112
+MIDlet-Name: BrightBerry
+RIM-COD-Creation-Time: 1243488537
+MIDlet-1: BrightBerry,img/BKIcon.jpg,
+RIM-COD-URL: BrightBerry.cod
+RIM-MIDlet-Icon-1-14: img/icon_settings.gif
+RIM-MIDlet-Icon-1-13: img/icon_public.gif
+RIM-MIDlet-Icon-1-12: img/icon_private.gif
+RIM-MIDlet-Icon-1-11: img/icon_placemarks.gif
+RIM-MIDlet-Icon-1-10: img/icon_photo.gif
+MIDlet-Description: Unofficial Blackberry client for Brightkite
+RIM-COD-SHA1: b3 ea af 18 62 07 1d 84 88 8f a7 00 ec af 66 cc d6 4e 17 59
+MicroEdition-Profile: MIDP-2.0
+MIDlet-Vendor: Hallgren Networks
+RIM-MIDlet-Icon-Count-1: 14
