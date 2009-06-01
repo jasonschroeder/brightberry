@@ -161,8 +161,8 @@ public class BrightBerryMain extends MainScreen {
 	    	add(friendstreamBtn);
 	    	postnoteBtn.setChangeListener(PostNoteListener);
 	    	add(postnoteBtn);
-	    	postphotoBtn.setChangeListener(PostPhotoListener);
-	    	add(postphotoBtn);
+	    	//postphotoBtn.setChangeListener(PostPhotoListener);
+	    	//add(postphotoBtn);
 	    	add(new SeparatorField());
 	    	placemarkBtn.setChangeListener(PlacemarkListener);
 	    	add(placemarkBtn);
