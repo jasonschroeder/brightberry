@@ -1,0 +1,7 @@
+=== 0.1.4
+
+* New Features
+	* Adds support to configrue the connection mode
+	
+* Fixes
+	* Fixes issues with connection errors since I set it to use device side.
