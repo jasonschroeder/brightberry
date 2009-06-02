@@ -45,6 +45,7 @@ public class PostNoteThread extends Thread {
 	String serverResponse = "";
 	PostNoteScreen screen;
 	private String note;
+	Settings settings = Settings.getInstance();
 	
 	public PostNoteThread(String id, String note, PostNoteScreen screen) {
 		PostNoteThread tmp56_55 = this;
@@ -57,12 +58,12 @@ public class PostNoteThread extends Thread {
 
 	public void run() {
 		try {
-			this.url += BrightBerry.appendConnectionString();
+			this.url += NetworkConfig.getConnectionParameters(this.settings.getConnectionMode());
 			this.httpConnection = ((HttpConnection)Connector.open(this.url));
 			this.httpConnection.setRequestMethod("POST");
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
-			this.httpConnection.setRequestProperty("Authorization", Settings.getInstance().getAuthHeader());
+			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			this.httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 			this.httpOutput = this.httpConnection.openDataOutputStream();
 			this.httpOutput.write(this.note.getBytes());

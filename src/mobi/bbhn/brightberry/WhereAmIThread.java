@@ -46,6 +46,7 @@ public class WhereAmIThread extends Thread {
 	private PostNoteScreen screen;
 	private PostPhotoScreen screen2;
 	private String caller;
+	Settings settings = Settings.getInstance();
 
 	public WhereAmIThread(PostNoteScreen screen) {
 		this.caller = "note";
@@ -59,11 +60,11 @@ public class WhereAmIThread extends Thread {
 
 	public void run() {
 		try {
-			this.url += BrightBerry.appendConnectionString();
+			this.url += NetworkConfig.getConnectionParameters(this.settings.getConnectionMode());
 			this.httpConnection = ((HttpConnection)Connector.open(this.url));
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
-			this.httpConnection.setRequestProperty("Authorization", Settings.getInstance().getAuthHeader());
+			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			this.httpInput = this.httpConnection.openInputStream();
 
 			StringBuffer buffer = new StringBuffer();

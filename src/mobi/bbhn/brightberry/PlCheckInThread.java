@@ -46,6 +46,7 @@ public class PlCheckInThread extends Thread {
 	String serverResponse = "";
 	PlacemarkScreen screen = null;
 	String message = "";
+	Settings settings = Settings.getInstance();
 
 	public PlCheckInThread(String id, PlacemarkScreen screen) {
 		PlCheckInThread tmp56_55 = this; tmp56_55.url = tmp56_55.url + id + "/checkins.json";
@@ -54,12 +55,12 @@ public class PlCheckInThread extends Thread {
 
 	public void run() {
 		try {
-			this.url += BrightBerry.appendConnectionString();
+			this.url += NetworkConfig.getConnectionParameters(this.settings.getConnectionMode());
 			this.httpConnection = ((HttpConnection)Connector.open(this.url));
 			this.httpConnection.setRequestMethod("POST");
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
-			this.httpConnection.setRequestProperty("Authorization", Settings.getInstance().getAuthHeader());
+			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			this.httpOutput = this.httpConnection.openDataOutputStream();
 			this.httpOutput.write(this.message.getBytes());
 			this.httpInput = this.httpConnection.openInputStream();

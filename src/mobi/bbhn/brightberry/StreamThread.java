@@ -57,6 +57,7 @@ class StreamThread extends Thread {
 	String url;
 	int start;
 	String user;
+	Settings settings = Settings.getInstance();
 
 	public StreamThread(StreamScreen screen, int maxEntries, String type, int start) {
 		this.screen = screen;
@@ -88,14 +89,14 @@ class StreamThread extends Thread {
 			} else {
 				this.url = this.me + this.maxEntries + this.offset + this.start;
 			}
-			this.url += BrightBerry.appendConnectionString();
+			this.url += NetworkConfig.getConnectionParameters(this.settings.getConnectionMode());
 			this.httpConnection = ((HttpConnection)Connector.open(this.url));
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
 			this.httpConnection.setRequestProperty("Accept", "*/*");
 			this.httpConnection.setRequestProperty("Connection", "Keep-Alive");
 			this.httpConnection.setRequestProperty("Accept-Encoding", "gzip,deflate");
-			this.httpConnection.setRequestProperty("Authorization", Settings.getInstance().getAuthHeader());
+			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 
 
 			this.httpInput = this.httpConnection.openInputStream();

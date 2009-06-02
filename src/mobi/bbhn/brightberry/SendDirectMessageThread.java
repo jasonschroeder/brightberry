@@ -45,6 +45,7 @@ public class SendDirectMessageThread extends Thread {
 	String serverResponse = "";
 	SendDirectMessageScreen screen;
 	private String note;
+	Settings settings = Settings.getInstance();
 	
 	public SendDirectMessageThread(String user, String note, SendDirectMessageScreen screen) {
 		SendDirectMessageThread tmp56_55 = this;
@@ -57,13 +58,13 @@ public class SendDirectMessageThread extends Thread {
 
 	public void run() {
 		try {
-			this.url += BrightBerry.appendConnectionString();
+			this.url += NetworkConfig.getConnectionParameters(this.settings.getConnectionMode());
 			this.httpConnection = ((HttpConnection)Connector.open(this.url));
 			this.httpConnection.setRequestMethod("POST");
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
 			this.httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-			this.httpConnection.setRequestProperty("Authorization", Settings.getInstance().getAuthHeader());
+			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			this.httpOutput = this.httpConnection.openDataOutputStream();
 			this.httpOutput.write(this.note.getBytes());
 			this.httpInput = this.httpConnection.openInputStream();

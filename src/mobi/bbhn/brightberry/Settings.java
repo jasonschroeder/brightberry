@@ -42,6 +42,7 @@ public class Settings implements Persistable {
 	private boolean AutoUpdate;
 	private boolean PostUpdate;
 	private Placemark[] placemarks;
+	private int ConnectionMode;
 	private static Settings settings;
 	private static final long STOREHASH = 0x6cdd063e456b4742L;
 	private static PersistentObject persist = PersistentStore.getPersistentObject(STOREHASH);
@@ -54,6 +55,7 @@ public class Settings implements Persistable {
 		this.MaxEntriesIndex = 1;
 		this.AutoUpdate = true;
 		this.PostUpdate = true;
+		this.ConnectionMode = 0;
 	}
 
 	public static Settings getInstance() {
@@ -129,6 +131,14 @@ public class Settings implements Persistable {
 
 	public Placemark[] getPlacemarks() {
 		return this.placemarks;
+	}
+	
+	public void setConnectionMode(int mode) {
+		this.ConnectionMode = mode;
+	}
+	
+	public int getConnectionMode() {
+		return this.ConnectionMode;
 	}
 
 	public String getAuthHeader() {

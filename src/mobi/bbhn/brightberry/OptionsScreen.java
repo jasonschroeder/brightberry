@@ -37,6 +37,7 @@ import net.rim.device.api.ui.component.CheckboxField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.NumericChoiceField;
+import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.PasswordEditField;
 import net.rim.device.api.ui.container.MainScreen;
 
@@ -47,12 +48,15 @@ public class OptionsScreen extends MainScreen {
 	NumericChoiceField maxentriesField = new NumericChoiceField("Max Entries: ", 5, 50, 5, this.settings.getMaxEntriesIndex());
 	CheckboxField autoupdateField = new CheckboxField("Update friendstream on startup", this.settings.getAutoUpdate());
 	CheckboxField postupdateField = new CheckboxField("Update friendstream after post", this.settings.getPostUpdate());
+	String choicestrs[] = {"Auto-Detect", "BIS", "BES", "TCP"};
+	ObjectChoiceField connectionField = new ObjectChoiceField("Connection: ", choicestrs, this.settings.getConnectionMode());
 	ButtonField saveButtonField = new ButtonField("Save", 12884967424L);
 
 	public OptionsScreen() {
 		super.setTitle(new LabelField("BrightBerry Settings", 1152921504606846980L));
 		add(this.usernameField);
 		add(this.passwordField);
+		add(this.connectionField);
 		add(this.maxentriesField);
 		add(this.autoupdateField);
 		add(this.postupdateField);
@@ -69,7 +73,7 @@ public class OptionsScreen extends MainScreen {
 	}
 
 	public void save() {
-		CheckUsername checkusername = new CheckUsername(this.usernameField.getText(), this.passwordField.getText());
+		CheckUsername checkusername = new CheckUsername(this.usernameField.getText(), this.passwordField.getText(), this.connectionField.getSelectedIndex());
 		if (checkusername.run()) {
 			Dialog.alert("Settings saved");
 			this.settings.setPassword(this.passwordField.getText());
@@ -79,6 +83,7 @@ public class OptionsScreen extends MainScreen {
 			this.settings.setAutoUpdate(this.autoupdateField.getChecked());
 			this.settings.setPostUpdate(this.postupdateField.getChecked());
 			this.settings.setAuthed(true);
+			this.settings.setConnectionMode(this.connectionField.getSelectedIndex());
 			Settings.save(this.settings);
 		} else {
 			Dialog.alert("Invalid username and/or password");

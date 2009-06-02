@@ -42,6 +42,7 @@ public class DirectMessageSentDeleteThread extends Thread {
 	DataOutputStream httpOutput = null;
 	String serverResponse = "";
 	DirectMessageSentScreen screen;
+	Settings settings = Settings.getInstance();
 	
 	public DirectMessageSentDeleteThread(int id, DirectMessageSentScreen screen) {
 		this.screen = screen;
@@ -50,11 +51,11 @@ public class DirectMessageSentDeleteThread extends Thread {
 
 	public void run() {
 		try {
-			this.url += BrightBerry.appendConnectionString();
+			this.url += NetworkConfig.getConnectionParameters(this.settings.getConnectionMode());
 			this.httpConnection = ((HttpConnection)Connector.open(this.url));
 			this.httpConnection.setRequestMethod("DELETE");
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
-			this.httpConnection.setRequestProperty("Authorization", Settings.getInstance().getAuthHeader());
+			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			this.httpOutput = this.httpConnection.openDataOutputStream();
 			this.httpInput = this.httpConnection.openInputStream();
 			int rc = httpConnection.getResponseCode();

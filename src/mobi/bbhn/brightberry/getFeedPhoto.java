@@ -42,6 +42,8 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.component.Dialog;
 
 public class getFeedPhoto {
+	static Settings settings = Settings.getInstance();
+	
 	public static Bitmap getfeedphoto(String url) { 
 		try {
 			int end = url.length() - 4;
@@ -53,7 +55,7 @@ public class getFeedPhoto {
 			} else {
 				newurl = url;
 			}
-			newurl += BrightBerry.appendConnectionString();
+			newurl += NetworkConfig.getConnectionParameters(settings.getConnectionMode());
 			HttpConnection httpConnection = ((HttpConnection)Connector.open(newurl));
 			httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			httpConnection.setRequestProperty("Content-Language", "en-US");

@@ -42,9 +42,11 @@ import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.component.Dialog;
 
 public class getAvator {
+	static Settings settings = Settings.getInstance();
+	
 	public static Bitmap getavator(String url) { 
 		try {
-			url += BrightBerry.appendConnectionString();
+			url += NetworkConfig.getConnectionParameters(settings.getConnectionMode());
 			HttpConnection httpConnection = ((HttpConnection)Connector.open(url));
 			httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			httpConnection.setRequestProperty("Content-Language", "en-US");

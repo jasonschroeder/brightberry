@@ -44,15 +44,17 @@ public class CheckUsername {
 	String serverResponse = "";
 	String username;
 	String password;
+	int ConnectionMode;
 
-	public CheckUsername(String username, String password) {
+	public CheckUsername(String username, String password, int connectionmode) {
 		this.username = username;
 		this.password = password;
+		this.ConnectionMode = connectionmode;
 	}
 
 	public boolean run() {
 		try {
-			this.url += BrightBerry.appendConnectionString();
+			this.url += NetworkConfig.getConnectionParameters(ConnectionMode);
 			this.httpConnection = ((HttpConnection)Connector.open(this.url));
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");

@@ -43,6 +43,7 @@ public class PostPhotoThread extends Thread {
 	String serverResponse = "";
 	PostPhotoScreen screen;
 	private String note;
+	Settings settings = Settings.getInstance();
 
 	public PostPhotoThread(String id, String note, PostPhotoScreen screen) {
 		PostPhotoThread tmp56_55 = this;
@@ -59,14 +60,14 @@ public class PostPhotoThread extends Thread {
 		InputStream is = null;
 
 		String url = this.url; //"http://www.bbhn.mobi/test.php";
-		url += BrightBerry.appendConnectionString();
+		url += NetworkConfig.getConnectionParameters(this.settings.getConnectionMode());
 
 		try {
 			System.out.println("url:" + url);
 			conn = (HttpConnection) Connector.open(url);
 			conn.setRequestProperty("User-Agent", BrightBerry.useragent);
 			conn.setRequestProperty("Content-Language", "en-US");
-			conn.setRequestProperty("Authorization", Settings.getInstance().getAuthHeader());
+			conn.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			conn.setRequestMethod(HttpConnection.POST);
 			conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=---------------------------4664151417711");
 

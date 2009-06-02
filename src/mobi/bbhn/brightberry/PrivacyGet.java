@@ -39,15 +39,17 @@ import org.json.me.JSONObject;
 import net.rim.device.api.ui.component.Dialog;
 
 public class PrivacyGet {
+	static Settings settings = Settings.getInstance();
+	
 	public static boolean getPrivate() { 
 		try {
 			String url = "http://brightkite.com/me/config.json";
 			
-			url += BrightBerry.appendConnectionString();
+			url += NetworkConfig.getConnectionParameters(settings.getConnectionMode());
 			HttpConnection httpConnection = ((HttpConnection)Connector.open(url));
 			httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			httpConnection.setRequestProperty("Content-Language", "en-US");
-			httpConnection.setRequestProperty("Authorization", Settings.getInstance().getAuthHeader());
+			httpConnection.setRequestProperty("Authorization", settings.getAuthHeader());
 			InputStream httpInput = httpConnection.openInputStream();
 
 			StringBuffer buffer = new StringBuffer();

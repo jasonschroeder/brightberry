@@ -43,6 +43,7 @@ public class PlWhereAmIThread extends Thread {
 	String serverResponse = "";
 	private String LocationName;
 	private PlacemarkScreen screen;
+	Settings settings = Settings.getInstance();
 
 	public PlWhereAmIThread(PlacemarkScreen screen) {
 		this.screen = screen;
@@ -50,11 +51,11 @@ public class PlWhereAmIThread extends Thread {
 
 	public void run() {
 		try {
-			this.url += BrightBerry.appendConnectionString();
+			this.url += NetworkConfig.getConnectionParameters(this.settings.getConnectionMode());
 			this.httpConnection = ((HttpConnection)Connector.open(this.url));
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
-			this.httpConnection.setRequestProperty("Authorization", Settings.getInstance().getAuthHeader());
+			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			this.httpInput = this.httpConnection.openInputStream();
 
 			StringBuffer buffer = new StringBuffer();

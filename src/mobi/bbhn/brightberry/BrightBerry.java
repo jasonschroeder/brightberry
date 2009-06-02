@@ -41,7 +41,7 @@ public class BrightBerry extends UiApplication {
 	static int buttonfontcolor = Color.BLACK;
 	static int buttonbgcolor = Color.LIGHTGREY;
 	static int buttonhlcolor = Color.LIGHTBLUE;
-	static String version = "0.1.3";
+	static String version = "0.1.4";
 	
 	public static void main(String[] args) {
 		BrightBerry instance = new BrightBerry();
@@ -50,23 +50,6 @@ public class BrightBerry extends UiApplication {
 
 	public BrightBerry() {
 		pushScreen(new BrightBerryMain());
-	}
-	
-	public static String appendConnectionString() {
-		ServiceRecord[] ippprecordArray = ServiceBook.getSB().findRecordsByCid("IPPP");
-		if (ippprecordArray == null) {
-			return ";deviceside=true";
-		}
-
-		int numRecords = ippprecordArray.length;
-		for (int i = 0; i < numRecords; ++i) {
-			ServiceRecord ipppRecord = ippprecordArray[i];
-			if ((ipppRecord.isValid()) && (ipppRecord.getName().equals("IPPP for BIBS"))) {
-				//return ";deviceside=false;ConnectionUID=" + ipppRecord.getUid();
-				return ";deviceside=true";
-			}
-		}
-		return ";deviceside=true";
 	}
 	
 	public static String connectionInfo() {
