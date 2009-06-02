@@ -28,6 +28,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
+import net.rim.blackberry.api.invoke.CameraArguments;
+import net.rim.blackberry.api.invoke.Invoke;
+import net.rim.device.api.io.file.FileSystemJournal;
+import net.rim.device.api.io.file.FileSystemJournalEntry;
+import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.EventInjector;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.MenuItem;
@@ -57,7 +63,6 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 	public PostPhotoScreen() {
 		Thread whereThread = new WhereAmIThread(this.screen);
 		whereThread.start();
-		
 		super.setTitle(new LabelField("BrightBerry Post Photo", Field.FIELD_HCENTER));
 		this.updateItem = new MenuItem("Post Note", 1, 10) {
 			public void run() {
@@ -70,7 +75,6 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 				}
 			}
 		};
-		
 		postBtn = new ButtonField("Post Note", ButtonField.CONSUME_CLICK);
 		postBtn.setChangeListener(this);
 		super.add(this.statusField);
@@ -115,6 +119,26 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 					PostPhotoScreen.this.note.setCursorPosition(0);
 					PostPhotoScreen.this.add(postBtn);
 					PostPhotoScreen.this.addMenuItem(updateItem);
+					Invoke.invokeApplication(Invoke.APP_TYPE_CAMERA, new CameraArguments());
+					long USN = FileSystemJournal.getNextUSN();
+					USN = USN - 1;
+					for (long i = USN; i >=0 ; i--) {
+						FileSystemJournalEntry entry = FileSystemJournal.getEntry(i);
+						
+						if (entry.getEvent() == FileSystemJournalEntry.FILE_ADDED || entry.getEvent() == FileSystemJournalEntry.FILE_CHANGED || entry.getEvent() == FileSystemJournalEntry.FILE_RENAMED) {
+							String addr = entry.getPath();
+							if (addr.indexOf(".jpg") != -1) {
+								// Try to kill camera app here by injecting esc.
+								EventInjector.KeyEvent inject = new EventInjector.KeyEvent(EventInjector.KeyEvent.KEY_DOWN, Characters.ESCAPE, 50);
+								inject.post();
+								inject.post();
+							}
+						}
+						if (entry == null) {
+							// we didn't find an entry.
+							break;
+						}
+					}
 				}
 			});
 	}

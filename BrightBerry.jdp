@@ -63,6 +63,7 @@ src\mobi\bbhn\brightberry\getPhoto.java
 src\mobi\bbhn\brightberry\ImageCache.java
 src\mobi\bbhn\brightberry\LicenseScreen.java
 src\mobi\bbhn\brightberry\MainButton.java
+src\mobi\bbhn\brightberry\NetworkConfig.java
 src\mobi\bbhn\brightberry\OptionsScreen.java
 src\mobi\bbhn\brightberry\Placemark.java
 src\mobi\bbhn\brightberry\PlacemarkList.java

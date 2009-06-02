@@ -28,6 +28,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
+import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.MenuItem;
@@ -161,8 +162,10 @@ public class BrightBerryMain extends MainScreen {
 	    	add(friendstreamBtn);
 	    	postnoteBtn.setChangeListener(PostNoteListener);
 	    	add(postnoteBtn);
-	    	//postphotoBtn.setChangeListener(PostPhotoListener);
-	    	//add(postphotoBtn);
+	    	postphotoBtn.setChangeListener(PostPhotoListener);
+	    	if (DeviceInfo.hasCamera()) {
+	    		add(postphotoBtn);
+	    	}
 	    	add(new SeparatorField());
 	    	placemarkBtn.setChangeListener(PlacemarkListener);
 	    	add(placemarkBtn);
