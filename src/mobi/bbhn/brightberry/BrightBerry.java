@@ -34,14 +34,14 @@ import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.UiApplication;
 
 public class BrightBerry extends UiApplication {
-	static String useragent = "Brightkite Blackberry v1.0 alpha by challgren";
+	static String version = "0.1.6-ALPHA";
+	static String useragent = "Brightkite Blackberry " + version + " by challgren";
 	static int itembgcolor = Color.WHITE;
 	static int itemfontcolor = Color.BLACK;
 	static int itemhlcolor = Color.LIGHTBLUE;
 	static int buttonfontcolor = Color.BLACK;
 	static int buttonbgcolor = Color.LIGHTGREY;
 	static int buttonhlcolor = Color.LIGHTBLUE;
-	static String version = "0.1.5";
 	
 	public static void main(String[] args) {
 		BrightBerry instance = new BrightBerry();
