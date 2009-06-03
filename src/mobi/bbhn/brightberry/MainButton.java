@@ -81,6 +81,8 @@ public class MainButton extends Field {
         	drawbmp = Bitmap.getBitmapResource("img/icon_checkin.gif");
         } else if (_text.equals("Post Note")) {
         	drawbmp = Bitmap.getBitmapResource("img/icon_note.gif");
+        } else if (_text.equals("Post Photo")) {
+        	drawbmp = Bitmap.getBitmapResource("img/icon_photo.gif");
         } else if (_text.equals("What's Happening?")) {
         	drawbmp = Bitmap.getBitmapResource("img/icon_happening.gif");
         } else if (_text.equals("People Near Me")) {

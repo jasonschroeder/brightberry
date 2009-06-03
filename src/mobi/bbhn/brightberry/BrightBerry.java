@@ -41,7 +41,7 @@ public class BrightBerry extends UiApplication {
 	static int buttonfontcolor = Color.BLACK;
 	static int buttonbgcolor = Color.LIGHTGREY;
 	static int buttonhlcolor = Color.LIGHTBLUE;
-	static String version = "0.1.4";
+	static String version = "0.1.5";
 	
 	public static void main(String[] args) {
 		BrightBerry instance = new BrightBerry();

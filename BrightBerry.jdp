@@ -61,6 +61,7 @@ src\mobi\bbhn\brightberry\getAvator.java
 src\mobi\bbhn\brightberry\getFeedPhoto.java
 src\mobi\bbhn\brightberry\getPhoto.java
 src\mobi\bbhn\brightberry\ImageCache.java
+src\mobi\bbhn\brightberry\JournalListener.java
 src\mobi\bbhn\brightberry\LicenseScreen.java
 src\mobi\bbhn\brightberry\MainButton.java
 src\mobi\bbhn\brightberry\NetworkConfig.java
@@ -142,4 +143,4 @@ Title=BrightBerry
 Type=0
 UserData=|src
 Vendor=Hallgren Networks
-Version=0.1.4
+Version=0.1.5

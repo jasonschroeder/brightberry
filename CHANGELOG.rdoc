@@ -1,8 +1,15 @@
+=== 0.1.5
+
+* New Features
+	* Allows you to upload a captured photo from the camera
+
+* Fixes
+	* Fixes issue where Me & My Friends would only load the current user stream
 
 === 0.1.4
 
 * New Features
-	* Adds support to configrue the connection mode
+	* Adds support to configure the connection mode
 	
 * Fixes
 	* Fixes issues with connection errors since I set it to use device side.

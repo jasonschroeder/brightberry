@@ -34,6 +34,7 @@ import java.io.OutputStream;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
+import javax.microedition.io.file.FileConnection;
 
 public class PostPhotoThread extends Thread {
 	String url = "http://brightkite.com/places/";
@@ -43,13 +44,15 @@ public class PostPhotoThread extends Thread {
 	String serverResponse = "";
 	PostPhotoScreen screen;
 	private String note;
+	private String filename;
 	Settings settings = Settings.getInstance();
 
-	public PostPhotoThread(String id, String note, PostPhotoScreen screen) {
+	public PostPhotoThread(String id, String note, PostPhotoScreen screen, String filename) {
 		PostPhotoThread tmp56_55 = this;
 		tmp56_55.url = tmp56_55.url + id + "/photos.json";
 		this.note = note;
 		this.screen = screen;
+		this.filename = filename;
 	}
 	
 	private final String CrLf = "\r\n";
@@ -71,8 +74,12 @@ public class PostPhotoThread extends Thread {
 			conn.setRequestMethod(HttpConnection.POST);
 			conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=---------------------------4664151417711");
 
-			InputStream imgIs = getClass().getResourceAsStream("/img/BKIcon.jpg");
-			byte[] imgData = new byte[imgIs.available()];
+			System.out.println("File Name: file://" + this.filename);
+			FileConnection fcon = (FileConnection)Connector.open("file://" + this.filename);
+			InputStream imgIs = fcon.openInputStream();
+			System.out.println("File Size: " + fcon.fileSize());
+
+			byte[] imgData = new byte[(int) fcon.fileSize()];
 			imgIs.read(imgData);
 			
 			String message0 = "";
@@ -83,7 +90,7 @@ public class PostPhotoThread extends Thread {
 			
 			String message1 = "";
 			message1 += "-----------------------------4664151417711" + CrLf;
-			message1 += "Content-Disposition: form-data; name=\"photo[photo]\"; filename=\"image.jpg\"" + CrLf;
+			message1 += "Content-Disposition: form-data; name=\"photo[photo]\"; filename=\"BrightBerry-uploadedimage.jpg\"" + CrLf;
 			message1 += "Content-Type: image/jpeg" + CrLf;
 			message1 += CrLf;
 

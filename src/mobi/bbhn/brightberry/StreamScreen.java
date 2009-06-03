@@ -188,7 +188,7 @@ public class StreamScreen extends MainScreen {
 	
 	public void friendstream() {
 		UiApplication.getUiApplication().popScreen(this);
-		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "friends", null, 0));
+		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "friend", null, 0));
 	}
 	
 	public void nearbystream() {
