@@ -28,6 +28,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
+import net.rim.blackberry.api.invoke.Invoke;
+import net.rim.blackberry.api.invoke.MapsArguments;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
@@ -201,6 +203,24 @@ public class StreamScreen extends MainScreen {
 		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "universe", null, 0));
 	}
 	
+	public final class ViewMapMenuItem extends MenuItem {
+		public ViewMapMenuItem() {
+			super("View On Map", 1, 1);
+		}
+		
+		public void run() {
+			float longitude = stream[list.getSelectedIndex()].getLongitude();
+			float latitude = stream[list.getSelectedIndex()].getLatitude();
+			String creator = stream[list.getSelectedIndex()].getCreator();
+			String description = stream[list.getSelectedIndex()].getBody();
+			description = BrightBerry.replaceAll(description, "'", "");
+            String location = "<lbs>" + "<location lat='" + (int)(latitude*100000) + "' lon='" + (int)(longitude*100000) + "' label='" + creator  +"' description='" + description + "'/>" + "</lbs>";
+			//String location = "<lbs>" + " <location lat='-7500000' lon='4500000' label='TestPoint1' description='This could have a phone number. 555-1212'/>" + "</lbs>";
+            System.out.println("Location string: " + location);
+            Invoke.invokeApplication(Invoke.APP_TYPE_MAPS, new MapsArguments(MapsArguments.ARG_LOCATION_DOCUMENT, location));
+		}
+	}
+	
 	public final class ViewMoreMenuItem extends MenuItem {
 		public ViewMoreMenuItem() {
 			super("View Details", 1, 1);
@@ -259,6 +279,7 @@ public class StreamScreen extends MainScreen {
 	
 	public class StreamListField extends ListField {
 		protected void makeContextMenu(ContextMenu contextMenu) {
+			contextMenu.addItem(new ViewMapMenuItem());
 			contextMenu.addItem(new ViewMoreMenuItem());
 			contextMenu.addItem(new FullTextMenuItem());
 			contextMenu.addItem(new PostCommentMenuItem());

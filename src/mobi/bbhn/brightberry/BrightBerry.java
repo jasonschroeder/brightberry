@@ -34,8 +34,8 @@ import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.UiApplication;
 
 public class BrightBerry extends UiApplication {
-	static String version = "0.1.6-ALPHA";
-	static String useragent = "Brightkite Blackberry " + version + " by challgren";
+	static String version = "0.1.7-ALPHA";
+	static String useragent = "BrightBerry " + version;
 	static int itembgcolor = Color.WHITE;
 	static int itemfontcolor = Color.BLACK;
 	static int itemhlcolor = Color.LIGHTBLUE;
@@ -67,4 +67,23 @@ public class BrightBerry extends UiApplication {
 		}
 		return "device";
 	}
+	
+	public static String replaceAll(String source, String pattern, String replacement) {
+        if (source == null) {
+            return "";
+        }
+       
+        StringBuffer sb = new StringBuffer();
+        int idx = -1;
+        int patIdx = 0;
+
+        while ((idx = source.indexOf(pattern, patIdx)) != -1) {
+            sb.append(source.substring(patIdx, idx));
+            sb.append(replacement);
+            patIdx = idx + pattern.length();
+        }
+        sb.append(source.substring(patIdx));
+        return sb.toString();
+
+    }
 }

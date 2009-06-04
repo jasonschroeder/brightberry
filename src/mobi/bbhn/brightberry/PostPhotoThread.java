@@ -43,39 +43,36 @@ public class PostPhotoThread extends Thread {
 	DataOutputStream httpOutput = null;
 	String serverResponse = "";
 	PostPhotoScreen screen;
+	static Settings settings = Settings.getInstance();
+	String CrLf = "\r\n";
 	private String note;
 	private String filename;
-	Settings settings = Settings.getInstance();
 
 	public PostPhotoThread(String id, String note, PostPhotoScreen screen, String filename) {
-		PostPhotoThread tmp56_55 = this;
-		tmp56_55.url = tmp56_55.url + id + "/photos.json";
+		url = url + id + "/photos.json";
 		this.note = note;
 		this.screen = screen;
 		this.filename = filename;
 	}
-	
-	private final String CrLf = "\r\n";
 	
 	public void run() {
 		HttpConnection conn = null;
 		OutputStream os = null;
 		InputStream is = null;
 
-		String url = this.url; //"http://www.bbhn.mobi/test.php";
-		url += NetworkConfig.getConnectionParameters(this.settings.getConnectionMode());
+		url += NetworkConfig.getConnectionParameters(settings.getConnectionMode());
 
 		try {
 			System.out.println("url:" + url);
 			conn = (HttpConnection) Connector.open(url);
 			conn.setRequestProperty("User-Agent", BrightBerry.useragent);
 			conn.setRequestProperty("Content-Language", "en-US");
-			conn.setRequestProperty("Authorization", this.settings.getAuthHeader());
+			conn.setRequestProperty("Authorization", settings.getAuthHeader());
 			conn.setRequestMethod(HttpConnection.POST);
 			conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=---------------------------4664151417711");
 
-			System.out.println("File Name: file://" + this.filename);
-			FileConnection fcon = (FileConnection)Connector.open("file://" + this.filename);
+			System.out.println("File Name: file://" + filename);
+			FileConnection fcon = (FileConnection)Connector.open("file://" + filename);
 			InputStream imgIs = fcon.openInputStream();
 			System.out.println("File Size: " + fcon.fileSize());
 
@@ -86,7 +83,7 @@ public class PostPhotoThread extends Thread {
 			message0 += "-----------------------------4664151417711" + CrLf;
 			message0 += "Content-Disposition: form-data; name=\"photo[body]\";" + CrLf;
 			message0 += CrLf;
-			message0 += this.note + CrLf;
+			message0 += note + CrLf;
 			
 			String message1 = "";
 			message1 += "-----------------------------4664151417711" + CrLf;
@@ -111,8 +108,12 @@ public class PostPhotoThread extends Thread {
 			int size = 1024;
 			do {
 				System.out.println("write:" + index);
+				int percent = (index * 100) / imgData.length;
+				System.out.println("Data percent: " + percent);
+				screen.updatePercent(percent);
 				if ((index + size) > imgData.length) {
 					size = imgData.length - index;
+					screen.updatePercent(100);
 				}
 				os.write(imgData, index, size);
 				index += size;
@@ -142,9 +143,9 @@ public class PostPhotoThread extends Thread {
 			System.out.println("DONE");
 			int rc = conn.getResponseCode();
 			if (rc == 201) {
-				this.screen.callPosted(true);
+				screen.callPosted(true);
 			} else {
-				this.screen.callPosted(false);
+				screen.callPosted(false);
 			}
 			System.out.println("Response code: " + rc);
 		} catch (Exception e) {

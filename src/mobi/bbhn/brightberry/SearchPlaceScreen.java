@@ -194,6 +194,7 @@ public class SearchPlaceScreen extends MainScreen {
 	private void setupCriteria() {
 		_criteria = new Criteria();
 		_criteria.setCostAllowed(true);
+		_criteria.setPreferredPowerConsumption(Criteria.POWER_USAGE_LOW);
 	}
 	
 	private void createLocationProvider() {

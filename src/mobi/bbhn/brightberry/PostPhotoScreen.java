@@ -38,6 +38,7 @@ import net.rim.device.api.ui.component.AutoTextEditField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.EditField;
+import net.rim.device.api.ui.component.GaugeField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.component.Status;
@@ -49,6 +50,7 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 	PostPhotoScreen screen = this;
 	AutoTextEditField note = new AutoTextEditField("Caption: ", "", 140, AutoTextEditField.SPELLCHECKABLE|AutoTextEditField.NO_NEWLINE);
 	EditField fileName = new EditField("File: ", "", 255, EditField.NON_FOCUSABLE);
+	GaugeField percentUploaded = new GaugeField("Progress: ", 0, 100, 0, GaugeField.FIELD_HCENTER);
 	ButtonField postBtn;
 	MenuItem updateItem;
 	boolean Posted;
@@ -71,12 +73,17 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 		super.setTitle(new LabelField("BrightBerry Post Photo", Field.FIELD_HCENTER));
 		this.updateItem = new MenuItem("Post Photo", 1, 10) {
 			public void run() {
-				if (note.getTextLength() > 0 && fileName.getTextLength() > 0) {
-					Status.show("Posting...");
-					Thread postThread = new PostPhotoThread(locationID, note.getText(), PostPhotoScreen.this.screen, fileName.getText());
-					postThread.start();
+				if (fileName.getTextLength() > 0) {
+					add(percentUploaded);
+					delete(statusField);
+					delete(note);
+					delete(fileName);
+					delete(postBtn);
+					removeMenuItem(updateItem);
+					PostPhotoThread thread = new PostPhotoThread(locationID, note.getText(), screen, fileName.getText());
+					thread.start();
 				} else {
-					Status.show("Please enter a caption and take a photo");
+					Status.show("Please attach a photo");
 				}
 			}
 		};
@@ -86,12 +93,17 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 	}
 	
 	public void fieldChanged(Field field, int context) {
-		if (note.getTextLength() > 0 && fileName.getTextLength() > 0) {
-			Status.show("Posting..");
-			Thread postThread = new PostPhotoThread(locationID, note.getText(), this.screen, fileName.getText());
-			postThread.start();
+		if (fileName.getTextLength() > 0) {
+			add(percentUploaded);
+			delete(statusField);
+			delete(note);
+			delete(fileName);
+			delete(postBtn);
+			removeMenuItem(updateItem);
+			PostPhotoThread thread = new PostPhotoThread(locationID, note.getText(), screen, fileName.getText());
+			thread.start();
 		} else {
-			Status.show("Please enter a caption and take a photo");
+			Status.show("Please attach a photo");
 		}
 	}
 	
@@ -134,5 +146,9 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 	public void updateFileName (String filename) {
 		this.fileName.setText(filename);
 		_uiApp.removeFileSystemJournalListener(_fileListener);
+	}
+	
+	public void updatePercent(int upped) {
+		percentUploaded.setValue(upped);
 	}
 }

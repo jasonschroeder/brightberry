@@ -1,3 +1,12 @@
+=== 0.1.7
+
+* New Features
+ * Shows status of posting a photo (@complex request)
+ * Allows you to show where the post was at on the Native Blackberry Map program.
+ 
+* Fixes
+ * Allows you to post a photo without a caption (@complex request)
+ 
 === 0.1.6
 
 * New Features

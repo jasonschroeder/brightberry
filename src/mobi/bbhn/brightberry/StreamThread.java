@@ -159,12 +159,14 @@ class StreamThread extends Thread {
 				}
 				boolean publicpst = jsonStream.optBoolean("public");
 				boolean about = jsonStream.optBoolean("about");
+				float longitude = (float)jsonPlace.getDouble("longitude");
+				float latitude = (float)jsonPlace.getDouble("latitude");
 				if (type.equals("note")) {
 					String body = jsonStream.optString("body");
-					placemarks.addElement(new Stream("note", creator, avtr, createdwords, locationname, id, body, publicpst, comments, about));
+					placemarks.addElement(new Stream("note", creator, avtr, createdwords, locationname, latitude, longitude, id, body, publicpst, comments, about));
 				} else if (type.equals("checkin")) {
 					String body = "";
-					placemarks.addElement(new Stream("checkin", creator, avtr, createdwords, locationname, id, body, publicpst, comments, about));
+					placemarks.addElement(new Stream("checkin", creator, avtr, createdwords, locationname, latitude, longitude, id, body, publicpst, comments, about));
 				} else if (type.equals("photo")) {
 					String body = jsonStream.optString("body");
 					Bitmap photo = null;
@@ -175,8 +177,10 @@ class StreamThread extends Thread {
 						photo = getFeedPhoto.getfeedphoto(photourl);
 					}
 					ImageCache.cacheImage(id, photo);
-					placemarks.addElement(new Stream("photo", creator, avtr, createdwords, locationname, id, body, publicpst, comments, about, photo));
+					placemarks.addElement(new Stream("photo", creator, avtr, createdwords, locationname, latitude, longitude, id, body, publicpst, comments, about, photo));
 				}
+				System.out.println("Longitude: " + longitude);
+				System.out.println("Latitude: " + latitude);
 			}
 			rv = new Stream[jsonArray.length()];
 			placemarks.copyInto(rv);

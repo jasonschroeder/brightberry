@@ -39,6 +39,8 @@ public class Stream {
 	private String created_at_as_words;
 	private String body;
 	private String locationname;
+	private float longitude;
+	private float latitude;
 	private boolean publicpst;
 	private boolean about;
 	private int comments;
@@ -46,7 +48,7 @@ public class Stream {
 	public Stream() {
 	}
 
-	public Stream(String type, String creator, Bitmap avator, String created_at_as_words, String locationname, String id, String body, boolean publicpst, int comments, boolean about) {
+	public Stream(String type, String creator, Bitmap avator, String created_at_as_words, String locationname, float latitude, float longitude, String id, String body, boolean publicpst, int comments, boolean about) {
 		this.type = type;
 		this.created_at_as_words = created_at_as_words;
 		this.locationname = locationname;
@@ -57,9 +59,11 @@ public class Stream {
 		this.publicpst = publicpst;
 		this.comments = comments;
 		this.about = about;
+		this.latitude = latitude;
+		this.longitude = longitude;
 	}
 	
-	public Stream(String type, String creator, Bitmap avator, String created_at_as_words, String locationname, String id, String body, boolean publicpst, int comments, boolean about, Bitmap photo) {
+	public Stream(String type, String creator, Bitmap avator, String created_at_as_words, String locationname, float latitude, float longitude, String id, String body, boolean publicpst, int comments, boolean about, Bitmap photo) {
 		this.type = type;
 		this.created_at_as_words = created_at_as_words;
 		this.locationname = locationname;
@@ -71,6 +75,8 @@ public class Stream {
 		this.comments = comments;
 		this.about = about;
 		this.photo = photo;
+		this.latitude = latitude;
+		this.longitude = longitude;
 	}
 	
 	public String getType() {
@@ -115,5 +121,13 @@ public class Stream {
 	
 	public Bitmap getPhoto() {
 		return this.photo;
+	}
+	
+	public float getLatitude() {
+		return this.latitude;
+	}
+	
+	public float getLongitude() {
+		return this.longitude;
 	}
 }
