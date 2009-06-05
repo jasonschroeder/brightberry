@@ -159,7 +159,7 @@ public class SearchPlaceScreen extends MainScreen {
 				createLocationProvider();
 				
 				try {
-					_location = _provider.getLocation(-1);
+					_location = _provider.getLocation(Settings.getInstance().getGPSTimeout());
 				} catch (LocationException e) {
 					searchField.setText(e.getMessage());
 					add(searchButtonField);
@@ -171,8 +171,7 @@ public class SearchPlaceScreen extends MainScreen {
 				if (_location != null && _location.isValid()) {
 					QualifiedCoordinates coordinates = _location.getQualifiedCoordinates();
 					if (coordinates.getLatitude() != 0.0 && coordinates.getLongitude() != 0.0) {
-						searchField.setText(coordinates.getLatitude() + ", " + coordinates.getLongitude());
-						Thread searchThread = new SearchPlaceThread(SearchPlaceScreen.this.screen, searchField.getText());
+						Thread searchThread = new SearchPlaceThread(SearchPlaceScreen.this.screen, coordinates.getLatitude(), coordinates.getLongitude(), coordinates.getHorizontalAccuracy(), 0);
 						searchThread.start();
 					} else {
 						searchField.setText("Can't find you");
@@ -193,8 +192,8 @@ public class SearchPlaceScreen extends MainScreen {
 	
 	private void setupCriteria() {
 		_criteria = new Criteria();
-		_criteria.setCostAllowed(true);
-		_criteria.setPreferredPowerConsumption(Criteria.POWER_USAGE_LOW);
+		_criteria.setCostAllowed(Settings.getInstance().getAllowCost());
+		_criteria.setPreferredPowerConsumption(Settings.getInstance().getPowerMode());
 	}
 	
 	private void createLocationProvider() {

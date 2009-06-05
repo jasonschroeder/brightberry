@@ -28,8 +28,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
+import net.rim.device.api.system.Alert;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
@@ -39,6 +41,7 @@ import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.NumericChoiceField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.PasswordEditField;
+import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.container.MainScreen;
 
 public class OptionsScreen extends MainScreen {
@@ -46,17 +49,49 @@ public class OptionsScreen extends MainScreen {
 	BasicEditField usernameField = new BasicEditField("Username: ", this.settings.getUsername(), 64, BasicEditField.NO_NEWLINE);
 	PasswordEditField passwordField = new PasswordEditField("Password: ", this.settings.getPassword());
 	NumericChoiceField maxentriesField = new NumericChoiceField("Max Entries: ", 5, 50, 5, this.settings.getMaxEntriesIndex());
+	NumericChoiceField maxsearchField = new NumericChoiceField("Max Search Results: ", 5, 50, 5, this.settings.getMaxSearchIndex());
 	CheckboxField autoupdateField = new CheckboxField("Update friendstream on startup", this.settings.getAutoUpdate());
 	CheckboxField postupdateField = new CheckboxField("Update friendstream after post", this.settings.getPostUpdate());
 	String choicestrs[] = {"Auto-Detect", "BIS", "BES", "TCP"};
 	ObjectChoiceField connectionField = new ObjectChoiceField("Connection: ", choicestrs, this.settings.getConnectionMode());
-	ButtonField saveButtonField = new ButtonField("Save", 12884967424L);
+	String powerstrs[] = {"Doesn't matter", "Low", "Medium", "High"};
+	ObjectChoiceField powerConsumption = new ObjectChoiceField("GPS Power Usage: ", powerstrs, this.settings.getPowerMode());
+	CheckboxField costallowField = new CheckboxField("Allow GPS cost", this.settings.getAllowCost());
+	NumericChoiceField gpstimeoutField = new NumericChoiceField("GPS Timeout: ", 5, 60, 5, this.settings.getGPSTimeoutIndex());
+	NumericChoiceField snapplaceField = new NumericChoiceField("Place Snap Radius: ", 200, 2000, 100, this.settings.getSnapRadiusIndex());
+	CheckboxField vibrateField = new CheckboxField("Vibrate after post", this.settings.getVibrateOnPost());
+	LabelField authLabel = new LabelField("Authentication Settings", LabelField.FIELD_HCENTER);
+	LabelField notifyLabel = new LabelField("Notification Settings", LabelField.FIELD_HCENTER);
+	LabelField gpsLabel = new LabelField("GPS Settings", LabelField.FIELD_HCENTER);
+	LabelField programLabel = new LabelField("BrightBerry Settings", LabelField.FIELD_HCENTER);
+	ButtonField saveButtonField = new ButtonField("Save", ButtonField.FIELD_HCENTER);
 
 	public OptionsScreen() {
 		super.setTitle(new LabelField("BrightBerry Settings", 1152921504606846980L));
+		System.out.println("Into the options screen");
+		Font boldfnt = this.getFont().derive(Font.BOLD);
+		this.authLabel.setFont(boldfnt);
+		add(this.authLabel);
 		add(this.usernameField);
 		add(this.passwordField);
 		add(this.connectionField);
+		add(new SeparatorField());
+		if (Alert.isVibrateSupported()) {
+			this.notifyLabel.setFont(boldfnt);
+			add(this.notifyLabel);
+			add(this.vibrateField);
+			add(new SeparatorField());
+		}
+		this.gpsLabel.setFont(boldfnt);
+		add(this.gpsLabel);
+		add(this.snapplaceField);
+		add(this.powerConsumption);
+		add(this.costallowField);
+		add(this.gpstimeoutField);
+		add(new SeparatorField());
+		this.programLabel.setFont(boldfnt);
+		add(this.programLabel);
+		add(this.maxsearchField);
 		add(this.maxentriesField);
 		add(this.autoupdateField);
 		add(this.postupdateField);
@@ -80,15 +115,24 @@ public class OptionsScreen extends MainScreen {
 			this.settings.setUsername(this.usernameField.getText());
 			this.settings.setMaxEntries(this.maxentriesField.getSelectedValue());
 			this.settings.setMaxEntriesIndex(this.maxentriesField.getSelectedIndex());
+			this.settings.setMaxSearch(this.maxsearchField.getSelectedValue());
+			this.settings.setMaxSearchIndex(this.maxsearchField.getSelectedIndex());
 			this.settings.setAutoUpdate(this.autoupdateField.getChecked());
 			this.settings.setPostUpdate(this.postupdateField.getChecked());
+			this.settings.setPowerMode(this.powerConsumption.getSelectedIndex());
+			this.settings.setAllowCost(this.costallowField.getChecked());
 			this.settings.setAuthed(true);
+			this.settings.setGPSTimeout(this.gpstimeoutField.getSelectedValue());
+			this.settings.setGPSTimeoutIndex(this.gpstimeoutField.getSelectedIndex());
+			this.settings.setSnapRadius(this.snapplaceField.getSelectedValue());
+			this.settings.setSnapRadiusIndex(this.snapplaceField.getSelectedIndex());
 			this.settings.setConnectionMode(this.connectionField.getSelectedIndex());
+			if (Alert.isVibrateSupported()) {
+				this.settings.setVibrateOnPost(this.vibrateField.getChecked());
+			}
 			Settings.save(this.settings);
 		} else {
-			Dialog.alert("Invalid username and/or password");
-			this.settings.setPassword("");
-			this.settings.setUsername("");
+			Dialog.alert("Invalid username and/or password. Or unable to connect using selected method");
 			this.settings.setAuthed(false);
 			Settings.save(this.settings);
 		}

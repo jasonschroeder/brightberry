@@ -203,24 +203,6 @@ public class StreamScreen extends MainScreen {
 		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "universe", null, 0));
 	}
 	
-	public final class ViewMapMenuItem extends MenuItem {
-		public ViewMapMenuItem() {
-			super("View On Map", 1, 1);
-		}
-		
-		public void run() {
-			float longitude = stream[list.getSelectedIndex()].getLongitude();
-			float latitude = stream[list.getSelectedIndex()].getLatitude();
-			String creator = stream[list.getSelectedIndex()].getCreator();
-			String description = stream[list.getSelectedIndex()].getBody();
-			description = BrightBerry.replaceAll(description, "'", "");
-            String location = "<lbs>" + "<location lat='" + (int)(latitude*100000) + "' lon='" + (int)(longitude*100000) + "' label='" + creator  +"' description='" + description + "'/>" + "</lbs>";
-			//String location = "<lbs>" + " <location lat='-7500000' lon='4500000' label='TestPoint1' description='This could have a phone number. 555-1212'/>" + "</lbs>";
-            System.out.println("Location string: " + location);
-            Invoke.invokeApplication(Invoke.APP_TYPE_MAPS, new MapsArguments(MapsArguments.ARG_LOCATION_DOCUMENT, location));
-		}
-	}
-	
 	public final class ViewMoreMenuItem extends MenuItem {
 		public ViewMoreMenuItem() {
 			super("View Details", 1, 1);
@@ -274,6 +256,24 @@ public class StreamScreen extends MainScreen {
 		public void run() {
 			String creator = stream[list.getSelectedIndex()].getCreator();
 			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", creator, 0));
+		}
+	}
+	
+	public final class ViewMapMenuItem extends MenuItem {
+		public ViewMapMenuItem() {
+			super("View On Map", 6, 1);
+		}
+		
+		public void run() {
+			float longitude = stream[list.getSelectedIndex()].getLongitude();
+			float latitude = stream[list.getSelectedIndex()].getLatitude();
+			String creator = stream[list.getSelectedIndex()].getCreator();
+			String description = stream[list.getSelectedIndex()].getBody();
+			description = BrightBerry.replaceAll(description, "'", "");
+            String location = "<lbs>" + "<location lat='" + (int)(latitude*100000) + "' lon='" + (int)(longitude*100000) + "' label='" + creator  +"' description='" + description + "'/>" + "</lbs>";
+			//String location = "<lbs>" + " <location lat='-7500000' lon='4500000' label='TestPoint1' description='This could have a phone number. 555-1212'/>" + "</lbs>";
+            System.out.println("Location string: " + location);
+            Invoke.invokeApplication(Invoke.APP_TYPE_MAPS, new MapsArguments(MapsArguments.ARG_LOCATION_DOCUMENT, location));
 		}
 	}
 	

@@ -28,28 +28,70 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
+import net.rim.device.api.applicationcontrol.ApplicationPermissions;
+import net.rim.device.api.applicationcontrol.ApplicationPermissionsManager;
 import net.rim.device.api.servicebook.ServiceBook;
 import net.rim.device.api.servicebook.ServiceRecord;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.UiApplication;
 
 public class BrightBerry extends UiApplication {
-	static String version = "0.1.7-ALPHA";
+	static String version = "0.1.8-ALPHA";
 	static String useragent = "BrightBerry " + version;
 	static int itembgcolor = Color.WHITE;
 	static int itemfontcolor = Color.BLACK;
 	static int itemhlcolor = Color.LIGHTBLUE;
 	static int buttonfontcolor = Color.BLACK;
-	static int buttonbgcolor = Color.LIGHTGREY;
+	static int buttonbgcolor = Color.WHITE;
 	static int buttonhlcolor = Color.LIGHTBLUE;
 	
 	public static void main(String[] args) {
 		BrightBerry instance = new BrightBerry();
+		instance.checkPermissions();
+		instance.checkPermissions();
 		instance.enterEventDispatcher();
 	}
 
 	public BrightBerry() {
 		pushScreen(new BrightBerryMain());
+	}
+	
+	public void checkPermissions() {
+		ApplicationPermissionsManager permissionsManager = ApplicationPermissionsManager.getInstance();
+		ApplicationPermissions newPermissions = new ApplicationPermissions();
+		boolean permissionsRequest = false;
+		
+		int keyInject = permissionsManager.getPermission(ApplicationPermissions.PERMISSION_EVENT_INJECTOR);
+        if (keyInject == ApplicationPermissions.VALUE_DENY){
+            newPermissions.addPermission(ApplicationPermissions.PERMISSION_EVENT_INJECTOR);
+            permissionsRequest = true;
+        }
+        
+        int locationApi = permissionsManager.getPermission(ApplicationPermissions.PERMISSION_LOCATION_API);
+        if (locationApi == ApplicationPermissions.VALUE_DENY) {
+        	newPermissions.addPermission(ApplicationPermissions.PERMISSION_LOCATION_API);
+        	permissionsRequest = true;
+        }
+        
+        int browserFilter = permissionsManager.getPermission(ApplicationPermissions.PERMISSION_BROWSER_FILTER);
+        if (browserFilter == ApplicationPermissions.VALUE_DENY) {
+        	newPermissions.addPermission(ApplicationPermissions.PERMISSION_BROWSER_FILTER);
+        	permissionsRequest = true;
+        }
+        
+        int externalConnections = permissionsManager.getPermission(ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS);
+        if (externalConnections == ApplicationPermissions.VALUE_DENY) {
+        	newPermissions.addPermission(ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS);
+        	permissionsRequest = true;
+        }
+        
+        if (permissionsRequest){
+            boolean allowed = permissionsManager.invokePermissionsRequest(newPermissions);
+            if (!allowed){
+                //We would show error code here
+            	System.out.println("Unable to set permissions");
+            }
+        }
 	}
 	
 	public static String connectionInfo() {

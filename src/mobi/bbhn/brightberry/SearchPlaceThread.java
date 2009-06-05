@@ -54,6 +54,19 @@ class SearchPlaceThread extends Thread {
 		this.url = "http://brightkite.com/places/search.json?" + urlenc.toString();
 		this.screen = screen;
 	}
+	
+	public SearchPlaceThread(SearchPlaceScreen screen, double latitude, double longitude, float accuracy, int offset) {
+		URLEncodedPostData urlenc = new URLEncodedPostData(URLEncodedPostData.DEFAULT_CHARSET, true);
+		urlenc.append("q", "*");
+		urlenc.append("clat", Double.toString(latitude));
+		urlenc.append("clng", Double.toString(longitude));
+		urlenc.append("cacc", Float.toString(accuracy));
+		urlenc.append("snap_radius", Integer.toString(settings.getSnapRadius()));
+		urlenc.append("limit", Integer.toString(settings.getMaxSearch()));
+		urlenc.append("offset", Integer.toString(offset));
+		this.url = "http://brightkite.com/places/search.json?" + urlenc.toString();
+		this.screen = screen;
+	}
 
 	public void run() {
 		try {

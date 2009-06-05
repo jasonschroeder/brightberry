@@ -1,3 +1,16 @@
+=== 0.1.8
+
+* New Features
+ * Allows you to choose to receive a 2 second vibrate alert after you post/check-in
+ * Allows you to set GPS power usage
+ * Allows you to set if GPS can incur a cost (By using cell phone towers to get GPS location)
+ * Allows you to see nearby business from your GPS location (Thanks to @thillerson)
+ * Asking for permissions for upcoming features
+
+* Fixes
+ * Making view on map lower in the context menu.
+ * Changing colors on Stream screen to fit more into the UI
+
 === 0.1.7
 
 * New Features

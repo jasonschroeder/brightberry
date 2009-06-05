@@ -29,6 +29,7 @@ OF SUCH DAMAGE.
 */
 
 import net.rim.device.api.io.Base64OutputStream;
+import net.rim.device.api.system.Alert;
 import net.rim.device.api.system.PersistentObject;
 import net.rim.device.api.system.PersistentStore;
 import net.rim.device.api.util.Persistable;
@@ -43,6 +44,15 @@ public class Settings implements Persistable {
 	private boolean PostUpdate;
 	private Placemark[] placemarks;
 	private int ConnectionMode;
+	private int powerMode;
+	private boolean allowCost;
+	private boolean vibrateOnPost;
+	private int gpsTimeout;
+	private int gpsTimeoutIndex;
+	private int snapRadius;
+	private int snapRadiusIndex;
+	private int maxSearch;
+	private int maxSearchIndex;
 	private static Settings settings;
 	private static final long STOREHASH = 0x6cdd063e456b4742L;
 	private static PersistentObject persist = PersistentStore.getPersistentObject(STOREHASH);
@@ -56,6 +66,19 @@ public class Settings implements Persistable {
 		this.AutoUpdate = true;
 		this.PostUpdate = true;
 		this.ConnectionMode = 0;
+		this.powerMode = 0;
+		this.allowCost = true;
+		this.gpsTimeout = 30;
+		this.gpsTimeoutIndex = 5;
+		this.snapRadius = 200;
+		this.snapRadiusIndex = 0;
+		this.maxSearch = 10;
+		this.maxSearchIndex = 1;
+		if (Alert.isVibrateSupported()) {
+			this.vibrateOnPost = true;
+		} else {
+			this.vibrateOnPost = false;
+		}
 	}
 
 	public static Settings getInstance() {
@@ -128,6 +151,38 @@ public class Settings implements Persistable {
 	public void setPlacemarks(Placemark[] placemarks) {
 		this.placemarks = placemarks;
 	}
+	
+	public void setPowerMode(int powerMode) {
+		this.powerMode = powerMode;
+	}
+	
+	public int getPowerMode() {
+		return this.powerMode;
+	}
+	
+	public void setAllowCost(boolean allowCost) {
+		this.allowCost = allowCost;
+	}
+	
+	public boolean getAllowCost() {
+		return this.allowCost;
+	}
+	
+	public void setGPSTimeout(int gpsTimeout) {
+		this.gpsTimeout = gpsTimeout;
+	}
+	
+	public int getGPSTimeout() {
+		return this.gpsTimeout;
+	}
+	
+	public void setGPSTimeoutIndex(int gpsTimeoutIndex) {
+		this.gpsTimeoutIndex = gpsTimeoutIndex;
+	}
+	
+	public int getGPSTimeoutIndex() {
+		return this.gpsTimeoutIndex;
+	}
 
 	public Placemark[] getPlacemarks() {
 		return this.placemarks;
@@ -139,6 +194,46 @@ public class Settings implements Persistable {
 	
 	public int getConnectionMode() {
 		return this.ConnectionMode;
+	}
+	
+	public void setVibrateOnPost(boolean vibrateOnPost) {
+		this.vibrateOnPost = vibrateOnPost;
+	}
+	
+	public boolean getVibrateOnPost() {
+		return this.vibrateOnPost;
+	}
+	
+	public void setSnapRadius(int snapRadius) {
+		this.snapRadius = snapRadius;
+	}
+	
+	public int getSnapRadius() {
+		return this.snapRadius;
+	}
+	
+	public void setSnapRadiusIndex(int snapRadiusIndex) {
+		this.snapRadiusIndex = snapRadiusIndex;
+	}
+	
+	public int getSnapRadiusIndex() {
+		return this.snapRadiusIndex;
+	}
+	
+	public void setMaxSearch(int maxSearch) {
+		this.maxSearch = maxSearch;
+	}
+	
+	public int getMaxSearch() {
+		return this.maxSearch;
+	}
+	
+	public void setMaxSearchIndex(int maxSearchIndex) {
+		this.maxSearchIndex = maxSearchIndex;
+	}
+	
+	public int getMaxSearchIndex() {
+		return this.maxSearchIndex;
 	}
 
 	public String getAuthHeader() {

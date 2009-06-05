@@ -36,6 +36,7 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
 import net.rim.blackberry.api.browser.URLEncodedPostData;
+import net.rim.device.api.system.Alert;
 
 public class SendDirectMessageThread extends Thread {
 	String url = "http://brightkite.com/people/";
@@ -70,6 +71,9 @@ public class SendDirectMessageThread extends Thread {
 			this.httpInput = this.httpConnection.openInputStream();
 			int rc = httpConnection.getResponseCode();
 			if (rc == 201) {
+				if (Alert.isVibrateSupported() && settings.getVibrateOnPost()) {
+					Alert.startVibrate(2000);
+				}
 				this.screen.callPosted(true);
 			} else {
 				this.screen.callPosted(false);

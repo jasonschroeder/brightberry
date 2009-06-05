@@ -44,7 +44,7 @@ public class AboutScreen extends MainScreen {
         add(new SeparatorField());
         add(new RichTextField("Technical Consultant: Steve McGranahan (SoM)"));
         add(new SeparatorField());
-        add(new RichTextField("Special Thanks to @doctorklein, @hiro, @sprouticus, @barkerja, @jemerick"));
+        add(new RichTextField("Special Thanks to @thillerson, @doctorklein, @hiro, @sprouticus, @barkerja, @jemerick"));
         add(new SeparatorField());
         add(new RichTextField("Portions of code from BBPlacemarks written by Jason Emerick (@jemerick)"));
         add(new SeparatorField());

@@ -36,6 +36,8 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 import javax.microedition.io.file.FileConnection;
 
+import net.rim.device.api.system.Alert;
+
 public class PostPhotoThread extends Thread {
 	String url = "http://brightkite.com/places/";
 	HttpConnection httpConnection = null;
@@ -143,6 +145,9 @@ public class PostPhotoThread extends Thread {
 			System.out.println("DONE");
 			int rc = conn.getResponseCode();
 			if (rc == 201) {
+				if (Alert.isVibrateSupported() && settings.getVibrateOnPost()) {
+					Alert.startVibrate(2000);
+				}
 				screen.callPosted(true);
 			} else {
 				screen.callPosted(false);
