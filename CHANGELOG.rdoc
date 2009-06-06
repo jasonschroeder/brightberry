@@ -1,3 +1,18 @@
+=== 0.1.9
+
+* New Features
+ * Status bar for current checked in location on the main screen
+ * Using event injector to close the camera after it takes a picture
+ 
+* Fixes
+ * Adding so main screen list and stream screen custom buttons accept the enter key
+ * Since the GPS search has a whole different constructor we now can keep the fields on the screen instead of deleting them
+ * If a location search comes back with no results it will crash BrightBerry issues has been resolved (Reporter @treobenny)
+ * GPS errors now show as an alert dialog instead of overwriting the text
+ 
+* Removals
+ * Removed setting PostUpdate since the post screen is a whole different option now
+ 
 === 0.1.8
 
 * New Features

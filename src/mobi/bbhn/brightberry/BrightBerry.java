@@ -30,13 +30,11 @@ OF SUCH DAMAGE.
 
 import net.rim.device.api.applicationcontrol.ApplicationPermissions;
 import net.rim.device.api.applicationcontrol.ApplicationPermissionsManager;
-import net.rim.device.api.servicebook.ServiceBook;
-import net.rim.device.api.servicebook.ServiceRecord;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.UiApplication;
 
 public class BrightBerry extends UiApplication {
-	static String version = "0.1.8-ALPHA";
+	static String version = "0.1.9-ALPHA";
 	static String useragent = "BrightBerry " + version;
 	static int itembgcolor = Color.WHITE;
 	static int itemfontcolor = Color.BLACK;
@@ -92,22 +90,6 @@ public class BrightBerry extends UiApplication {
             	System.out.println("Unable to set permissions");
             }
         }
-	}
-	
-	public static String connectionInfo() {
-		ServiceRecord[] ippprecordArray = ServiceBook.getSB().findRecordsByCid("IPPP");
-		if (ippprecordArray == null) {
-			return "device (No Records)";
-		}
-
-		int numRecords = ippprecordArray.length;
-		for (int i = 0; i < numRecords; ++i) {
-			ServiceRecord ipppRecord = ippprecordArray[i];
-			if ((ipppRecord.isValid()) && (ipppRecord.getName().equals("IPPP for BIBS"))) {
-				return "BIS-B " + ipppRecord.getUid();
-			}
-		}
-		return "device";
 	}
 	
 	public static String replaceAll(String source, String pattern, String replacement) {

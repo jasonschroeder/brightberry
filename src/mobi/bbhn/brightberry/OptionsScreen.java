@@ -51,7 +51,7 @@ public class OptionsScreen extends MainScreen {
 	NumericChoiceField maxentriesField = new NumericChoiceField("Max Entries: ", 5, 50, 5, this.settings.getMaxEntriesIndex());
 	NumericChoiceField maxsearchField = new NumericChoiceField("Max Search Results: ", 5, 50, 5, this.settings.getMaxSearchIndex());
 	CheckboxField autoupdateField = new CheckboxField("Update friendstream on startup", this.settings.getAutoUpdate());
-	CheckboxField postupdateField = new CheckboxField("Update friendstream after post", this.settings.getPostUpdate());
+	CheckboxField autowhereamiField = new CheckboxField("Update Where Am I", this.settings.getAutoWhereAmI());
 	String choicestrs[] = {"Auto-Detect", "BIS", "BES", "TCP"};
 	ObjectChoiceField connectionField = new ObjectChoiceField("Connection: ", choicestrs, this.settings.getConnectionMode());
 	String powerstrs[] = {"Doesn't matter", "Low", "Medium", "High"};
@@ -94,7 +94,7 @@ public class OptionsScreen extends MainScreen {
 		add(this.maxsearchField);
 		add(this.maxentriesField);
 		add(this.autoupdateField);
-		add(this.postupdateField);
+		add(this.autowhereamiField);
 		
 		FieldChangeListener listener = new FieldChangeListener() {
 			public void fieldChanged(Field field, int context) {
@@ -118,7 +118,7 @@ public class OptionsScreen extends MainScreen {
 			this.settings.setMaxSearch(this.maxsearchField.getSelectedValue());
 			this.settings.setMaxSearchIndex(this.maxsearchField.getSelectedIndex());
 			this.settings.setAutoUpdate(this.autoupdateField.getChecked());
-			this.settings.setPostUpdate(this.postupdateField.getChecked());
+			this.settings.setAutoWhereAmI(this.autowhereamiField.getChecked());
 			this.settings.setPowerMode(this.powerConsumption.getSelectedIndex());
 			this.settings.setAllowCost(this.costallowField.getChecked());
 			this.settings.setAuthed(true);

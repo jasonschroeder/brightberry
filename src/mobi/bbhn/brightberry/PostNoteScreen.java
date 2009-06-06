@@ -104,7 +104,7 @@ public class PostNoteScreen extends MainScreen implements FieldChangeListener {
 			);
 	}
 	
-	public void updatePostNoteScreen(String locName, String locID){
+	public void updateLocation(String locName, String locID){
 		locationName = locName;
 		locationID = locID;
 		UiApplication.getUiApplication().invokeLater(

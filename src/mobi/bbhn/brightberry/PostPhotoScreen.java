@@ -30,13 +30,14 @@ OF SUCH DAMAGE.
 
 import net.rim.blackberry.api.invoke.CameraArguments;
 import net.rim.blackberry.api.invoke.Invoke;
+import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.EventInjector;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.AutoTextEditField;
 import net.rim.device.api.ui.component.ButtonField;
-import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.EditField;
 import net.rim.device.api.ui.component.GaugeField;
 import net.rim.device.api.ui.component.LabelField;
@@ -125,7 +126,7 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 			);
 	}
 	
-	public void updatePostPhotoScreen(String locName, String locID){
+	public void updateLocation(String locName, String locID){
 		locationName = locName;
 		locationID = locID;
 		UiApplication.getUiApplication().invokeLater(
@@ -137,13 +138,15 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 					PostPhotoScreen.this.add(fileName);
 					PostPhotoScreen.this.add(postBtn);
 					PostPhotoScreen.this.addMenuItem(updateItem);
-					Dialog.alert("Once you take a photo close out the camera app and your last photo will be attached to the post");
 					Invoke.invokeApplication(Invoke.APP_TYPE_CAMERA, new CameraArguments());
 				}
 			});
 	}
 	
 	public void updateFileName (String filename) {
+		EventInjector.KeyEvent inject = new EventInjector.KeyEvent(EventInjector.KeyEvent.KEY_DOWN, Characters.ESCAPE, 0);
+	    inject.post();
+	    inject.post();
 		this.fileName.setText(filename);
 		_uiApp.removeFileSystemJournalListener(_fileListener);
 	}

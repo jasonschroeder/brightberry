@@ -43,8 +43,7 @@ public class WhereAmIThread extends Thread {
 	String serverResponse = "";
 	private String LocationName;
 	private String LocationID;
-	private PostNoteScreen screen;
-	private PostPhotoScreen screen2;
+	private Object screen;
 	private String caller;
 	Settings settings = Settings.getInstance();
 
@@ -53,9 +52,14 @@ public class WhereAmIThread extends Thread {
 		this.screen = screen;
 	}
 
-	public WhereAmIThread(PostPhotoScreen screen2) {
+	public WhereAmIThread(PostPhotoScreen screen) {
 		this.caller = "photo";
-		this.screen2 = screen2;
+		this.screen = screen;
+	}
+	
+	public WhereAmIThread(BrightBerryMain screen) {
+		this.caller = "main";
+		this.screen = screen;
 	}
 
 	public void run() {
@@ -78,9 +82,11 @@ public class WhereAmIThread extends Thread {
 			this.serverResponse = buffer.toString();
 			parseJSON(this.serverResponse);
 			if (this.caller.equals("note")) {
-				this.screen.updatePostNoteScreen(this.LocationName, this.LocationID);
+				((PostNoteScreen) this.screen).updateLocation(this.LocationName, this.LocationID);
+			} else if (this.caller.equals("main")) {
+				((BrightBerryMain) this.screen).updateLocation(this.LocationName);
 			} else {
-				this.screen2.updatePostPhotoScreen(this.LocationName, this.LocationID);
+				((PostPhotoScreen) this.screen).updateLocation(this.LocationName, this.LocationID);
 			}
 	    } catch (IOException ex) {
 	    	ex.printStackTrace();

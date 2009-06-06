@@ -41,7 +41,6 @@ public class Settings implements Persistable {
 	private int MaxEntries;
 	private int MaxEntriesIndex;
 	private boolean AutoUpdate;
-	private boolean PostUpdate;
 	private Placemark[] placemarks;
 	private int ConnectionMode;
 	private int powerMode;
@@ -53,6 +52,7 @@ public class Settings implements Persistable {
 	private int snapRadiusIndex;
 	private int maxSearch;
 	private int maxSearchIndex;
+	private boolean AutoWhereAmI;
 	private static Settings settings;
 	private static final long STOREHASH = 0x6cdd063e456b4742L;
 	private static PersistentObject persist = PersistentStore.getPersistentObject(STOREHASH);
@@ -64,7 +64,7 @@ public class Settings implements Persistable {
 		this.MaxEntries = 10;
 		this.MaxEntriesIndex = 1;
 		this.AutoUpdate = true;
-		this.PostUpdate = true;
+		this.AutoWhereAmI = true;
 		this.ConnectionMode = 0;
 		this.powerMode = 0;
 		this.allowCost = true;
@@ -130,14 +130,6 @@ public class Settings implements Persistable {
 
 	public int getMaxEntriesIndex() {
 		return this.MaxEntriesIndex;
-	}
-
-	public void setPostUpdate(boolean postupdate) {
-		this.PostUpdate = postupdate;
-	}
-
-	public boolean getPostUpdate() {
-		return this.PostUpdate;
 	}
 
 	public void setAutoUpdate(boolean autoupdate) {
@@ -234,6 +226,14 @@ public class Settings implements Persistable {
 	
 	public int getMaxSearchIndex() {
 		return this.maxSearchIndex;
+	}
+	
+	public void setAutoWhereAmI(boolean autoWhereAmI) {
+		this.AutoWhereAmI = autoWhereAmI;
+	}
+	
+	public boolean getAutoWhereAmI() {
+		return this.AutoWhereAmI;
 	}
 
 	public String getAuthHeader() {

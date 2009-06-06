@@ -63,9 +63,17 @@ public class BrightBerryMain extends MainScreen {
 	private MenuItem privacymodeItem;
 	private boolean priupdated;
 	private MenuItem licenseItem;
+	private BrightBerryMain screen = this;
+	private MenuItem refreshlocItem;
+	private static String locationName;
 	
     public BrightBerryMain() {
     	super.setTitle(new LabelField("BrightBerry", 1152921504606846980L));
+    	
+    	if (this.settings.getAuthed() && this.settings.getAutoWhereAmI()) {
+    		Thread whereThread = new WhereAmIThread(this.screen);
+			whereThread.start();
+    	}
     	
     	FieldChangeListener SearchListener = new FieldChangeListener() {
 			public void fieldChanged(Field field, int context) {
@@ -115,7 +123,14 @@ public class BrightBerryMain extends MainScreen {
 			}
 		};
 		
-		this.privacymodeItem = new MenuItem("Privacy Mode", 18, 10) {
+		this.refreshlocItem = new MenuItem("Refresh Location", 1, 10) {
+			public void run() {
+				Thread whereThread = new WhereAmIThread(BrightBerryMain.this.screen);
+				whereThread.start();
+			}
+		};
+		
+		this.privacymodeItem = new MenuItem("Privacy Mode", 2, 10) {
 			public void run() {
 				String choices[] = {"Set Privacy"};
 				int values[] = {0, 0, Dialog.OK};
@@ -147,6 +162,7 @@ public class BrightBerryMain extends MainScreen {
 		};
 		
 		if (this.settings.getAuthed()) {
+			addMenuItem(this.refreshlocItem);
 			addMenuItem(this.privacymodeItem);
 			addMenuItem(MenuItem.separator(49));
 		}
@@ -194,6 +210,18 @@ public class BrightBerryMain extends MainScreen {
 				}
 			}
 		});
+	}
+    
+    public void updateLocation(String locName){
+		BrightBerryMain.locationName = locName;
+		UiApplication.getUiApplication().invokeLater(
+			new Runnable() {
+				public void run() {
+					System.out.println("Checked in at " + BrightBerryMain.locationName);
+					LabelField locationLabel = new LabelField("You're checked in @ " + BrightBerryMain.locationName);
+					BrightBerryMain.this.setStatus(locationLabel);
+				}
+			});
 	}
     
     public boolean onClose() {

@@ -35,6 +35,7 @@ import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.Keypad;
 
 public class StreamButton extends Field {
 	private String _text;
@@ -83,6 +84,14 @@ public class StreamButton extends Field {
 	
 	protected void layout(int width, int height) {
 		setExtent(Math.min(width, getPreferredWidth()), Math.min(height, getPreferredHeight()));
+	}
+	
+	protected boolean keyChar(char character, int status, int time) {
+		if (character == Keypad.KEY_ENTER) {
+			fieldChangeNotify(0);
+			return true;
+		}
+		return super.keyChar(character, status, time);   
 	}
 	
 	protected boolean navigationClick(int status, int time){

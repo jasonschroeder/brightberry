@@ -1,25 +1,10 @@
 MIDlet-Name: BrightBerry
-MIDlet-Version: 0.1.8
+MIDlet-Version: 0.1.9
 MIDlet-Vendor: Hallgren Networks
-MIDlet-Description: Unofficial Blackberry client for Brightkite
+MIDlet-Description: Unofficial Blackberry application using the Brightkite REST-API
 MIDlet-Jar-URL: BrightBerry.jar
 MIDlet-Jar-Size: 0
 MicroEdition-Profile: MIDP-2.0
 MicroEdition-Configuration: CLDC-1.1
 MIDlet-1: BrightBerry,img/BKIcon.jpg,
-RIM-MIDlet-Icon-1-1: img/listArrow.png
-RIM-MIDlet-Icon-1-2: img/default_avator.gif
-RIM-MIDlet-Icon-1-3: img/icon_checkin.gif
-RIM-MIDlet-Icon-1-4: img/icon_comments.gif
-RIM-MIDlet-Icon-1-5: img/icon_happening.gif
-RIM-MIDlet-Icon-1-6: img/icon_mentions.gif
-RIM-MIDlet-Icon-1-7: img/icon_messages.gif
-RIM-MIDlet-Icon-1-8: img/icon_nearby.gif
-RIM-MIDlet-Icon-1-9: img/icon_note.gif
-RIM-MIDlet-Icon-1-10: img/icon_photo.gif
-RIM-MIDlet-Icon-1-11: img/icon_placemarks.gif
-RIM-MIDlet-Icon-1-12: img/icon_private.gif
-RIM-MIDlet-Icon-1-13: img/icon_public.gif
-RIM-MIDlet-Icon-1-14: img/icon_settings.gif
-RIM-MIDlet-Icon-Count-1: 14
 RIM-MIDlet-Flags-1: 0

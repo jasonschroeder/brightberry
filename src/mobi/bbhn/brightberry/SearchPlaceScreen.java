@@ -59,20 +59,17 @@ public class SearchPlaceScreen extends MainScreen {
 	SearchPlaceScreen screen = this;
 	SearchPlace[] searchPlaceResults;
 	ObjectChoiceField searchChoiceField;
-	int deleted = 0;
+
 	MenuItem GPSItem = new MenuItem("Get GPS Location", 1, 10) {
 		public void run() {
 			Status.show("Getting GPS Location");
 			SearchPlaceScreen.this.getGPS();
-			if (SearchPlaceScreen.this.deleted == 0) {
-				SearchPlaceScreen.this.delete(searchButtonField);
-				SearchPlaceScreen.this.deleted = 1;
-			}
 		}
 	};
 	private String message;
 	MenuItem checkinItem;
 	ListField list = new SearchPlaceListField();
+	private String lasterror;
 	protected boolean onSavePrompt() {
 		return true;
 	}
@@ -113,9 +110,8 @@ public class SearchPlaceScreen extends MainScreen {
 		this.searchPlaceResults = results;
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
-				if (SearchPlaceScreen.this.searchPlaceResults.length == 0) {
+				if (SearchPlaceScreen.this.searchPlaceResults == null || SearchPlaceScreen.this.searchPlaceResults.length == 0) {
 					Status.show("No locations found");
-					SearchPlaceScreen.this.add(searchButtonField);
 				} else {
 					SearchPlaceScreen.this.list.setEmptyString("Nothing to see here", DrawStyle.LEFT);
 					SearchPlaceScreen.this.list.setSize(SearchPlaceScreen.this.searchPlaceResults.length);
@@ -124,10 +120,7 @@ public class SearchPlaceScreen extends MainScreen {
 					SearchPlaceScreen.this.add(list);
 					SearchPlaceScreen.this.delete(searchField);
 					SearchPlaceScreen.this.removeMenuItem(GPSItem);
-					if (SearchPlaceScreen.this.deleted == 0) {
-						SearchPlaceScreen.this.delete(searchButtonField);
-						SearchPlaceScreen.this.deleted = 1;
-					}
+					SearchPlaceScreen.this.delete(searchButtonField);
 				}
 			}
 		});
@@ -144,11 +137,14 @@ public class SearchPlaceScreen extends MainScreen {
 			}
 		});
 	}
+	
 	public void GPSerror(String message) {
-		this.searchField.setText(message);
-		if (this.deleted == 0) {
-			add(searchButtonField);
-		}
+		this.lasterror = message;
+		UiApplication.getUiApplication().invokeLater(new Runnable() {
+			public void run() {
+				Dialog.alert(SearchPlaceScreen.this.lasterror);
+			}
+		});
 	}
 	
 	public void getGPS() {
@@ -161,11 +157,9 @@ public class SearchPlaceScreen extends MainScreen {
 				try {
 					_location = _provider.getLocation(Settings.getInstance().getGPSTimeout());
 				} catch (LocationException e) {
-					searchField.setText(e.getMessage());
-					add(searchButtonField);
+					SearchPlaceScreen.this.GPSerror(e.getMessage());
 				} catch (InterruptedException e) {
-					searchField.setText(e.getMessage());
-					add(searchButtonField);
+					SearchPlaceScreen.this.GPSerror(e.getMessage());
 				}
 				
 				if (_location != null && _location.isValid()) {
@@ -174,8 +168,7 @@ public class SearchPlaceScreen extends MainScreen {
 						Thread searchThread = new SearchPlaceThread(SearchPlaceScreen.this.screen, coordinates.getLatitude(), coordinates.getLongitude(), coordinates.getHorizontalAccuracy(), 0);
 						searchThread.start();
 					} else {
-						searchField.setText("Can't find you");
-						//SearchPlaceScreen.this.add(SearchPlaceScreen.this.searchButtonField);
+						SearchPlaceScreen.this.GPSerror("Can't location you");
 					}
 				}
 			}
@@ -200,7 +193,7 @@ public class SearchPlaceScreen extends MainScreen {
 		try {
 			_provider = LocationProvider.getInstance(_criteria);
 		} catch (LocationException e) {			
-			Dialog.alert(e.getMessage());
+			GPSerror(e.getMessage());
 		}
 	}
 	
