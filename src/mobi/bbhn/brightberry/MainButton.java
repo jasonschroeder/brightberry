@@ -98,13 +98,15 @@ public class MainButton extends Field {
         	drawbmp = Bitmap.getBitmapResource("img/icon_settings.gif");
         }
         if (drawbmp != null) {
-        	graphics.drawBitmap(2, 5, drawbmp.getWidth(), drawbmp.getHeight(), drawbmp, 0, 0);
-        	graphics.drawText(_text, drawbmp.getWidth()+4, 5);
+        	int newy = (getHeight()/2)-(drawbmp.getHeight()/2);
+        	graphics.drawBitmap(2, newy, drawbmp.getWidth(), drawbmp.getHeight(), drawbmp, 0, 0);
+        	graphics.drawText(_text, drawbmp.getWidth()+4, newy);
         } else {
         	graphics.drawText(_text, 2, 5);
         }
         Bitmap arrow = Bitmap.getBitmapResource("img/listArrow.png");
-        graphics.drawBitmap(getPreferredWidth()-arrow.getWidth(), 0, arrow.getWidth(), arrow.getHeight(), arrow, 0, 0);
+        int newarrowy = (getHeight()/2)-(arrow.getHeight()/2);
+        graphics.drawBitmap(getPreferredWidth()-arrow.getWidth(), newarrowy, arrow.getWidth(), arrow.getHeight(), arrow, 0, 0);
 	}
 	
 	protected void layout(int width, int height) {

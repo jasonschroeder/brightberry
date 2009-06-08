@@ -28,6 +28,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
+import net.rim.blackberry.api.browser.Browser;
 import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
@@ -65,11 +66,13 @@ public class BrightBerryMain extends MainScreen {
 	private MenuItem licenseItem;
 	private BrightBerryMain screen = this;
 	private MenuItem refreshlocItem;
+	private boolean upgradeavailable;
+	private MenuItem upgradeItem;
+	private MenuItem latestnewsItem;
 	private static String locationName;
 	
     public BrightBerryMain() {
     	super.setTitle(new LabelField("BrightBerry", 1152921504606846980L));
-    	
     	if (this.settings.getAuthed() && this.settings.getAutoWhereAmI()) {
     		Thread whereThread = new WhereAmIThread(this.screen);
 			whereThread.start();
@@ -83,7 +86,7 @@ public class BrightBerryMain extends MainScreen {
 		
 		FieldChangeListener FriendStreamListener = new FieldChangeListener() {
 			public void fieldChanged(Field field, int context) {
-				UiApplication.getUiApplication().pushScreen(new StreamScreen(BrightBerryMain.this.settings.getAutoUpdate(), "friend", null, 0));
+				UiApplication.getUiApplication().pushScreen(new StreamScreen(BrightBerryMain.this.settings.getAutoUpdate(), "friend", null, 0, 0, 0));
 			}
 		};
 		
@@ -119,7 +122,7 @@ public class BrightBerryMain extends MainScreen {
 		
 		FieldChangeListener MentionsListener = new FieldChangeListener() {
 			public void fieldChanged(Field field, int context) {
-				UiApplication.getUiApplication().pushScreen(new StreamScreen(BrightBerryMain.this.settings.getAutoUpdate(), "mentions", null, 0));
+				UiApplication.getUiApplication().pushScreen(new StreamScreen(BrightBerryMain.this.settings.getAutoUpdate(), "mentions", null, 0, 0, 0));
 			}
 		};
 		
@@ -134,7 +137,6 @@ public class BrightBerryMain extends MainScreen {
 			public void run() {
 				String choices[] = {"Set Privacy"};
 				int values[] = {0, 0, Dialog.OK};
-
 				PrivacyDialog privacybox = new PrivacyDialog(choices, values);
 				if (privacybox.doModal() == Dialog.OK) {
 					Thread privacyUpdateThread = new PrivacyThread(privacybox.rgrp.getSelectedIndex(), BrightBerryMain.this);
@@ -143,15 +145,28 @@ public class BrightBerryMain extends MainScreen {
 			}
 		};
 		
-		this.aboutItem = new MenuItem("About", 50, 10) {
+		this.latestnewsItem = new MenuItem("View latest news", 50, 10) {
 			public void run() {
-				UiApplication.getUiApplication().pushScreen(new AboutScreen());
+				UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", "brightberry", 0, 0, 0));
 			}
 		};
 		
-		this.licenseItem = new MenuItem("License", 51, 10) {
+		this.upgradeItem = new MenuItem("Check for upgrade", 51, 10) {
+			public void run() {
+				UpgradeThread updateThread = new UpgradeThread(BrightBerryMain.this);
+				updateThread.start();
+			}
+		};
+		
+		this.licenseItem = new MenuItem("License", 53, 10) {
 			public void run() {
 				UiApplication.getUiApplication().pushScreen(new LicenseScreen());
+			}
+		};
+		
+		this.aboutItem = new MenuItem("About", 54, 10) {
+			public void run() {
+				UiApplication.getUiApplication().pushScreen(new AboutScreen());
 			}
 		};
 		
@@ -165,10 +180,13 @@ public class BrightBerryMain extends MainScreen {
 			addMenuItem(this.refreshlocItem);
 			addMenuItem(this.privacymodeItem);
 			addMenuItem(MenuItem.separator(49));
+			addMenuItem(this.latestnewsItem);
 		}
 		addMenuItem(this.aboutItem);
-		addMenuItem(this.licenseItem);
 		addMenuItem(MenuItem.separator(52));
+		addMenuItem(this.licenseItem);
+		addMenuItem(this.upgradeItem);
+		addMenuItem(MenuItem.separator(55));
 		addMenuItem(this.shutdownItem);
 		
 		if (this.settings.getAuthed()) {
@@ -212,6 +230,22 @@ public class BrightBerryMain extends MainScreen {
 		});
 	}
     
+    public void callUpgrade(boolean string) {
+    	this.upgradeavailable = string;
+    	UiApplication.getUiApplication().invokeLater(new Runnable() {
+			public void run() {
+				if (BrightBerryMain.this.upgradeavailable) {
+					if (Dialog.ask(Dialog.D_YES_NO, "An upgrade is available! Do you wish to upgrade now?", Dialog.YES) == Dialog.YES) {
+						Browser.getDefaultSession().displayPage("http://bbhn.mobi");
+						Dialog.alert("You will need to reboot/battery pull to finish the upgrade");
+					}
+				} else {
+					Dialog.alert("You are running the most current version");
+				}
+			}
+		});
+    }
+    
     public void updateLocation(String locName){
 		BrightBerryMain.locationName = locName;
 		UiApplication.getUiApplication().invokeLater(
@@ -228,4 +262,11 @@ public class BrightBerryMain extends MainScreen {
 		UiApplication.getUiApplication().requestBackground();
 		return true;
 	}
+    
+    protected void onFocusNotify(boolean focus) {
+    	if (this.settings.getAuthed() && this.settings.getAutoWhereAmI() && focus) {
+    		Thread whereThread = new WhereAmIThread(this.screen);
+			whereThread.start();
+    	}
+    }
 }

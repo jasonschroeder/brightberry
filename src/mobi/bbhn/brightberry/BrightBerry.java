@@ -34,7 +34,8 @@ import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.UiApplication;
 
 public class BrightBerry extends UiApplication {
-	static String version = "0.1.9-ALPHA";
+	static String version = "0.2.0-ALPHA";
+	static String gmkey = "ABQIAAAAyqsOf4y12VmEo_2G0kkmUxRpIJO9csrDHHCYF6wRDNKwcymzzRQrUdTZ3AkMMnIbfqA_JKHMK0MjHw";
 	static String useragent = "BrightBerry " + version;
 	static int itembgcolor = Color.WHITE;
 	static int itemfontcolor = Color.BLACK;
@@ -80,6 +81,12 @@ public class BrightBerry extends UiApplication {
         int externalConnections = permissionsManager.getPermission(ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS);
         if (externalConnections == ApplicationPermissions.VALUE_DENY) {
         	newPermissions.addPermission(ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS);
+        	permissionsRequest = true;
+        }
+        
+        int wifiConnection = permissionsManager.getPermission(ApplicationPermissions.PERMISSION_WIFI);
+        if (wifiConnection == ApplicationPermissions.VALUE_DENY) {
+        	newPermissions.addPermission(ApplicationPermissions.PERMISSION_WIFI);
         	permissionsRequest = true;
         }
         

@@ -63,6 +63,7 @@ class CommentThread extends Thread {
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
+			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 
 			this.httpInput = this.httpConnection.openInputStream();
 			StringBuffer buffer = new StringBuffer();
@@ -83,7 +84,7 @@ class CommentThread extends Thread {
 	private Comments[] parseJSON(String json) {
 		JSONArray jsonArray = null;
 
-		Vector placemarks = new Vector();
+		Vector comments = new Vector();
 
 		Comments[] rv = null;
 		try {
@@ -100,15 +101,15 @@ class CommentThread extends Thread {
 					avtr = ImageCache.getImage(creator);
 					System.out.println("Cached image used for " + creator);
 				} else {
-					avtr = getAvator.getavator(avator);
+					avtr = HTTPPhoto.getAvator(avator);
 					ImageCache.cacheImage(creator, avtr);
 					System.out.println("Caching image for " + creator);
 				}
 				String body = jsonStream.getString("comment");
-				placemarks.addElement(new Comments(creator, body, avtr, createdwords));
+				comments.addElement(new Comments(creator, body, avtr, createdwords));
 			}
 			rv = new Comments[jsonArray.length()];
-			placemarks.copyInto(rv);
+			comments.copyInto(rv);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}

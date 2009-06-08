@@ -44,12 +44,12 @@ public class PrivacyGet {
 	public static boolean getPrivate() { 
 		try {
 			String url = "http://brightkite.com/me/config.json";
-			
 			url += NetworkConfig.getConnectionParameters(settings.getConnectionMode());
 			HttpConnection httpConnection = ((HttpConnection)Connector.open(url));
 			httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			httpConnection.setRequestProperty("Content-Language", "en-US");
 			httpConnection.setRequestProperty("Authorization", settings.getAuthHeader());
+			httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			InputStream httpInput = httpConnection.openInputStream();
 
 			StringBuffer buffer = new StringBuffer();

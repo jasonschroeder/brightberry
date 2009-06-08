@@ -56,6 +56,7 @@ public class DirectMessageSentDeleteThread extends Thread {
 			this.httpConnection.setRequestMethod("DELETE");
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
+			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpOutput = this.httpConnection.openDataOutputStream();
 			this.httpInput = this.httpConnection.openInputStream();
 			int rc = httpConnection.getResponseCode();

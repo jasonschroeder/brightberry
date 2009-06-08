@@ -35,14 +35,18 @@ public class Placemark implements Persistable, Comparator {
 	private String name;
 	private String display_location;
 	private String id;
+	private float latitude;
+	private float longitude;
 
 	public Placemark() {
 	}
 
-	public Placemark(String name, String display_location, String id) {
+	public Placemark(String name, String display_location, String id, float latitude, float longitude) {
 		this.name = name;
 		this.display_location = display_location;
 		this.id = id;
+		this.latitude = latitude;
+		this.longitude = longitude;
 	}
 
 	public String getName() {
@@ -55,6 +59,14 @@ public class Placemark implements Persistable, Comparator {
 
 	public String getId() {
 		return this.id;
+	}
+	
+	public float getLatitude() {
+		return this.latitude;
+	}
+	
+	public float getLongitude() {
+		return this.longitude;
 	}
 	
 	public int compare(Object Object1, Object Object2) {

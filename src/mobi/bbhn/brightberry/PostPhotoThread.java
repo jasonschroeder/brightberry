@@ -70,6 +70,7 @@ public class PostPhotoThread extends Thread {
 			conn.setRequestProperty("User-Agent", BrightBerry.useragent);
 			conn.setRequestProperty("Content-Language", "en-US");
 			conn.setRequestProperty("Authorization", settings.getAuthHeader());
+			conn.setRequestProperty("x-rim-transcode-content", "none");
 			conn.setRequestMethod(HttpConnection.POST);
 			conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=---------------------------4664151417711");
 

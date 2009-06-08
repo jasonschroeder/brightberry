@@ -28,6 +28,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
@@ -44,10 +45,14 @@ class PlacemarkCallback implements ListFieldCallback {
 	public void drawListRow(ListField list, Graphics g, int index, int y, int w) {
 		Font f = g.getFont();
 		int fontht = f.getHeight();
+		Bitmap drawbmp = Bitmap.getBitmapResource("img/icon_placemarks.gif");
+		int newy = (y+(drawbmp.getHeight()/2));
+		System.out.println ("New Y; " + newy);
+		g.drawBitmap(2, newy, drawbmp.getWidth(), drawbmp.getHeight(), drawbmp, 0, 0);
 		g.setFont(f.derive(Font.BOLD));
-		g.drawText(placemark[index].getName(), 0, y, DrawStyle.ELLIPSIS);
+		g.drawText(placemark[index].getName(), drawbmp.getWidth()+3, y, DrawStyle.ELLIPSIS);
 		g.setFont(f);
-		g.drawText(placemark[index].getDisplayLocation(), 0, y+fontht, DrawStyle.ELLIPSIS);
+		g.drawText(placemark[index].getDisplayLocation(), drawbmp.getWidth()+3, y+fontht, DrawStyle.ELLIPSIS);
     }
 	public Object get(ListField listField, int index) {
         return null;

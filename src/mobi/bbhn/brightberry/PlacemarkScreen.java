@@ -28,6 +28,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
+import net.rim.blackberry.api.invoke.Invoke;
+import net.rim.blackberry.api.invoke.MapsArguments;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.MenuItem;
@@ -35,12 +37,10 @@ import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.RichTextField;
-import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.component.Status;
 import net.rim.device.api.ui.container.MainScreen;
 
 public class PlacemarkScreen extends MainScreen {
-	RichTextField statusField = new RichTextField("", 45035996273704960L);
 	MenuItem updateItem;
 	MenuItem whereAmIItem;
 	Settings settings = Settings.getInstance();
@@ -49,6 +49,8 @@ public class PlacemarkScreen extends MainScreen {
 	Placemark[] placemarks;
 	MenuItem checkinItem;
 	ListField list = new PlacemarkListField();
+	private MenuItem placestreamItem;
+	private MenuItem mapItem;
 	protected boolean onSavePrompt() {
 		return true;
 	}
@@ -58,7 +60,6 @@ public class PlacemarkScreen extends MainScreen {
 	    whereThread.start();
 	    
 		super.setTitle(new LabelField("BrightBerry Placemarks", 1152921504606846980L));
-		statusField.setText("Finding your current location");
 		
 		this.checkinItem = new MenuItem("Checkin Here", 1, 10) {
 			public void run() {
@@ -73,7 +74,38 @@ public class PlacemarkScreen extends MainScreen {
 			}
 		};
 		
-		this.updateItem = new MenuItem("Update Placemarks", 3, 10) {
+		this.placestreamItem = new MenuItem("View Place Stream", 2, 10) {
+			public void run() {
+				if (PlacemarkScreen.this.list.getSelectedIndex() > -1) {
+					Placemark[] places = settings.getPlacemarks();
+					String placeid = places[PlacemarkScreen.this.list.getSelectedIndex()].getId();
+					float latitude = places[PlacemarkScreen.this.list.getSelectedIndex()].getLatitude();
+					float longitude = places[PlacemarkScreen.this.list.getSelectedIndex()].getLongitude();
+					UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "place", placeid, 0, latitude, longitude));
+				} else {
+					Status.show("No Placemark selected");
+				}
+			}
+		};
+		
+		this.mapItem = new MenuItem("View on Blackberry Map", 3, 10) {
+			public void run() {
+				if (PlacemarkScreen.this.list.getSelectedIndex() > -1) {
+					Placemark[] places = settings.getPlacemarks();
+					float latitude = places[PlacemarkScreen.this.list.getSelectedIndex()].getLatitude();
+					float longitude = places[PlacemarkScreen.this.list.getSelectedIndex()].getLongitude();
+					String label = places[PlacemarkScreen.this.list.getSelectedIndex()].getName();
+					String description = places[PlacemarkScreen.this.list.getSelectedIndex()].getDisplayLocation();
+		            String location = "<lbs>" + "<location lat='" + (int)(latitude*100000) + "' lon='" + (int)(longitude*100000) + "' label='" + label  +"' description='" + description + "'/>" + "</lbs>";
+		            System.out.println("Location string: " + location);
+		            Invoke.invokeApplication(Invoke.APP_TYPE_MAPS, new MapsArguments(MapsArguments.ARG_LOCATION_DOCUMENT, location));
+				} else {
+					Status.show("No Placemark selected");
+				}
+			}
+		};
+		
+		this.updateItem = new MenuItem("Update Placemarks", 5, 10) {
 			public void run() {
 				Status.show("Updating placemarks");
 				Thread updateThread = new PlacemarksUpdateThread(PlacemarkScreen.this.screen);
@@ -81,9 +113,8 @@ public class PlacemarkScreen extends MainScreen {
 			}
 		};
 		
-		this.whereAmIItem = new MenuItem("Where Am I", 4, 10) {
+		this.whereAmIItem = new MenuItem("Where Am I", 6, 10) {
 			public void run() {
-				statusField.setText("Finding your current location");
 				Thread whereThread = new PlWhereAmIThread(PlacemarkScreen.this.screen);
 				whereThread.start();
 			}
@@ -91,10 +122,8 @@ public class PlacemarkScreen extends MainScreen {
 		
 		addMenuItem(this.updateItem);
 		addMenuItem(this.whereAmIItem);
-		addMenuItem(MenuItem.separator(5));
+		addMenuItem(MenuItem.separator(7));
 		
-		add(this.statusField);
-		add(new SeparatorField());
 		if (settings.getPlacemarks() != null) {
 			this.list.setEmptyString("Nothing to see here", DrawStyle.LEFT);
 			this.list.setSize(settings.getPlacemarks().length);
@@ -123,8 +152,10 @@ public class PlacemarkScreen extends MainScreen {
 	public void updateWhereAmI(String message) {
 		this.message = message;
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
-			public void run() { 
-				PlacemarkScreen.this.statusField.setText("You are currently checked in at " + PlacemarkScreen.this.message);
+			public void run() {
+				LabelField locationLabel = new LabelField("You're checked in @ " + PlacemarkScreen.this.message);
+				PlacemarkScreen.this.setStatus(locationLabel);
+				//PlacemarkScreen.this.statusField.setText("You are currently checked in at " + PlacemarkScreen.this.message);
 			}
 		});
 	}
@@ -144,6 +175,8 @@ public class PlacemarkScreen extends MainScreen {
 	public class PlacemarkListField extends ListField {
 		protected void makeContextMenu(ContextMenu contextMenu) {
 			contextMenu.addItem(checkinItem);
+			contextMenu.addItem(placestreamItem);
+			contextMenu.addItem(mapItem);
 		}
 	}
 }

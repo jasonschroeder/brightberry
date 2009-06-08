@@ -46,6 +46,7 @@ class StreamCallback implements ListFieldCallback {
 		this.friendstream = friendstream;
 		this.BrightBerryMain = BrightBerryMain;
 	}
+	
 	public void drawListRow(ListField list, Graphics g, int index, int y, int w) {
 		Font f = g.getFont();
 		int fontht = f.getHeight();

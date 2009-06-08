@@ -19,7 +19,7 @@ AutoRestart=0
 ]
 [DependsOn
 ]
-Description=Unofficial Blackberry application using the Brightkite REST-API
+Description=Unofficial Blackberry app for Brightkite using the REST-API
 ExcludeFromBuildAll=0
 [Files
 src\img\BKIcon.jpg
@@ -58,9 +58,7 @@ src\mobi\bbhn\brightberry\DirectMessageSentDeleteThread.java
 src\mobi\bbhn\brightberry\DirectMessageSentList.java
 src\mobi\bbhn\brightberry\DirectMessageSentScreen.java
 src\mobi\bbhn\brightberry\DirectMessageSentThread.java
-src\mobi\bbhn\brightberry\getAvator.java
-src\mobi\bbhn\brightberry\getFeedPhoto.java
-src\mobi\bbhn\brightberry\getPhoto.java
+src\mobi\bbhn\brightberry\HTTPPhoto.java
 src\mobi\bbhn\brightberry\ImageCache.java
 src\mobi\bbhn\brightberry\JournalListener.java
 src\mobi\bbhn\brightberry\LicenseScreen.java
@@ -82,6 +80,7 @@ src\mobi\bbhn\brightberry\PostPhotoThread.java
 src\mobi\bbhn\brightberry\PrivacyDialog.java
 src\mobi\bbhn\brightberry\PrivacyGet.java
 src\mobi\bbhn\brightberry\PrivacyThread.java
+src\mobi\bbhn\brightberry\Protocol.java
 src\mobi\bbhn\brightberry\SearchPlace.java
 src\mobi\bbhn\brightberry\SearchPlaceCheckInThread.java
 src\mobi\bbhn\brightberry\SearchPlaceList.java
@@ -95,6 +94,7 @@ src\mobi\bbhn\brightberry\StreamButton.java
 src\mobi\bbhn\brightberry\StreamList.java
 src\mobi\bbhn\brightberry\StreamScreen.java
 src\mobi\bbhn\brightberry\StreamThread.java
+src\mobi\bbhn\brightberry\UpgradeThread.java
 src\mobi\bbhn\brightberry\WhereAmIThread.java
 src\org\json\me\JSONArray.java
 src\org\json\me\JSONException.java
@@ -130,4 +130,4 @@ Title=BrightBerry
 Type=0
 UserData=|src
 Vendor=Hallgren Networks
-Version=0.1.9
+Version=0.2.0

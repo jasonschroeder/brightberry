@@ -42,6 +42,7 @@ public class NetworkConfig {
 	private static String  mdsConnection  = ";deviceside=false";
 	private static String  tcpConnection  = ";deviceside=true";
 	private static String  bisConnection  = ";deviceside=false;ConnectionType=mds-public";
+	private static String  nullConnection = "";
   
 	public static void init() {
 		int m = Settings.getInstance().getConnectionMode();
@@ -109,7 +110,7 @@ public class NetworkConfig {
 			case MODE_AUTODETECT:
 				return getConnectionParameters(autodetect());
 			default:
-				return null;
+				return nullConnection;
 		}
 	}
 

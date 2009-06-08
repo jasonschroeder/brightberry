@@ -70,6 +70,7 @@ public class SearchPlaceScreen extends MainScreen {
 	MenuItem checkinItem;
 	ListField list = new SearchPlaceListField();
 	private String lasterror;
+	private MenuItem placestreamItem;
 	protected boolean onSavePrompt() {
 		return true;
 	}
@@ -89,12 +90,26 @@ public class SearchPlaceScreen extends MainScreen {
 				}
 			}
 		};
+		
 		checkinItem = new MenuItem("Checkin Here", 1, 10) {
 			public void run() {
 				if (list.getSelectedIndex() > -1) {
 					int place = list.getSelectedIndex();
 					Thread checkinThread = new SearchPlaceCheckInThread(searchPlaceResults[place].getId(), SearchPlaceScreen.this.screen);
 					checkinThread.start();
+				} else {
+					Status.show("No place selected");
+				}
+			}
+		};
+		
+		placestreamItem = new MenuItem("View Placestream", 2, 10) {
+			public void run() {
+				if (list.getSelectedIndex() > -1) {
+					String placeid = searchPlaceResults[list.getSelectedIndex()].getId();
+					float latitude = searchPlaceResults[list.getSelectedIndex()].getLatitude();
+					float longitude = searchPlaceResults[list.getSelectedIndex()].getLongitude();
+					UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "place", placeid, 0, latitude, longitude));
 				} else {
 					Status.show("No place selected");
 				}
@@ -200,6 +215,7 @@ public class SearchPlaceScreen extends MainScreen {
 	public class SearchPlaceListField extends ListField {
 		protected void makeContextMenu(ContextMenu contextMenu) {
 			contextMenu.addItem(checkinItem);
+			contextMenu.addItem(placestreamItem);
 		}
 	}
 }

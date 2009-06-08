@@ -75,7 +75,7 @@ class SearchPlaceThread extends Thread {
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
-
+			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpInput = this.httpConnection.openInputStream();
 
 			StringBuffer buffer = new StringBuffer();
@@ -108,7 +108,9 @@ class SearchPlaceThread extends Thread {
 					String name = jsonPlace.getString("name");
 					String display_location = jsonPlace.getString("display_location");
 					String id = jsonPlace.getString("id");
-					searchplace.addElement(new SearchPlace(name, display_location, id));
+					float latitude = (float)jsonPlace.getDouble("latitude");
+					float longitude = (float)jsonPlace.getDouble("longitude");
+					searchplace.addElement(new SearchPlace(name, display_location, id, latitude, longitude));
 				}
 	      
 				rv = new SearchPlace[jsonArray.length()];
@@ -121,11 +123,13 @@ class SearchPlaceThread extends Thread {
 				JSONObject jsonPlace = new JSONObject(json);
 				String name = jsonPlace.getString("name");
 				String id = jsonPlace.getString("id");
+				float latitude = (float)jsonPlace.getDouble("latitude");
+				float longitude = (float)jsonPlace.getDouble("longitude");
 				String display_location = jsonPlace.optString("display_location");
 				if (display_location.length() > 0) {
-					searchplace.addElement(new SearchPlace(name, display_location, id));
+					searchplace.addElement(new SearchPlace(name, display_location, id, latitude,longitude));
 				} else {
-					searchplace.addElement(new SearchPlace(name, "", id));
+					searchplace.addElement(new SearchPlace(name, "", id, latitude, longitude));
 				}
 				rv= new SearchPlace[1];
 				searchplace.copyInto(rv);

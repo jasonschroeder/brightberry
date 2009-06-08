@@ -60,7 +60,7 @@ class PlacemarksUpdateThread extends Thread {
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
-
+			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpInput = this.httpConnection.openInputStream();
 
 			StringBuffer buffer = new StringBuffer();
@@ -94,6 +94,8 @@ class PlacemarksUpdateThread extends Thread {
 				String placeName = jsonPlacemark.getString("placemark");
 				JSONObject jsonPlace = jsonPlacemark.getJSONObject("place");
 				String id = jsonPlace.getString("id");
+				float latitude = (float)jsonPlace.getDouble("latitude");
+				float longitude = (float)jsonPlace.getDouble("longitude");
 				String name = jsonPlace.optString("name");
 				String display_location = jsonPlace.optString("display_location");
 				String locationname = "";
@@ -104,7 +106,7 @@ class PlacemarksUpdateThread extends Thread {
 				} else {
 					locationname = jsonPlace.getString("name"); 
 				}
-				placemarks.addElement(new Placemark(placeName, locationname, id));
+				placemarks.addElement(new Placemark(placeName, locationname, id, latitude, longitude));
 			}
 			rv = new Placemark[jsonArray.length()];
 			placemarks.copyInto(rv);

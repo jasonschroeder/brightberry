@@ -59,7 +59,7 @@ class DirectMessageSentThread extends Thread {
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
-
+			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpInput = this.httpConnection.openInputStream();
 			StringBuffer buffer = new StringBuffer();
 
@@ -79,7 +79,7 @@ class DirectMessageSentThread extends Thread {
 	private DirectMessageSent[] parseJSON(String json) {
 		JSONArray jsonArray = null;
 
-		Vector placemarks = new Vector();
+		Vector msgsent = new Vector();
 
 		DirectMessageSent[] rv = null;
 		try {
@@ -96,7 +96,7 @@ class DirectMessageSentThread extends Thread {
 					avtr = ImageCache.getImage(creator);
 					System.out.println("Cached image user for " + creator);
 				} else {
-					avtr = getAvator.getavator(avator);
+					avtr = HTTPPhoto.getAvator(avator);
 					if (avtr == null) {
 						avtr = Bitmap.getBitmapResource("img/default_avator.gif");
 					}
@@ -105,10 +105,10 @@ class DirectMessageSentThread extends Thread {
 				}
 				String body = jsonStream.getString("body");
 				int id = jsonStream.getInt("id");
-				placemarks.addElement(new DirectMessageSent(creator, body, avtr, createdwords, id));
+				msgsent.addElement(new DirectMessageSent(creator, body, avtr, createdwords, id));
 			}
 			rv = new DirectMessageSent[jsonArray.length()];
-			placemarks.copyInto(rv);
+			msgsent.copyInto(rv);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}

@@ -1,3 +1,20 @@
+=== 0.2.0
+* New Features
+ * Placemark list now has a status field instead of a display field
+ * Placemark list now has a graphical icon showing its a placemark
+ * Adding support to check to see if your running the most current version
+ * Adding support to view a place stream in streams and search results
+ * Place stream shows a map of the location
+ * Adding latest news that shows the BrightBerry stream at Brightkite
+ 
+* Fixes
+ * Changed Show on map to be View on Blackberry map
+ * Centering icons and arrows on the main screen
+ * Where am I now follows the rules (It will not auto update if the user doesn't have it enabled does not apply to posting photos and notes)
+ * Fixes if there are no posts or the stream object is null. Displays a bit more nicely
+ * Just in case the MDS or BIS server are trying to transcode content we now set it so it wont try to transcode anything
+ * Renamed some of the vectors to show what they really are holding.
+
 === 0.1.9
 
 * New Features

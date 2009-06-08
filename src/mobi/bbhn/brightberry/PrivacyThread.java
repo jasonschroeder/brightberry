@@ -65,6 +65,7 @@ public class PrivacyThread extends Thread {
 				this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 				this.httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 				this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
+				this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 				this.httpOutput = this.httpConnection.openDataOutputStream();
 				this.httpOutput.write(this.postmode.getBytes());
 				this.httpInput = this.httpConnection.openInputStream();

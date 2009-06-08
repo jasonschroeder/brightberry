@@ -47,6 +47,7 @@ class StreamThread extends Thread {
 	String mentions = "http://brightkite.com/me/mentionsstream.json?limit=";
 	String me = "http://brightkite.com/me/objects.json?limit=";
 	String person = "http://brightkite.com/people/";
+	String place = "http://brightkite.com/places/";
 	String offset = "&offset=";
 	HttpConnection httpConnection = null;
 	String type;
@@ -57,6 +58,7 @@ class StreamThread extends Thread {
 	String url;
 	int start;
 	String user;
+	String placeid;
 	Settings settings = Settings.getInstance();
 
 	public StreamThread(StreamScreen screen, int maxEntries, String type, int start) {
@@ -86,6 +88,8 @@ class StreamThread extends Thread {
 				this.url = this.mentions + this.maxEntries + this.offset + this.start;
 			} else if (this.type.equals("person")) {
 				this.url = this.person + this.user + "/objects.json?limit=" + this.maxEntries + this.offset + this.start;
+			} else if (this.type.equals("place")) {
+				this.url = this.place + this.user + "/objects.json?limit=" + this.maxEntries + this.offset + this.start;
 			} else {
 				this.url = this.me + this.maxEntries + this.offset + this.start;
 			}
@@ -97,8 +101,7 @@ class StreamThread extends Thread {
 			this.httpConnection.setRequestProperty("Connection", "Keep-Alive");
 			this.httpConnection.setRequestProperty("Accept-Encoding", "gzip,deflate");
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
-
-
+			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpInput = this.httpConnection.openInputStream();
 			StringBuffer buffer = new StringBuffer();
 			System.out.println("URL: " + this.url);
@@ -120,7 +123,7 @@ class StreamThread extends Thread {
 
 	private Stream[] parseJSON(String json) {
 		JSONArray jsonArray = null;
-		Vector placemarks = new Vector();
+		Vector stream = new Vector();
 		Stream[] rv = null;
 		
 		try {
@@ -141,7 +144,7 @@ class StreamThread extends Thread {
 				} else {
 					String avator = jsonCreator.getString("small_avatar_url");
 					System.out.println("Getting image " + avator);
-					avtr = getAvator.getavator(avator);
+					avtr = HTTPPhoto.getAvator(avator);
 					if (avtr == null) {
 						avtr = Bitmap.getBitmapResource("img/default_avator.gif");
 					}
@@ -161,12 +164,13 @@ class StreamThread extends Thread {
 				boolean about = jsonStream.optBoolean("about");
 				float longitude = (float)jsonPlace.getDouble("longitude");
 				float latitude = (float)jsonPlace.getDouble("latitude");
+				String placeid = jsonPlace.getString("id");
 				if (type.equals("note")) {
 					String body = jsonStream.optString("body");
-					placemarks.addElement(new Stream("note", creator, avtr, createdwords, locationname, latitude, longitude, id, body, publicpst, comments, about));
+					stream.addElement(new Stream("note", creator, avtr, createdwords, locationname, latitude, longitude, id, body, publicpst, comments, about, placeid));
 				} else if (type.equals("checkin")) {
 					String body = "";
-					placemarks.addElement(new Stream("checkin", creator, avtr, createdwords, locationname, latitude, longitude, id, body, publicpst, comments, about));
+					stream.addElement(new Stream("checkin", creator, avtr, createdwords, locationname, latitude, longitude, id, body, publicpst, comments, about, placeid));
 				} else if (type.equals("photo")) {
 					String body = jsonStream.optString("body");
 					Bitmap photo = null;
@@ -174,16 +178,16 @@ class StreamThread extends Thread {
 						photo = ImageCache.getImage(id);
 					} else {
 						String photourl = jsonStream.getString("photo");
-						photo = getFeedPhoto.getfeedphoto(photourl);
+						photo = HTTPPhoto.getFeedPhoto(photourl);
 					}
 					ImageCache.cacheImage(id, photo);
-					placemarks.addElement(new Stream("photo", creator, avtr, createdwords, locationname, latitude, longitude, id, body, publicpst, comments, about, photo));
+					stream.addElement(new Stream("photo", creator, avtr, createdwords, locationname, latitude, longitude, id, body, publicpst, comments, about, photo, placeid));
 				}
 				System.out.println("Longitude: " + longitude);
 				System.out.println("Latitude: " + latitude);
 			}
 			rv = new Stream[jsonArray.length()];
-			placemarks.copyInto(rv);
+			stream.copyInto(rv);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}

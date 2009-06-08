@@ -54,6 +54,10 @@ public class Comments {
 		return this.body;
 	}
 	
+	public void setAvator(Bitmap avator) {
+		this.avator = avator;
+	}
+	
 	public Bitmap getAvator() {
 		return this.avator;
 	}

@@ -49,8 +49,7 @@ public class PostCommentThread extends Thread {
 	Settings settings = Settings.getInstance();
 	
 	public PostCommentThread(String id, String comment, PostCommentScreen screen) {
-		PostCommentThread tmp56_55 = this;
-		tmp56_55.url = tmp56_55.url + id + "/comments.json";
+		this.url = this.url + id + "/comments.json";
 		URLEncodedPostData urlenc = new URLEncodedPostData(URLEncodedPostData.DEFAULT_CHARSET, true);
 		urlenc.append("comment[comment]", comment);
 		this.comment = urlenc.toString();
@@ -66,6 +65,7 @@ public class PostCommentThread extends Thread {
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			this.httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpOutput = this.httpConnection.openDataOutputStream();
 			this.httpOutput.write(this.comment.getBytes());
 			this.httpInput = this.httpConnection.openInputStream();

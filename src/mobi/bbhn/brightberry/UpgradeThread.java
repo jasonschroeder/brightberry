@@ -28,74 +28,64 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
-import net.rim.device.api.math.Fixed32;
-import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.system.EncodedImage;
-import net.rim.device.api.ui.Font;
+import org.json.me.JSONObject;
+
 import net.rim.device.api.ui.component.Dialog;
 
-public class getFeedPhoto {
+public class UpgradeThread extends Thread {
 	static Settings settings = Settings.getInstance();
+	BrightBerryMain screen;
 	
-	public static Bitmap getfeedphoto(String url) { 
+	public UpgradeThread(BrightBerryMain BrightBerryMain) {
+		this.screen = BrightBerryMain;
+	}
+	
+	public void run() {
 		try {
-			int end = url.length() - 4;
-			String urlend = url.substring(end);
-			String urlbeg = url.substring(0, end);
-			String newurl = "";
-			if (urlend.endsWith(".jpg") || urlend.endsWith(".png") || urlend.endsWith(".gif")) {
-				newurl = urlbeg + "-small" + urlend;
-			} else {
-				newurl = url;
-			}
-			newurl += NetworkConfig.getConnectionParameters(settings.getConnectionMode());
-			HttpConnection httpConnection = ((HttpConnection)Connector.open(newurl));
+			String url = "http://bbhn.mobi/version.php?version=" + BrightBerry.version;
+			url += NetworkConfig.getConnectionParameters(settings.getConnectionMode());
+			HttpConnection httpConnection = ((HttpConnection)Connector.open(url));
 			httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			httpConnection.setRequestProperty("Content-Language", "en-US");
-			httpConnection.setRequestProperty("Accept", "*/*");
-			httpConnection.setRequestProperty("Connection", "Keep-Alive");
-			httpConnection.setRequestProperty("Accept-Encoding", "gzip,deflate");
-			DataInputStream iStrm = httpConnection.openDataInputStream();
-			
-			byte imageData[];
-			int length = (int) httpConnection.getLength();
-			if (length != -1) {
-				imageData = new byte[length];
-				iStrm.readFully(imageData);
-			} else {
-				ByteArrayOutputStream bStrm = new ByteArrayOutputStream();
+			httpConnection.setRequestProperty("x-rim-transcode-content", "none");
+			InputStream httpInput = httpConnection.openInputStream();
 
-				int ch;
-				while ((ch = iStrm.read()) != -1) {
-					bStrm.write(ch);
-				}
-	
-				imageData = bStrm.toByteArray();
-				bStrm.close();
+			StringBuffer buffer = new StringBuffer();
+
+			int ch = 0;
+			while (ch != -1) {
+				ch = httpInput.read();
+				buffer.append((char)ch);
 			}
-			EncodedImage m_Image = EncodedImage.createEncodedImage(imageData, 0, imageData.length);
-			int oldHeight = m_Image.getWidth();
-			Font f = Font.getDefault();
-			int fontHeight = f.getHeight()*2;
-			
-			int numerator = Fixed32.toFP(oldHeight);
-			int denominator = Fixed32.toFP(fontHeight);
-			int widthScale = Fixed32.div(numerator, denominator);
-			
-			EncodedImage newEi = m_Image.scaleImage32(widthScale, widthScale);
-			Bitmap img = newEi.getBitmap();
-			return img;
+
+			String serverResponse = buffer.toString();
+			boolean upgrade = parseJSON(serverResponse);
+			this.screen.callUpgrade(upgrade);
 
 		} catch (IOException e) {
 			Dialog.alert("Caught Exception");
 		}
-		return null;
+	}
+	
+	private static boolean parseJSON(String json) {
+		JSONObject me = null;
+		try {
+			me = new JSONObject(json);
+			String upgrade = me.getString("upgradeavailable");
+			if (upgrade.equals("true")) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		return false;
 	}
 }

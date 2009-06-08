@@ -56,24 +56,25 @@ public class CheckUsername {
 		try {
 			this.url += NetworkConfig.getConnectionParameters(ConnectionMode);
 			this.httpConnection = ((HttpConnection)Connector.open(this.url));
+			System.out.println("Connection: " + this.url);
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
+			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			String combo = this.username + ":" + this.password;
 			this.httpConnection.setRequestProperty("Authorization", "Basic " + Base64OutputStream.encodeAsString(combo.getBytes(), 0, combo.getBytes().length, false, false));
 			this.httpInput = this.httpConnection.openInputStream();
 			int rc = httpConnection.getResponseCode();
+			System.out.println("Response code; " + rc);
 			if (rc == HttpConnection.HTTP_OK) {
 				return true;
 			} else {
-				this.settings.setUsername(null);
-				this.settings.setPassword(null);
-				this.settings.setAuthed(false);
-				Settings.save(settings);
 				return false;
 			}
 	    } catch (IOException ex) {
+	    	System.out.println("Caught exception");
 	    	ex.printStackTrace();
 	    }
+	    System.out.println("No more exceptions to catch");
 		return false;
 	}
 }

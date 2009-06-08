@@ -116,7 +116,7 @@ public class BkObjectScreen extends MainScreen {
             this.ViewStreamItem = new MenuItem("View User Stream", 3, 10) {
             	public void run() {
             		String creator = commentsStream[commentlist.getSelectedIndex()].getName();
-        			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", creator, 0));
+        			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", creator, 0, 0, 0));
             	}
             };
             
@@ -163,7 +163,7 @@ public class BkObjectScreen extends MainScreen {
                             BkObjectScreen.this.createdField.setText(BkObjectScreen.this.created_at_as_words + " ago");
                             BkObjectScreen.this.add(creatorField);
                             if (BkObjectScreen.this.type.equals("Photo")){
-                                    Bitmap bmPhoto = getPhoto.getphoto(BkObjectScreen.this.photo);
+                                    Bitmap bmPhoto = HTTPPhoto.getPhoto(BkObjectScreen.this.photo);
                                     if (bmPhoto != null) {
                                             BkObjectScreen.this.photoField.setBitmap(bmPhoto);
                                             BkObjectScreen.this.add(photoField);

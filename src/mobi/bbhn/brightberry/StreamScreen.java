@@ -30,6 +30,7 @@ OF SUCH DAMAGE.
 
 import net.rim.blackberry.api.invoke.Invoke;
 import net.rim.blackberry.api.invoke.MapsArguments;
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
@@ -37,6 +38,7 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
@@ -48,7 +50,9 @@ import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 
 public class StreamScreen extends MainScreen {
-	RichTextField statusField = new RichTextField("field", RichTextField.NON_FOCUSABLE);
+	RichTextField statusField = new RichTextField("Status field", RichTextField.NON_FOCUSABLE);
+    Bitmap loading = Bitmap.getBitmapResource("BKIcon.jpg");
+    BitmapField photoField = new BitmapField(loading, BitmapField.FIELD_HCENTER|BitmapField.FOCUSABLE|BitmapField.EDITABLE|HIGHLIGHT_FOCUS);
 	Settings settings = Settings.getInstance();
 	MenuItem refreshItem;
 	StreamScreen screen = this;
@@ -62,12 +66,16 @@ public class StreamScreen extends MainScreen {
 	private MenuItem nextItem;
 	private MenuItem previousItem;
 	private String user;
+	private float longitude;
+	private float latitude;
 	static boolean BKauth;
 	
-	public StreamScreen(boolean refreshMe, String streamtoview, String user, int start) {
+	public StreamScreen(boolean refreshMe, String streamtoview, String user, int start, float latitude, float longitude) {
 		this.streamtoview = streamtoview;
 		this.start = start;
 		this.user = user;
+		this.longitude = longitude;
+		this.latitude = latitude;
 		
 		StreamButton aroundmeButton = new StreamButton("Around Me", ButtonField.FOCUSABLE|ButtonField.CONSUME_CLICK);
 		FieldChangeListener AroundMeListener = new FieldChangeListener() {
@@ -115,13 +123,29 @@ public class StreamScreen extends MainScreen {
 		    add(new SeparatorField());
 		} else if (this.streamtoview.equals("mentions")) {
 			this.title = "Mentions ";
+		} else if (this.streamtoview.equals("place")) {
+			this.title = "Place ";
 		} else if (this.streamtoview.equals("person")) {
-			this.title = this.user + "'s ";
+			if (this.user.equals("brightberry")) {
+				this.title = "latest news";
+			} else {
+				this.title = this.user + "'s ";
+			}
 		} else {
 			this.title = "My ";
 		}
 		
-		super.setTitle(new LabelField("BrightBerry " + this.title + "stream", 1152921504606846980L));
+		if (this.title.equals("latest news")) {
+			super.setTitle(new LabelField("BrightBerry " + this.title, 1152921504606846980L));
+		} else {
+			super.setTitle(new LabelField("BrightBerry " + this.title + "stream", 1152921504606846980L));
+		}
+		
+		if (this.streamtoview.equals("place")) {
+			Bitmap bmPhoto = HTTPPhoto.getMapPhoto(longitude, latitude, 15);
+			photoField.setBitmap(bmPhoto);
+			add(photoField);
+		}
 		
 		this.refreshItem = new MenuItem("Refresh", 13, 10) {
 			public void run() {
@@ -151,9 +175,13 @@ public class StreamScreen extends MainScreen {
 		addMenuItem(this.refreshItem);
 		
 		if (this.settings.getAutoUpdate() || refreshMe) {
-			this.statusField.setText("Loading " + this.title + "stream");
+			if (this.title.equals("latest news")) {
+				this.statusField.setText("Loading BrightBerry " + this.title);
+			} else {
+				this.statusField.setText("Loading " + this.title + "stream");
+			}
 			Thread posts;
-			if (this.streamtoview.equals("person")) {
+			if (this.streamtoview.equals("person") || this.streamtoview.equals("place")) {
 				posts = new StreamThread(this.screen, this.settings.getMaxEntries(), this.streamtoview, this.user, this.start);
 			} else {
 				posts = new StreamThread(this.screen, this.settings.getMaxEntries(), this.streamtoview, this.start);
@@ -170,12 +198,16 @@ public class StreamScreen extends MainScreen {
 		UiApplication.getUiApplication().invokeLater(new Runnable() { 
 			public void run() {
 				if (StreamScreen.this.stream != null) {
-					delete(statusField);
-					list.setEmptyString("Nothing to see here", DrawStyle.LEFT);
-					list.setSize(StreamScreen.this.stream.length);
-					list.setCallback(new StreamCallback(StreamScreen.this.stream, StreamScreen.this.screen));
-					list.setRowHeight(ListField.ROW_HEIGHT_FONT*4);
-					add(list);
+					if (StreamScreen.this.stream.length == 0) {
+						statusField.setText("No posts or checkins to show");
+					} else {
+						delete(statusField);
+						list.setEmptyString("No posts to display", DrawStyle.LEFT);
+						list.setSize(StreamScreen.this.stream.length);
+						list.setCallback(new StreamCallback(StreamScreen.this.stream, StreamScreen.this.screen));
+						list.setRowHeight(ListField.ROW_HEIGHT_FONT*4);
+						add(list);
+					}
 				} else {
 					statusField.setText("No posts to display");
 				}
@@ -185,22 +217,22 @@ public class StreamScreen extends MainScreen {
 	
 	public void refresh() {
 		UiApplication.getUiApplication().popScreen(this);
-		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, this.streamtoview, null, this.start));
+		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, this.streamtoview, null, this.start, this.longitude, this.latitude));
 	}
 	
 	public void friendstream() {
 		UiApplication.getUiApplication().popScreen(this);
-		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "friend", null, 0));
+		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "friend", null, 0, 0, 0));
 	}
 	
 	public void nearbystream() {
 		UiApplication.getUiApplication().popScreen(this);
-		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "nearby", null, 0));
+		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "nearby", null, 0, 0, 0));
 	}
 	
 	public void universestream() {
 		UiApplication.getUiApplication().popScreen(this);
-		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "universe", null, 0));
+		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "universe", null, 0, 0, 0));
 	}
 	
 	public final class ViewMoreMenuItem extends MenuItem {
@@ -255,13 +287,26 @@ public class StreamScreen extends MainScreen {
 		
 		public void run() {
 			String creator = stream[list.getSelectedIndex()].getCreator();
-			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", creator, 0));
+			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", creator, 0, 0, 0));
+		}
+	}
+	
+	public final class ViewPlaceItem extends MenuItem {
+		public ViewPlaceItem() {
+			super("View Place Stream", 6, 1);
+		}
+		
+		public void run() {
+			String placeid = stream[list.getSelectedIndex()].getPlaceID();
+			float latitude = stream[list.getSelectedIndex()].getLatitude();
+			float longitude = stream[list.getSelectedIndex()].getLongitude();
+			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "place", placeid, 0, latitude, longitude));
 		}
 	}
 	
 	public final class ViewMapMenuItem extends MenuItem {
 		public ViewMapMenuItem() {
-			super("View On Map", 6, 1);
+			super("View On Blackberry Map", 7, 1);
 		}
 		
 		public void run() {
@@ -280,6 +325,7 @@ public class StreamScreen extends MainScreen {
 	public class StreamListField extends ListField {
 		protected void makeContextMenu(ContextMenu contextMenu) {
 			contextMenu.addItem(new ViewMapMenuItem());
+			contextMenu.addItem(new ViewPlaceItem());
 			contextMenu.addItem(new ViewMoreMenuItem());
 			contextMenu.addItem(new FullTextMenuItem());
 			contextMenu.addItem(new PostCommentMenuItem());

@@ -32,14 +32,18 @@ public class SearchPlace {
 	private String name;
 	private String id;
 	private String display_location;
+	private float latitude;
+	private float longitude;
 
 	public SearchPlace() {
 	}
 
-	public SearchPlace(String name, String display_location, String id) {
+	public SearchPlace(String name, String display_location, String id, float latitude, float longitude) {
 		this.name = name;
 		this.display_location = display_location;
 		this.id = id;
+		this.latitude = latitude;
+		this.longitude = longitude;
 	}
 
 	public String getName() {
@@ -52,5 +56,13 @@ public class SearchPlace {
 
 	public String getId() {
 		return this.id;
+	}
+	
+	public float getLatitude() {
+		return this.latitude;
+	}
+	
+	public float getLongitude() {
+		return this.longitude;
 	}
 }

@@ -66,6 +66,7 @@ public class PostNoteThread extends Thread {
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			this.httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpOutput = this.httpConnection.openDataOutputStream();
 			this.httpOutput.write(this.note.getBytes());
 			this.httpInput = this.httpConnection.openInputStream();
