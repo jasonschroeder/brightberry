@@ -51,6 +51,8 @@ public class PlacemarkScreen extends MainScreen {
 	ListField list = new PlacemarkListField();
 	private MenuItem placestreamItem;
 	private MenuItem mapItem;
+	private MenuItem postnote;
+	private MenuItem postphoto;
 	protected boolean onSavePrompt() {
 		return true;
 	}
@@ -66,7 +68,7 @@ public class PlacemarkScreen extends MainScreen {
 				if (PlacemarkScreen.this.list.getSelectedIndex() > -1) {
 					Placemark[] places = settings.getPlacemarks();
 					String id = places[PlacemarkScreen.this.list.getSelectedIndex()].getId();
-					Thread checkinThread = new PlCheckInThread(id, PlacemarkScreen.this.screen);
+					Thread checkinThread = new CheckInThread(id, "placemark", PlacemarkScreen.this.screen);
 					checkinThread.start();
 				} else {
 					Status.show("No Placemark selected");
@@ -79,16 +81,43 @@ public class PlacemarkScreen extends MainScreen {
 				if (PlacemarkScreen.this.list.getSelectedIndex() > -1) {
 					Placemark[] places = settings.getPlacemarks();
 					String placeid = places[PlacemarkScreen.this.list.getSelectedIndex()].getId();
+					String placename = places[PlacemarkScreen.this.list.getSelectedIndex()].getName();
 					float latitude = places[PlacemarkScreen.this.list.getSelectedIndex()].getLatitude();
 					float longitude = places[PlacemarkScreen.this.list.getSelectedIndex()].getLongitude();
-					UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "place", placeid, 0, latitude, longitude));
+					UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "place", 0, latitude, longitude, placeid, placename));
 				} else {
 					Status.show("No Placemark selected");
 				}
 			}
 		};
 		
-		this.mapItem = new MenuItem("View on Blackberry Map", 3, 10) {
+		this.postnote = new MenuItem("Post Note About", 3, 10) {
+			public void run() {
+				if (PlacemarkScreen.this.list.getSelectedIndex() > -1) {
+					Placemark[] places = settings.getPlacemarks();
+					String placeid = places[PlacemarkScreen.this.list.getSelectedIndex()].getId();
+					String placename = places[PlacemarkScreen.this.list.getSelectedIndex()].getName();
+					UiApplication.getUiApplication().pushScreen(new PostNoteScreen(placeid, placename));
+				} else {
+					Status.show("No Placemark selected");
+				}
+			}
+		};
+		
+		this.postphoto = new MenuItem("Post Photo About", 4, 10) {
+			public void run() {
+				if (PlacemarkScreen.this.list.getSelectedIndex() > -1) {
+					Placemark[] places = settings.getPlacemarks();
+					String placeid = places[PlacemarkScreen.this.list.getSelectedIndex()].getId();
+					String placename = places[PlacemarkScreen.this.list.getSelectedIndex()].getName();
+					UiApplication.getUiApplication().pushScreen(new PostPhotoScreen(placeid, placename));
+				} else {
+					Status.show("No Placemark selected");
+				}
+			}
+		};
+		
+		this.mapItem = new MenuItem("View on Blackberry Map", 5, 10) {
 			public void run() {
 				if (PlacemarkScreen.this.list.getSelectedIndex() > -1) {
 					Placemark[] places = settings.getPlacemarks();
@@ -105,7 +134,7 @@ public class PlacemarkScreen extends MainScreen {
 			}
 		};
 		
-		this.updateItem = new MenuItem("Update Placemarks", 5, 10) {
+		this.updateItem = new MenuItem("Update Placemarks", 7, 10) {
 			public void run() {
 				Status.show("Updating placemarks");
 				Thread updateThread = new PlacemarksUpdateThread(PlacemarkScreen.this.screen);
@@ -113,7 +142,7 @@ public class PlacemarkScreen extends MainScreen {
 			}
 		};
 		
-		this.whereAmIItem = new MenuItem("Where Am I", 6, 10) {
+		this.whereAmIItem = new MenuItem("Where Am I", 8, 10) {
 			public void run() {
 				Thread whereThread = new PlWhereAmIThread(PlacemarkScreen.this.screen);
 				whereThread.start();
@@ -122,7 +151,7 @@ public class PlacemarkScreen extends MainScreen {
 		
 		addMenuItem(this.updateItem);
 		addMenuItem(this.whereAmIItem);
-		addMenuItem(MenuItem.separator(7));
+		addMenuItem(MenuItem.separator(9));
 		
 		if (settings.getPlacemarks() != null) {
 			this.list.setEmptyString("Nothing to see here", DrawStyle.LEFT);
@@ -176,6 +205,8 @@ public class PlacemarkScreen extends MainScreen {
 		protected void makeContextMenu(ContextMenu contextMenu) {
 			contextMenu.addItem(checkinItem);
 			contextMenu.addItem(placestreamItem);
+			contextMenu.addItem(postnote);
+			contextMenu.addItem(postphoto);
 			contextMenu.addItem(mapItem);
 		}
 	}

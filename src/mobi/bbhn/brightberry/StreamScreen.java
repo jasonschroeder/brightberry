@@ -35,7 +35,6 @@ import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
-import net.rim.device.api.ui.Manager;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BitmapField;
@@ -46,13 +45,22 @@ import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.component.SeparatorField;
+import net.rim.device.api.ui.component.Status;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
 
 public class StreamScreen extends MainScreen {
 	RichTextField statusField = new RichTextField("Status field", RichTextField.NON_FOCUSABLE);
     Bitmap loading = Bitmap.getBitmapResource("BKIcon.jpg");
-    BitmapField photoField = new BitmapField(loading, BitmapField.FIELD_HCENTER|BitmapField.FOCUSABLE|BitmapField.EDITABLE|HIGHLIGHT_FOCUS);
+    BitmapField photoField = new BitmapField(loading, BitmapField.FIELD_HCENTER|BitmapField.FOCUSABLE|BitmapField.EDITABLE|HIGHLIGHT_FOCUS) {
+    	protected void makeContextMenu(ContextMenu contextMenu) {
+    		contextMenu.addItem(new PostNoteMenuItem());
+    		contextMenu.addItem(new PostPhotoMenuItem());
+			contextMenu.addItem(new ViewMapMenuItem());
+			contextMenu.addItem(MenuItem.separator(8));
+			contextMenu.addItem(new CheckinMenuItem());
+		}
+    };
 	Settings settings = Settings.getInstance();
 	MenuItem refreshItem;
 	StreamScreen screen = this;
@@ -68,14 +76,42 @@ public class StreamScreen extends MainScreen {
 	private String user;
 	private float longitude;
 	private float latitude;
+	private boolean refreshMe;
+	private String placeid;
+	private String placename;
+	private String message;
 	static boolean BKauth;
 	
-	public StreamScreen(boolean refreshMe, String streamtoview, String user, int start, float latitude, float longitude) {
+	// Regular constructor
+	public StreamScreen(boolean refreshMe, String streamtoview, int start) {
+		this.refreshMe = refreshMe;
+		this.streamtoview = streamtoview;
+		this.start = start;
+		this.runme();
+	}
+	
+	// User constructor
+	public StreamScreen(boolean refreshMe, String streamtoview, int start, String user) {
+		this.refreshMe = refreshMe;
 		this.streamtoview = streamtoview;
 		this.start = start;
 		this.user = user;
+		this.runme();
+	}
+	
+	// Place constructor
+	public StreamScreen(boolean refreshMe, String streamtoview, int start, float latitude, float longitude, String placeid, String placename) {
+		this.refreshMe = refreshMe;
+		this.streamtoview = streamtoview;
+		this.start = start;
+		this.placeid = placeid;
+		this.placename = placename;
 		this.longitude = longitude;
 		this.latitude = latitude;
+		this.runme();
+	}
+	
+	public void runme () {
 		
 		StreamButton aroundmeButton = new StreamButton("Around Me", ButtonField.FOCUSABLE|ButtonField.CONSUME_CLICK);
 		FieldChangeListener AroundMeListener = new FieldChangeListener() {
@@ -101,7 +137,7 @@ public class StreamScreen extends MainScreen {
 		};
 		friendsButton.setChangeListener(FriendsListener);
 		
-		HorizontalFieldManager hfm = new HorizontalFieldManager(Manager.USE_ALL_WIDTH|NO_HORIZONTAL_SCROLL);
+		HorizontalFieldManager hfm = new HorizontalFieldManager(USE_ALL_WIDTH|NO_HORIZONTAL_SCROLL);
 		
 		if (this.streamtoview.equals("friend")) {
 			this.title = "Friend";
@@ -181,8 +217,10 @@ public class StreamScreen extends MainScreen {
 				this.statusField.setText("Loading " + this.title + "stream");
 			}
 			Thread posts;
-			if (this.streamtoview.equals("person") || this.streamtoview.equals("place")) {
+			if (this.streamtoview.equals("person")) {
 				posts = new StreamThread(this.screen, this.settings.getMaxEntries(), this.streamtoview, this.user, this.start);
+			} else if (this.streamtoview.equals("place")) {
+				posts = new StreamThread(this.screen, this.settings.getMaxEntries(), this.streamtoview, this.start, this.placeid);
 			} else {
 				posts = new StreamThread(this.screen, this.settings.getMaxEntries(), this.streamtoview, this.start);
 			}
@@ -217,22 +255,28 @@ public class StreamScreen extends MainScreen {
 	
 	public void refresh() {
 		UiApplication.getUiApplication().popScreen(this);
-		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, this.streamtoview, null, this.start, this.longitude, this.latitude));
+		if (this.streamtoview.equals("person")) {
+			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", this.start, this.user));
+		} else if (this.streamtoview.equals("place")) {
+			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "place", this.start, this.longitude, this.latitude, this.placeid, this.placename));
+		} else {
+			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, this.streamtoview, this.start));
+		}
 	}
 	
 	public void friendstream() {
 		UiApplication.getUiApplication().popScreen(this);
-		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "friend", null, 0, 0, 0));
+		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "friend", 0));
 	}
 	
 	public void nearbystream() {
 		UiApplication.getUiApplication().popScreen(this);
-		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "nearby", null, 0, 0, 0));
+		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "nearby", 0));
 	}
 	
 	public void universestream() {
 		UiApplication.getUiApplication().popScreen(this);
-		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "universe", null, 0, 0, 0));
+		UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "universe", 0));
 	}
 	
 	public final class ViewMoreMenuItem extends MenuItem {
@@ -287,7 +331,7 @@ public class StreamScreen extends MainScreen {
 		
 		public void run() {
 			String creator = stream[list.getSelectedIndex()].getCreator();
-			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", creator, 0, 0, 0));
+			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", 0, creator));
 		}
 	}
 	
@@ -298,9 +342,10 @@ public class StreamScreen extends MainScreen {
 		
 		public void run() {
 			String placeid = stream[list.getSelectedIndex()].getPlaceID();
+			String placename = stream[list.getSelectedIndex()].getLocationName();
 			float latitude = stream[list.getSelectedIndex()].getLatitude();
 			float longitude = stream[list.getSelectedIndex()].getLongitude();
-			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "place", placeid, 0, latitude, longitude));
+			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "place", 0, latitude, longitude, placeid, placename));
 		}
 	}
 	
@@ -312,25 +357,81 @@ public class StreamScreen extends MainScreen {
 		public void run() {
 			float longitude = stream[list.getSelectedIndex()].getLongitude();
 			float latitude = stream[list.getSelectedIndex()].getLatitude();
-			String creator = stream[list.getSelectedIndex()].getCreator();
-			String description = stream[list.getSelectedIndex()].getBody();
-			description = BrightBerry.replaceAll(description, "'", "");
-            String location = "<lbs>" + "<location lat='" + (int)(latitude*100000) + "' lon='" + (int)(longitude*100000) + "' label='" + creator  +"' description='" + description + "'/>" + "</lbs>";
-			//String location = "<lbs>" + " <location lat='-7500000' lon='4500000' label='TestPoint1' description='This could have a phone number. 555-1212'/>" + "</lbs>";
+			String location = null;
+			if (StreamScreen.this.streamtoview.equals("place") == false) {
+				String creator = stream[list.getSelectedIndex()].getCreator();
+				String description = stream[list.getSelectedIndex()].getBody();
+				description = BrightBerry.replaceAll(description, "'", "");
+				location = "<lbs>" + "<location lat='" + (int)(latitude*100000) + "' lon='" + (int)(longitude*100000) + "' label='" + creator  +"' description='" + description + "'/>" + "</lbs>";
+			} else {
+				location = "<lbs>" + "<location lat='" + (int)(latitude*100000) + "' lon='" + (int)(longitude*100000) + "'/>" + "</lbs>";
+			}
             System.out.println("Location string: " + location);
-            Invoke.invokeApplication(Invoke.APP_TYPE_MAPS, new MapsArguments(MapsArguments.ARG_LOCATION_DOCUMENT, location));
+            if (location != null) {
+            	Invoke.invokeApplication(Invoke.APP_TYPE_MAPS, new MapsArguments(MapsArguments.ARG_LOCATION_DOCUMENT, location));
+            }
 		}
+	}
+	
+	public final class PostNoteMenuItem extends MenuItem {
+		public PostNoteMenuItem() {
+			super("Post Note About", 1, 1);
+		}
+		
+		public void run() {
+			String placeid = StreamScreen.this.placeid;
+			String name = StreamScreen.this.placename;
+			UiApplication.getUiApplication().pushScreen(new PostNoteScreen(placeid, name));
+		}
+	}
+	
+	public final class PostPhotoMenuItem extends MenuItem {
+		public PostPhotoMenuItem() {
+			super("Post Photo About", 2, 1);
+		}
+		
+		public void run() {
+			String placeid = StreamScreen.this.placeid;
+			String name = StreamScreen.this.placename;
+			UiApplication.getUiApplication().pushScreen(new PostPhotoScreen(placeid, name));
+		}
+	}
+	
+	public final class CheckinMenuItem extends MenuItem {
+		public CheckinMenuItem() {
+			super("Checkin Here", 8, 1);
+		}
+		
+		public void run() {
+			String placeid = StreamScreen.this.placeid;
+			Thread checkinThread = new CheckInThread(placeid, "stream", StreamScreen.this.screen);
+			checkinThread.start();
+		}
+	}
+	
+	public void updateStatus(String message) {
+		this.message = message;
+		UiApplication.getUiApplication().invokeLater(new Runnable() {
+			public void run() {
+				Status.show("You successfully checked in at " + StreamScreen.this.message);
+				if (UiApplication.getUiApplication().getActiveScreen() == StreamScreen.this) {
+					UiApplication.getUiApplication().popScreen(StreamScreen.this);
+				}
+			}
+		});
 	}
 	
 	public class StreamListField extends ListField {
 		protected void makeContextMenu(ContextMenu contextMenu) {
-			contextMenu.addItem(new ViewMapMenuItem());
-			contextMenu.addItem(new ViewPlaceItem());
+			if (StreamScreen.this.streamtoview.equals("place") == false) {
+				contextMenu.addItem(new ViewMapMenuItem());
+				contextMenu.addItem(new ViewPlaceItem());
+			}
 			contextMenu.addItem(new ViewMoreMenuItem());
 			contextMenu.addItem(new FullTextMenuItem());
 			contextMenu.addItem(new PostCommentMenuItem());
 			contextMenu.addItem(new SendDirectMessageMenuItem());
-			if (StreamScreen.this.user == null) {
+			if (StreamScreen.this.streamtoview.equals("person") == false) {
 				contextMenu.addItem(new ViewStreamItem());
 			}
 		}

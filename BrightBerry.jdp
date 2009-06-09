@@ -43,6 +43,7 @@ src\mobi\bbhn\brightberry\BkObjectScreen.java
 src\mobi\bbhn\brightberry\BkObjectThread.java
 src\mobi\bbhn\brightberry\BrightBerry.java
 src\mobi\bbhn\brightberry\BrightBerryMain.java
+src\mobi\bbhn\brightberry\CheckInThread.java
 src\mobi\bbhn\brightberry\CheckUsername.java
 src\mobi\bbhn\brightberry\Comments.java
 src\mobi\bbhn\brightberry\CommentScreen.java
@@ -69,7 +70,6 @@ src\mobi\bbhn\brightberry\Placemark.java
 src\mobi\bbhn\brightberry\PlacemarkList.java
 src\mobi\bbhn\brightberry\PlacemarkScreen.java
 src\mobi\bbhn\brightberry\PlacemarkUpdateThread.java
-src\mobi\bbhn\brightberry\PlCheckInThread.java
 src\mobi\bbhn\brightberry\PlWhereAmIThread.java
 src\mobi\bbhn\brightberry\PostCommentScreen.java
 src\mobi\bbhn\brightberry\PostCommentThread.java
@@ -82,7 +82,6 @@ src\mobi\bbhn\brightberry\PrivacyGet.java
 src\mobi\bbhn\brightberry\PrivacyThread.java
 src\mobi\bbhn\brightberry\Protocol.java
 src\mobi\bbhn\brightberry\SearchPlace.java
-src\mobi\bbhn\brightberry\SearchPlaceCheckInThread.java
 src\mobi\bbhn\brightberry\SearchPlaceList.java
 src\mobi\bbhn\brightberry\SearchPlaceScreen.java
 src\mobi\bbhn\brightberry\SearchPlaceThread.java
@@ -130,4 +129,4 @@ Title=BrightBerry
 Type=0
 UserData=|src
 Vendor=Hallgren Networks
-Version=0.2.0
+Version=0.2.1

@@ -53,32 +53,31 @@ public class SearchPlaceScreen extends MainScreen {
 	private Criteria _criteria;
 	private LocationProvider _provider;
 	Location _location;
-	
 	AutoTextEditField searchField = new AutoTextEditField("Location: ", "", 255, AutoTextEditField.NO_NEWLINE|AutoTextEditField.SPELLCHECKABLE);
 	ButtonField searchButtonField = new ButtonField("Search", 12884967424L);
 	SearchPlaceScreen screen = this;
 	SearchPlace[] searchPlaceResults;
 	ObjectChoiceField searchChoiceField;
-
 	MenuItem GPSItem = new MenuItem("Get GPS Location", 1, 10) {
 		public void run() {
 			Status.show("Getting GPS Location");
 			SearchPlaceScreen.this.getGPS();
 		}
 	};
+	
 	private String message;
 	MenuItem checkinItem;
 	ListField list = new SearchPlaceListField();
 	private String lasterror;
-	private MenuItem placestreamItem;
+	MenuItem placestreamItem;
+	MenuItem postnote;
+	MenuItem postphoto;
 	protected boolean onSavePrompt() {
 		return true;
 	}
 
 	public SearchPlaceScreen() {
-	    
-		super.setTitle(new LabelField("BrightBerry Search Place", 1152921504606846980L));
-		
+	    super.setTitle(new LabelField("BrightBerry Search Place", 1152921504606846980L));
 		add(this.searchField);
 		FieldChangeListener listener = new FieldChangeListener() {
 			public void fieldChanged(Field field, int context) {
@@ -95,7 +94,7 @@ public class SearchPlaceScreen extends MainScreen {
 			public void run() {
 				if (list.getSelectedIndex() > -1) {
 					int place = list.getSelectedIndex();
-					Thread checkinThread = new SearchPlaceCheckInThread(searchPlaceResults[place].getId(), SearchPlaceScreen.this.screen);
+					Thread checkinThread = new CheckInThread(searchPlaceResults[place].getId(), "search", SearchPlaceScreen.this.screen);
 					checkinThread.start();
 				} else {
 					Status.show("No place selected");
@@ -107,11 +106,32 @@ public class SearchPlaceScreen extends MainScreen {
 			public void run() {
 				if (list.getSelectedIndex() > -1) {
 					String placeid = searchPlaceResults[list.getSelectedIndex()].getId();
+					String placename = searchPlaceResults[list.getSelectedIndex()].getName();
 					float latitude = searchPlaceResults[list.getSelectedIndex()].getLatitude();
 					float longitude = searchPlaceResults[list.getSelectedIndex()].getLongitude();
-					UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "place", placeid, 0, latitude, longitude));
+					UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "place", 0, latitude, longitude, placeid, placename));
 				} else {
 					Status.show("No place selected");
+				}
+			}
+		};
+		
+		postnote = new MenuItem("Post Note About", 3, 10) {
+			public void run() {
+				if (list.getSelectedIndex() > -1) {
+					String placeid = searchPlaceResults[list.getSelectedIndex()].getId();
+					String placename = searchPlaceResults[list.getSelectedIndex()].getName();
+					UiApplication.getUiApplication().pushScreen(new PostNoteScreen(placeid, placename));
+				}
+			}
+		};
+		
+		postphoto = new MenuItem("Post Photo About", 4, 10) {
+			public void run() {
+				if (list.getSelectedIndex() > -1) {
+					String placeid = searchPlaceResults[list.getSelectedIndex()].getId();
+					String placename = searchPlaceResults[list.getSelectedIndex()].getName();
+					UiApplication.getUiApplication().pushScreen(new PostPhotoScreen(placeid, placename));
 				}
 			}
 		};
@@ -216,6 +236,8 @@ public class SearchPlaceScreen extends MainScreen {
 		protected void makeContextMenu(ContextMenu contextMenu) {
 			contextMenu.addItem(checkinItem);
 			contextMenu.addItem(placestreamItem);
+			contextMenu.addItem(postnote);
+			contextMenu.addItem(postphoto);
 		}
 	}
 }

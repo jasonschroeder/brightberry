@@ -116,7 +116,7 @@ public class BkObjectScreen extends MainScreen {
             this.ViewStreamItem = new MenuItem("View User Stream", 3, 10) {
             	public void run() {
             		String creator = commentsStream[commentlist.getSelectedIndex()].getName();
-        			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", creator, 0, 0, 0));
+        			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", 0, creator));
             	}
             };
             

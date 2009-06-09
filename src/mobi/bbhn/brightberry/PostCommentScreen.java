@@ -33,8 +33,10 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.AutoTextEditField;
+import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.LabelField;
+import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.component.Status;
 import net.rim.device.api.ui.container.MainScreen;
 
@@ -42,10 +44,19 @@ public class PostCommentScreen extends MainScreen implements FieldChangeListener
 	Settings settings = Settings.getInstance();
 	PostCommentScreen screen = this;
 	AutoTextEditField comment = new AutoTextEditField("Comment: ", "", 1000, AutoTextEditField.SPELLCHECKABLE);
+	RichTextField leftField = new RichTextField("Characters Left: 1000/1000", RichTextField.NON_FOCUSABLE);
 	ButtonField postBtn;
 	MenuItem updateItem;
 	private String objectID;
 	private static boolean Posted;
+	
+	FieldChangeListener inputListener = new FieldChangeListener() {
+		public void fieldChanged(Field field, int context) {
+			int charleft = 1000-((BasicEditField) field).getTextLength();
+			leftField.setText("Characters Left: " + charleft + "/1000");
+		}
+	};
+	
 	protected boolean onSavePrompt() {
 		return true;
 	}
@@ -68,10 +79,12 @@ public class PostCommentScreen extends MainScreen implements FieldChangeListener
 		
 		postBtn = new ButtonField("Post Comment", ButtonField.CONSUME_CLICK);
 		postBtn.setChangeListener(this);
-		add(comment);
+		comment.setChangeListener(inputListener);
 		comment.setCursorPosition(0);
+		add(comment);
 		add(postBtn);
 		addMenuItem(updateItem);
+		setStatus(leftField);
 	}
 	
 	public void fieldChanged(Field field, int context) {

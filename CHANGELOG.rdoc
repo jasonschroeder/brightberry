@@ -1,3 +1,16 @@
+=== 0.2.1
+* New Features
+ * Adding support to post notes and photos about a search/placemark location
+ * Now displaying the available characters left in a note/photo/comment
+ * Upgrading the UI for posting photos, notes, and comments
+ * You can now post notes/photos about a place when viewing a place stream
+ * You can checkin when view a place's stream
+
+* Fixes
+ * Making the stream context menus not show stuff that doesn't apply to the stream the user is viewing. (Eg View Place stream when viewing Place Stream)
+ * Combining the checkin threads to a single file (No need to duplicate same features)
+ * When posting a photo only the file name is shown. (No need to have a massive string displayed to the EU)
+ 
 === 0.2.0
 * New Features
  * Placemark list now has a status field instead of a display field

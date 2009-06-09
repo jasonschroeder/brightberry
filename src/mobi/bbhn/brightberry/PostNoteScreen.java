@@ -33,47 +33,76 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.AutoTextEditField;
+import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.RichTextField;
+import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.component.Status;
 import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.container.VerticalFieldManager;
 
 public class PostNoteScreen extends MainScreen implements FieldChangeListener {
 	Settings settings = Settings.getInstance();
 	RichTextField statusField = new RichTextField("Loading...", RichTextField.NON_FOCUSABLE);
+	RichTextField leftField = new RichTextField("Characters Left: 140/140", RichTextField.NON_FOCUSABLE);
 	PostNoteScreen screen = this;
 	AutoTextEditField note = new AutoTextEditField("Note: ", "", 140, AutoTextEditField.SPELLCHECKABLE|AutoTextEditField.NO_NEWLINE);
 	ButtonField postBtn;
-	MenuItem updateItem;
+	MenuItem updateItem = new MenuItem("Post Note", 1, 10) {
+		public void run() {
+			if (note.getTextLength() > 0) {
+				Status.show("Posting...");
+				Thread postThread = new PostNoteThread(locationID, note.getText(), PostNoteScreen.this.screen);
+				postThread.start();
+			} else {
+				Status.show("Please enter a post");
+			}
+		}
+	};
 	private static boolean Posted;
 	private static String locationName;
 	private static String locationID;
+	
+	FieldChangeListener inputListener = new FieldChangeListener() {
+		public void fieldChanged(Field field, int context) {
+			int charleft = 140-((BasicEditField) field).getTextLength();
+			leftField.setText("Characters Left: " + charleft + "/140");
+		}
+	};
+	
 	protected boolean onSavePrompt() {
 		return true;
 	}
-
 	
+	// Post note at the current checked in location
 	public PostNoteScreen() {
 		Thread whereThread = new WhereAmIThread(this.screen);
 		whereThread.start();
 		
-		super.setTitle(new LabelField("BrightBerry Post Note", Field.FIELD_HCENTER));
-		this.updateItem = new MenuItem("Post Note", 1, 10) {
-			public void run() {
-				if (note.getTextLength() > 0) {
-					Status.show("Posting...");
-					Thread postThread = new PostNoteThread(locationID, note.getText(), PostNoteScreen.this.screen);
-					postThread.start();
-				} else {
-					Status.show("Please enter a post");
-				}
-			}
-		};
-		
+		setTitle(new LabelField("BrightBerry Post Note", Field.FIELD_HCENTER)); 
 		postBtn = new ButtonField("Post Note", ButtonField.CONSUME_CLICK);
 		postBtn.setChangeListener(this);
-		super.add(this.statusField);
+	}
+	
+	// Post note about a location
+	public PostNoteScreen(String placeid, String name) {
+		locationID = placeid;
+		
+		setTitle(new LabelField("BrightBerry Post Note", Field.FIELD_HCENTER));
+		VerticalFieldManager status = new VerticalFieldManager();
+		status.add(leftField);
+		status.add(new SeparatorField());
+		status.add(statusField);
+		setStatus(status);
+		postBtn = new ButtonField("Post Note", ButtonField.CONSUME_CLICK);
+		postBtn.setChangeListener(this);
+		statusField.setText("About: " + name);
+		note.setChangeListener(PostNoteScreen.this.inputListener);
+		add(note);
+		note.setCursorPosition(0);
+		add(postBtn);
+		addMenuItem(updateItem);
 	}
 	
 	public void fieldChanged(Field field, int context) {
@@ -110,7 +139,13 @@ public class PostNoteScreen extends MainScreen implements FieldChangeListener {
 		UiApplication.getUiApplication().invokeLater(
 			new Runnable() {
 				public void run() {
-					PostNoteScreen.this.statusField.setText("You are currently checked in at " + PostNoteScreen.locationName);
+					VerticalFieldManager status = new VerticalFieldManager();
+					status.add(leftField);
+					status.add(new SeparatorField());
+					status.add(statusField);
+					PostNoteScreen.super.setStatus(status);
+					PostNoteScreen.this.statusField.setText("You're checked in @ " + PostNoteScreen.locationName);
+					PostNoteScreen.this.note.setChangeListener(PostNoteScreen.this.inputListener);
 					PostNoteScreen.this.add(note);
 					PostNoteScreen.this.note.setCursorPosition(0);
 					PostNoteScreen.this.add(postBtn);

@@ -71,7 +71,7 @@ public class DirectMessageRcvScreen extends MainScreen {
 	MenuItem ViewStreamItem = new MenuItem("View User Stream", 3, 10) {
 		public void run() {
 			String user = directMessage[msglist.getSelectedIndex()].getSender();
-			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", user, 0, 0, 0));
+			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", 0, user));
 		}
 	};
 	

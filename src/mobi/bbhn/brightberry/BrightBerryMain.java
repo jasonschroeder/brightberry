@@ -73,10 +73,6 @@ public class BrightBerryMain extends MainScreen {
 	
     public BrightBerryMain() {
     	super.setTitle(new LabelField("BrightBerry", 1152921504606846980L));
-    	if (this.settings.getAuthed() && this.settings.getAutoWhereAmI()) {
-    		Thread whereThread = new WhereAmIThread(this.screen);
-			whereThread.start();
-    	}
     	
     	FieldChangeListener SearchListener = new FieldChangeListener() {
 			public void fieldChanged(Field field, int context) {
@@ -86,7 +82,7 @@ public class BrightBerryMain extends MainScreen {
 		
 		FieldChangeListener FriendStreamListener = new FieldChangeListener() {
 			public void fieldChanged(Field field, int context) {
-				UiApplication.getUiApplication().pushScreen(new StreamScreen(BrightBerryMain.this.settings.getAutoUpdate(), "friend", null, 0, 0, 0));
+				UiApplication.getUiApplication().pushScreen(new StreamScreen(BrightBerryMain.this.settings.getAutoUpdate(), "friend", 0));
 			}
 		};
 		
@@ -122,7 +118,7 @@ public class BrightBerryMain extends MainScreen {
 		
 		FieldChangeListener MentionsListener = new FieldChangeListener() {
 			public void fieldChanged(Field field, int context) {
-				UiApplication.getUiApplication().pushScreen(new StreamScreen(BrightBerryMain.this.settings.getAutoUpdate(), "mentions", null, 0, 0, 0));
+				UiApplication.getUiApplication().pushScreen(new StreamScreen(BrightBerryMain.this.settings.getAutoUpdate(), "mentions", 0));
 			}
 		};
 		
@@ -147,7 +143,7 @@ public class BrightBerryMain extends MainScreen {
 		
 		this.latestnewsItem = new MenuItem("View latest news", 50, 10) {
 			public void run() {
-				UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", "brightberry", 0, 0, 0));
+				UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", 0, "brightberry"));
 			}
 		};
 		

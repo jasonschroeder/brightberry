@@ -113,10 +113,8 @@ public class PostPhotoThread extends Thread {
 				System.out.println("write:" + index);
 				int percent = (index * 100) / imgData.length;
 				System.out.println("Data percent: " + percent);
-				screen.updatePercent(percent);
 				if ((index + size) > imgData.length) {
 					size = imgData.length - index;
-					screen.updatePercent(100);
 				}
 				os.write(imgData, index, size);
 				index += size;

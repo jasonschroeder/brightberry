@@ -37,19 +37,21 @@ import javax.microedition.io.HttpConnection;
 
 import org.json.me.JSONObject;
 
-public class PlCheckInThread extends Thread {
+public class CheckInThread extends Thread {
 	HttpConnection httpConnection = null;
 	InputStream httpInput = null;
 	DataOutputStream httpOutput = null;
 	String url = "http://brightkite.com/places/";
 	String host = "brightkite.com";
 	String serverResponse = "";
-	PlacemarkScreen screen = null;
+	Object screen = null;
 	String message = "";
 	Settings settings = Settings.getInstance();
+	String caller;
 
-	public PlCheckInThread(String id, PlacemarkScreen screen) {
-		PlCheckInThread tmp56_55 = this; tmp56_55.url = tmp56_55.url + id + "/checkins.json";
+	public CheckInThread(String id, String caller, Object screen) {
+		this.url = this.url + id + "/checkins.json";
+		this.caller = caller;
 		this.screen = screen;
 	}
 
@@ -75,10 +77,14 @@ public class PlCheckInThread extends Thread {
 			}
 
 			this.serverResponse = buffer.toString();
-			this.screen.updateStatus(parseJSON(this.serverResponse));
+			if (this.caller.equals("placemark")) {
+				((PlacemarkScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
+			} else if (this.caller.equals("search")) {
+				((SearchPlaceScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
+			} else if (this.caller.equals("stream")) {
+				((StreamScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
+			}
 		} catch (IOException ex) {
-			ex.printStackTrace();
-			this.screen.updateStatus(ex.toString());
 		}
 	}
 	

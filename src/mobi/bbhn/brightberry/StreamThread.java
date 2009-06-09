@@ -61,6 +61,7 @@ class StreamThread extends Thread {
 	String placeid;
 	Settings settings = Settings.getInstance();
 
+	// Normal constructor
 	public StreamThread(StreamScreen screen, int maxEntries, String type, int start) {
 		this.screen = screen;
 		this.maxEntries = maxEntries;
@@ -68,11 +69,21 @@ class StreamThread extends Thread {
 		this.start = start;
 	}
 	
+	// User constructor
 	public StreamThread(StreamScreen screen, int maxEntries, String type, String user, int start) {
 		this.screen = screen;
 		this.maxEntries = maxEntries;
 		this.type = type;
 		this.user = user;
+		this.start = start;
+	}
+	
+	// Place constructor
+	public StreamThread(StreamScreen screen, int maxEntries, String type, int start, String placeid) {
+		this.screen = screen;
+		this.maxEntries = maxEntries;
+		this.type = type;
+		this.placeid = placeid;
 		this.start = start;
 	}
 
@@ -89,7 +100,7 @@ class StreamThread extends Thread {
 			} else if (this.type.equals("person")) {
 				this.url = this.person + this.user + "/objects.json?limit=" + this.maxEntries + this.offset + this.start;
 			} else if (this.type.equals("place")) {
-				this.url = this.place + this.user + "/objects.json?limit=" + this.maxEntries + this.offset + this.start;
+				this.url = this.place + this.placeid + "/objects.json?limit=" + this.maxEntries + this.offset + this.start;
 			} else {
 				this.url = this.me + this.maxEntries + this.offset + this.start;
 			}

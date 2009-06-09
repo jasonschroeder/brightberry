@@ -28,6 +28,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
+
 import net.rim.blackberry.api.invoke.CameraArguments;
 import net.rim.blackberry.api.invoke.Invoke;
 import net.rim.device.api.system.Characters;
@@ -37,13 +38,15 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.AutoTextEditField;
+import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.EditField;
-import net.rim.device.api.ui.component.GaugeField;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.RichTextField;
+import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.component.Status;
 import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.container.VerticalFieldManager;
 
 public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 	Settings settings = Settings.getInstance();
@@ -51,19 +54,41 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 	PostPhotoScreen screen = this;
 	AutoTextEditField note = new AutoTextEditField("Caption: ", "", 140, AutoTextEditField.SPELLCHECKABLE|AutoTextEditField.NO_NEWLINE);
 	EditField fileName = new EditField("File: ", "", 255, EditField.NON_FOCUSABLE);
-	GaugeField percentUploaded = new GaugeField("Progress: ", 0, 100, 0, GaugeField.FIELD_HCENTER);
+	RichTextField leftField = new RichTextField("Characters Left: 140/140", RichTextField.NON_FOCUSABLE);
 	ButtonField postBtn;
-	MenuItem updateItem;
+	MenuItem updateItem = new MenuItem("Post Photo", 1, 10) {
+		public void run() {
+			if (filetoupload.length() > 0) {
+				Status.show("Posting...");
+				PostPhotoThread thread = new PostPhotoThread(locationID, note.getText(), screen, filetoupload);
+				thread.start();
+				if (UiApplication.getUiApplication().getActiveScreen() == PostPhotoScreen.this) {
+					UiApplication.getUiApplication().popScreen(PostPhotoScreen.this);
+				}
+			} else {
+				Status.show("Please attach a photo");
+			}
+		}
+	};
 	boolean Posted;
 	private static String locationName;
 	private static String locationID;
+	private BrightBerryJournalListener _fileListener;
+	private BrightBerry _uiApp;
+	private String filetoupload;
+	
 	protected boolean onSavePrompt() {
 		return true;
 	}
-	private BrightBerryJournalListener _fileListener;
-	private BrightBerry _uiApp;
 
+	FieldChangeListener inputListener = new FieldChangeListener() {
+		public void fieldChanged(Field field, int context) {
+			int charleft = 140-((BasicEditField) field).getTextLength();
+			leftField.setText("Characters Left: " + charleft + "/140");
+		}
+	};
 	
+	// Post photo at the current checked in location
 	public PostPhotoScreen() {
 		_uiApp = (BrightBerry)UiApplication.getUiApplication();
         _fileListener = new BrightBerryJournalListener(this);        
@@ -71,38 +96,46 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
         
 		Thread whereThread = new WhereAmIThread(this.screen);
 		whereThread.start();
-		super.setTitle(new LabelField("BrightBerry Post Photo", Field.FIELD_HCENTER));
-		this.updateItem = new MenuItem("Post Photo", 1, 10) {
-			public void run() {
-				if (fileName.getTextLength() > 0) {
-					add(percentUploaded);
-					delete(statusField);
-					delete(note);
-					delete(fileName);
-					delete(postBtn);
-					removeMenuItem(updateItem);
-					PostPhotoThread thread = new PostPhotoThread(locationID, note.getText(), screen, fileName.getText());
-					thread.start();
-				} else {
-					Status.show("Please attach a photo");
-				}
-			}
-		};
+		setTitle(new LabelField("BrightBerry Post Photo", Field.FIELD_HCENTER));
 		postBtn = new ButtonField("Post Photo", ButtonField.CONSUME_CLICK);
 		postBtn.setChangeListener(this);
-		super.add(this.statusField);
+	}
+	
+	// Post photo about a location
+	public PostPhotoScreen(String placeid, String name) {
+		locationID = placeid;
+		
+		_uiApp = (BrightBerry)UiApplication.getUiApplication();
+        _fileListener = new BrightBerryJournalListener(this);        
+        _uiApp.addFileSystemJournalListener(_fileListener);
+
+		setTitle(new LabelField("BrightBerry Post Photo", Field.FIELD_HCENTER));
+		postBtn = new ButtonField("Post Photo", ButtonField.CONSUME_CLICK);
+		postBtn.setChangeListener(this);
+		
+		VerticalFieldManager status = new VerticalFieldManager();
+		status.add(leftField);
+		status.add(new SeparatorField());
+		status.add(statusField);
+		setStatus(status);
+		statusField.setText("About: " + name);
+		note.setChangeListener(inputListener);
+		note.setCursorPosition(0);
+		add(note);
+		add(fileName);
+		add(postBtn);
+		addMenuItem(updateItem);
+		Invoke.invokeApplication(Invoke.APP_TYPE_CAMERA, new CameraArguments());
 	}
 	
 	public void fieldChanged(Field field, int context) {
-		if (fileName.getTextLength() > 0) {
-			add(percentUploaded);
-			delete(statusField);
-			delete(note);
-			delete(fileName);
-			delete(postBtn);
-			removeMenuItem(updateItem);
-			PostPhotoThread thread = new PostPhotoThread(locationID, note.getText(), screen, fileName.getText());
+		if (filetoupload.length() > 0) {
+			Status.show("Posting...");
+			PostPhotoThread thread = new PostPhotoThread(locationID, note.getText(), screen, filetoupload);
 			thread.start();
+			if (UiApplication.getUiApplication().getActiveScreen() == PostPhotoScreen.this) {
+				UiApplication.getUiApplication().popScreen(PostPhotoScreen.this);
+			}
 		} else {
 			Status.show("Please attach a photo");
 		}
@@ -132,9 +165,15 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 		UiApplication.getUiApplication().invokeLater(
 			new Runnable() {
 				public void run() {
-					PostPhotoScreen.this.statusField.setText("You are currently checked in at " + PostPhotoScreen.locationName);
-					PostPhotoScreen.this.add(note);
+					VerticalFieldManager status = new VerticalFieldManager();
+					status.add(leftField);
+					status.add(new SeparatorField());
+					status.add(statusField);
+					PostPhotoScreen.super.setStatus(status);
+					PostPhotoScreen.this.statusField.setText("You're checked in @ " + PostPhotoScreen.locationName);
+					PostPhotoScreen.this.note.setChangeListener(PostPhotoScreen.this.inputListener);
 					PostPhotoScreen.this.note.setCursorPosition(0);
+					PostPhotoScreen.this.add(note);
 					PostPhotoScreen.this.add(fileName);
 					PostPhotoScreen.this.add(postBtn);
 					PostPhotoScreen.this.addMenuItem(updateItem);
@@ -144,14 +183,13 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 	}
 	
 	public void updateFileName (String filename) {
+		filetoupload = filename;
 		EventInjector.KeyEvent inject = new EventInjector.KeyEvent(EventInjector.KeyEvent.KEY_DOWN, Characters.ESCAPE, 0);
 	    inject.post();
 	    inject.post();
-		this.fileName.setText(filename);
+	    int lastSlash = filename.lastIndexOf('/') + 1;
+        String newfilename = filename.substring(lastSlash, filename.length());
+		this.fileName.setText(newfilename);
 		_uiApp.removeFileSystemJournalListener(_fileListener);
-	}
-	
-	public void updatePercent(int upped) {
-		percentUploaded.setValue(upped);
 	}
 }
