@@ -1,3 +1,7 @@
+=== 0.2.3
+* Fixes
+ * If a search result set is shown the escape key will now clear the screen instead of taking you back to the main menu
+ 
 === 0.2.2
 * New Features
  * You can now delete your own notes/checkins/photos

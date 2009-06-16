@@ -77,6 +77,7 @@ public class SearchPlaceScreen extends MainScreen {
 	MenuItem postphoto;
 	MenuItem placemark;
 	private boolean plcreated;
+	protected boolean searchresults = false;
 	protected boolean onSavePrompt() {
 		return true;
 	}
@@ -177,6 +178,7 @@ public class SearchPlaceScreen extends MainScreen {
 		this.searchPlaceResults = results;
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
+				SearchPlaceScreen.this.searchresults  = true;
 				if (SearchPlaceScreen.this.searchPlaceResults == null || SearchPlaceScreen.this.searchPlaceResults.length == 0) {
 					Status.show("No locations found");
 				} else {
@@ -285,5 +287,16 @@ public class SearchPlaceScreen extends MainScreen {
 				}
 			}
 		});
+	}
+	
+	public boolean onClose() {
+		System.out.println("Search Results: " + this.searchresults);
+		if (this.searchresults) {
+			UiApplication.getUiApplication().popScreen(this);
+			UiApplication.getUiApplication().pushScreen(new SearchPlaceScreen());
+		} else {
+			UiApplication.getUiApplication().popScreen(this);
+		}
+		return true;
 	}
 }
