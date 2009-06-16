@@ -34,6 +34,7 @@ import javax.microedition.location.LocationException;
 import javax.microedition.location.LocationProvider;
 import javax.microedition.location.QualifiedCoordinates;
 
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
@@ -41,11 +42,13 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.AutoTextEditField;
+import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
+import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.component.Status;
 import net.rim.device.api.ui.container.MainScreen;
 
@@ -72,6 +75,8 @@ public class SearchPlaceScreen extends MainScreen {
 	MenuItem placestreamItem;
 	MenuItem postnote;
 	MenuItem postphoto;
+	MenuItem placemark;
+	private boolean plcreated;
 	protected boolean onSavePrompt() {
 		return true;
 	}
@@ -132,6 +137,33 @@ public class SearchPlaceScreen extends MainScreen {
 					String placeid = searchPlaceResults[list.getSelectedIndex()].getId();
 					String placename = searchPlaceResults[list.getSelectedIndex()].getName();
 					UiApplication.getUiApplication().pushScreen(new PostPhotoScreen(placeid, placename));
+				}
+			}
+		};
+		
+		placemark = new MenuItem("Create Placemark", 5, 10) {
+			public void run() {
+				String placeid = searchPlaceResults[list.getSelectedIndex()].getId();
+				String plname = searchPlaceResults[list.getSelectedIndex()].getName();
+				if (plname.length() > 20) {
+					plname = plname.substring(0, 19);
+				}
+				Dialog pldialog = new Dialog(Dialog.D_OK_CANCEL, "Placemark this place:", 0, Bitmap.getPredefinedBitmap(Bitmap.INFORMATION), Dialog.GLOBAL_STATUS);
+				BasicEditField placename = new BasicEditField("", plname, 20, BasicEditField.NO_NEWLINE);
+				pldialog.add(placename);
+				pldialog.add(new SeparatorField());
+				pldialog.add(new LabelField("Give your placemark a name. For example, \"home\", \"work\", \"hockey rink\""));
+				int answer = pldialog.doModal();
+				System.out.println("PD: " + answer);
+				System.out.println("Length: " + placename.getText().length());
+				if (answer == Dialog.OK) {
+					if (placename.getText().length() < 2) {
+						Dialog.alert("Placemark name must be greater than 2 characters");
+					} else {
+						PlacemarkCreateThread plcreate = new PlacemarkCreateThread(placeid, placename.getText(), SearchPlaceScreen.this);
+						plcreate.start();
+					}
+					System.out.println("Text: " + placename.getText());
 				}
 			}
 		};
@@ -238,6 +270,20 @@ public class SearchPlaceScreen extends MainScreen {
 			contextMenu.addItem(placestreamItem);
 			contextMenu.addItem(postnote);
 			contextMenu.addItem(postphoto);
+			contextMenu.addItem(placemark);
 		}
+	}
+	
+	public void plCreated(boolean success) {
+		this.plcreated = success;
+		UiApplication.getUiApplication().invokeLater(new Runnable() {
+			public void run() {
+				if (SearchPlaceScreen.this.plcreated) {
+					Dialog.alert("Placemark Created");
+				} else {
+					Dialog.alert("Unable to create placemark");
+				}
+			}
+		});
 	}
 }

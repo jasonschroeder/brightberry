@@ -1,5 +1,5 @@
 MIDlet-Name: BrightBerry
-MIDlet-Version: 0.2.1
+MIDlet-Version: 0.2.2
 MIDlet-Vendor: Hallgren Networks
 MIDlet-Description: Unofficial Blackberry app for Brightkite using the REST-API
 MIDlet-Jar-URL: BrightBerry.jar

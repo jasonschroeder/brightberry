@@ -70,10 +70,13 @@ public class DirectMessageSentScreen extends MainScreen {
 	
 	MenuItem dltmenuItem = new MenuItem("Delete Message", 5, 10) {
 		public void run() {
-			int id = directMessage[msglist.getSelectedIndex()].getID();
-			Thread deletetrd = new DirectMessageSentDeleteThread(id, DirectMessageSentScreen.this.screen);
-			deletetrd.start();
-			Status.show("Deleting message");
+			int sure = Dialog.ask(Dialog.D_YES_NO, "Are you sure you want to delete this message?");
+			if (Dialog.YES == sure) {
+				int id = directMessage[msglist.getSelectedIndex()].getID();
+				Thread deletetrd = new DirectMessageSentDeleteThread(id, DirectMessageSentScreen.this.screen);
+				deletetrd.start();
+				Status.show("Deleting message");
+			}
 		}
 	};
 	

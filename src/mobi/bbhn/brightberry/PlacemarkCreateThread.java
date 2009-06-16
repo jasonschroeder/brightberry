@@ -28,90 +28,78 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
-import org.json.me.JSONObject;
+import net.rim.blackberry.api.browser.URLEncodedPostData;
 
-public class BkObjectThread extends Thread {
-	String url = "http://brightkite.com/objects/";
+public class PlacemarkCreateThread extends Thread {
+	String url = "http://brightkite.com/places/";
 	HttpConnection httpConnection = null;
 	InputStream httpInput = null;
+	DataOutputStream httpOutput = null;
 	String serverResponse = "";
-	private String body = "";
-	private String creator;
-	private BkObjectScreen screen;
-	private String location;
-	private String created_at_as_words;
-	private boolean about;
-	private String type;
-	private String photo;
-	private int commentscount;
+	Object screen;
+	private String placemarkpost;
 	Settings settings = Settings.getInstance();
-
-	public BkObjectThread(BkObjectScreen screen, String objectID) {
+	private String caller;
+	
+	// Search Screen Constructor
+	public PlacemarkCreateThread(String id, String placename, SearchPlaceScreen screen) {
+		this.url = this.url + id + "/placemarks.json";
+		URLEncodedPostData urlenc = new URLEncodedPostData(URLEncodedPostData.DEFAULT_CHARSET, true);
+		urlenc.append("placemark[placemark]", placename);
+		this.placemarkpost = urlenc.toString();
 		this.screen = screen;
-		this.url = this.url + objectID + ".json";
+		this.caller = "search";
+	}
+	
+	// Stream Screen Constructor
+	public PlacemarkCreateThread(String id, String placename, StreamScreen screen) {
+		this.url = this.url + id + "/placemarks.json";
+		URLEncodedPostData urlenc = new URLEncodedPostData(URLEncodedPostData.DEFAULT_CHARSET, true);
+		urlenc.append("placemark[placemark]", placename);
+		this.placemarkpost = urlenc.toString();
+		this.screen = screen;
+		this.caller = "stream";
 	}
 
 	public void run() {
 		try {
 			this.url += NetworkConfig.getConnectionParameters(this.settings.getConnectionMode());
 			this.httpConnection = ((HttpConnection)Connector.open(this.url));
+			this.httpConnection.setRequestMethod("POST");
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
+			this.httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
+			this.httpOutput = this.httpConnection.openDataOutputStream();
+			this.httpOutput.write(this.placemarkpost.getBytes());
 			this.httpInput = this.httpConnection.openInputStream();
-
-			StringBuffer buffer = new StringBuffer();
-
-			int ch = 0;
-			while (ch != -1) {
-				ch = this.httpInput.read();
-				buffer.append((char)ch);
+			int rc = httpConnection.getResponseCode();
+			if (this.caller.equals("search")) {
+				if (rc == 201) {
+					((SearchPlaceScreen) this.screen).plCreated(true);
+				} else {
+					((SearchPlaceScreen) this.screen).plCreated(false);
+				}
+			} else if (this.caller.equals("stream")) {
+				if (rc == 201) {
+					((StreamScreen) this.screen).plCreated(true);
+				} else {
+					((StreamScreen) this.screen).plCreated(false);
+				}
 			}
-
-			this.serverResponse = buffer.toString();
-			parseJSON(this.serverResponse);
-			this.screen.updateObject(type, body, creator, location, created_at_as_words, about, photo, commentscount);
+			System.out.println("Post was: " + this.placemarkpost);
+			System.out.println("Auth was: "+ Settings.getInstance().getAuthHeader());
+			System.out.println("Response code was: " + rc);
 	    } catch (IOException ex) {
 	    	ex.printStackTrace();
 	    }
-	}
-
-	private void parseJSON(String json) {
-		JSONObject objectStream = null;
-		try {
-			objectStream = new JSONObject(json);
-			JSONObject placeStream = objectStream.getJSONObject("place");
-			JSONObject creatorStream = objectStream.getJSONObject("creator");
-			this.type = objectStream.getString("object_type");
-			if (placeStream.optString("display_location").length() > 0 && placeStream.optString("name").length() < 1) {
-				this.location = placeStream.getString("display_location");
-			} else if (placeStream.optString("display_location").length() > 0) {
-				this.location = placeStream.getString("name") + " (" + placeStream.getString("display_location") + ")";
-			} else {
-				this.location = placeStream.getString("name"); 
-			}
-			if (this.type.toLowerCase().equals("checkin") == false) {
-				this.body = objectStream.optString("body");
-				this.about = objectStream.getBoolean("about");
-			} else {
-				this.about = false;
-				this.body = "";
-			}
-			if (this.type.toLowerCase().equals("photo")) {
-				this.photo = objectStream.getString("photo");
-			}
-			this.creator = creatorStream.getString("login");
-			this.created_at_as_words = objectStream.getString("created_at_as_words");
-			this.commentscount = objectStream.getInt("comments_count");
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
 	}
 }

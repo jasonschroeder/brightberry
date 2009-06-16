@@ -49,8 +49,7 @@ public class PostNoteThread extends Thread {
 	Settings settings = Settings.getInstance();
 	
 	public PostNoteThread(String id, String note, PostNoteScreen screen) {
-		PostNoteThread tmp56_55 = this;
-		tmp56_55.url = tmp56_55.url + id + "/notes.json";
+		this.url = this.url + id + "/notes.json";
 		URLEncodedPostData urlenc = new URLEncodedPostData(URLEncodedPostData.DEFAULT_CHARSET, true);
 		urlenc.append("note[body]", note);
 		this.note = urlenc.toString();

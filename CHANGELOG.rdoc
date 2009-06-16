@@ -1,3 +1,16 @@
+=== 0.2.2
+* New Features
+ * You can now delete your own notes/checkins/photos
+ * Adding a Thank you to the people that have donated money to keep this program alive
+ * Added a secret debug menu that can only be access on the StreamScreen. Code is "debug" and it allows you to access a BKobject directly
+ * Allows creation of placemarks from Search Screen and Place Stream
+ * Allowing Deletion of placemarks.
+ 
+* Fixes
+ * No longer displays "Send Direct Message" when your viewing yourself or posts created by yourself.
+ * Reformating the BKObjectScreen to not depend on the type to be passed in the constructor.
+ * Adding confirmation to deleting direct message received and sent
+
 === 0.2.1
 * New Features
  * Adding support to post notes and photos about a search/placemark location

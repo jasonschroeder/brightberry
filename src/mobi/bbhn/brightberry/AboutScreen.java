@@ -46,6 +46,8 @@ public class AboutScreen extends MainScreen {
         add(new SeparatorField());
         add(new RichTextField("Special Thanks to @thillerson, @doctorklein, @hiro, @sprouticus, @barkerja, @jemerick"));
         add(new SeparatorField());
+        add(new RichTextField("Thank you for the following people who contributed to help fund BrightBerry: Daniel J, Andrew K, Brad T, Jayme M, Matthew H, Robert K, David C, and Marco F"));
+        add(new SeparatorField());
         add(new RichTextField("Portions of code from BBPlacemarks written by Jason Emerick (@jemerick)"));
         add(new SeparatorField());
         add(new RichTextField("This is not an official Brightkite app in no way does this application represent the views or opinions of Brightkite or No Sleep Media LLC."));

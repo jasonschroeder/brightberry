@@ -17,6 +17,10 @@ AutoRestart=0
 ]
 [DefFiles
 ]
+[DependencyFiles
+src\mobi\bbhn\brightberry\Friends.java
+src\mobi\bbhn\brightberry\FriendsScreen.java
+]
 [DependsOn
 ]
 Description=Unofficial Blackberry app for Brightkite using the REST-API
@@ -49,6 +53,8 @@ src\mobi\bbhn\brightberry\Comments.java
 src\mobi\bbhn\brightberry\CommentScreen.java
 src\mobi\bbhn\brightberry\CommentsList.java
 src\mobi\bbhn\brightberry\CommentThread.java
+src\mobi\bbhn\brightberry\DeleteObjectThread.java
+src\mobi\bbhn\brightberry\DeletePlacemarkThread.java
 src\mobi\bbhn\brightberry\DirectMessageRcv.java
 src\mobi\bbhn\brightberry\DirectMessageRcvDeleteThread.java
 src\mobi\bbhn\brightberry\DirectMessageRcvList.java
@@ -59,6 +65,8 @@ src\mobi\bbhn\brightberry\DirectMessageSentDeleteThread.java
 src\mobi\bbhn\brightberry\DirectMessageSentList.java
 src\mobi\bbhn\brightberry\DirectMessageSentScreen.java
 src\mobi\bbhn\brightberry\DirectMessageSentThread.java
+src\mobi\bbhn\brightberry\Friends.java
+src\mobi\bbhn\brightberry\FriendsScreen.java
 src\mobi\bbhn\brightberry\HTTPPhoto.java
 src\mobi\bbhn\brightberry\ImageCache.java
 src\mobi\bbhn\brightberry\JournalListener.java
@@ -67,6 +75,7 @@ src\mobi\bbhn\brightberry\MainButton.java
 src\mobi\bbhn\brightberry\NetworkConfig.java
 src\mobi\bbhn\brightberry\OptionsScreen.java
 src\mobi\bbhn\brightberry\Placemark.java
+src\mobi\bbhn\brightberry\PlacemarkCreateThread.java
 src\mobi\bbhn\brightberry\PlacemarkList.java
 src\mobi\bbhn\brightberry\PlacemarkScreen.java
 src\mobi\bbhn\brightberry\PlacemarkUpdateThread.java
@@ -129,4 +138,4 @@ Title=BrightBerry
 Type=0
 UserData=|src
 Vendor=Hallgren Networks
-Version=0.2.1
+Version=0.2.2

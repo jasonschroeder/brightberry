@@ -34,7 +34,7 @@ import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.UiApplication;
 
 public class BrightBerry extends UiApplication {
-	static String version = "0.2.1-ALPHA";
+	static String version = "0.2.2-ALPHA";
 	static String gmkey = "ABQIAAAAyqsOf4y12VmEo_2G0kkmUxRpIJO9csrDHHCYF6wRDNKwcymzzRQrUdTZ3AkMMnIbfqA_JKHMK0MjHw";
 	static String useragent = "BrightBerry " + version;
 	static int itembgcolor = Color.WHITE;

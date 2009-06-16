@@ -53,10 +53,10 @@ public class BkObjectScreen extends MainScreen {
     BitmapField photoField = new BitmapField(loading, BitmapField.FIELD_HCENTER|BitmapField.FOCUSABLE|BitmapField.EDITABLE|HIGHLIGHT_FOCUS);
     BkObjectScreen screen = this;
     MenuItem commentItem;
+    LabelField title = new LabelField("BrightBerry Details", Field.FIELD_HCENTER);
     MenuItem refreshItem;
     ListField commentlist = new CommentListField();
     Font bold = Font.getDefault().derive(Font.BOLD);
-    private String type;
     private String body;
     private String creator;
     private String location;
@@ -69,134 +69,133 @@ public class BkObjectScreen extends MainScreen {
     private MenuItem viewDetailsItem;
     private MenuItem commentsDMItem;
 	private MenuItem ViewStreamItem;
+	private String type;
     protected boolean onSavePrompt() {
-            return true;
+        return true;
     }
 
     
-    public BkObjectScreen(String objectID, String type) {
-            String firstLetter = type.substring(0,1);  // Get first letter
-            String remainder   = type.substring(1);    // Get remainder of word.
-            this.type = firstLetter.toUpperCase() + remainder.toLowerCase();
-            Thread updateThread = new BkObjectThread(this.screen, objectID, type);
-            updateThread.start();
-            this.objectID = objectID;
-            
-            super.setTitle(new LabelField("BrightBerry " + this.type + " Details", Field.FIELD_HCENTER));
-            this.creatorField.setFont(this.bold);
-            
-            this.commentItem = new MenuItem("Post Comment", 5, 10) {
-                public void run() {
-                	UiApplication.getUiApplication().pushScreen(new PostCommentScreen(BkObjectScreen.this.objectID));
-                }
-            };
-            this.refreshItem = new MenuItem("Refresh", 6, 10) {
-                public void run() {
-                    refresh();
-                }
-            };
-            
-            this.viewDetailsItem = new MenuItem("View Comment Details", 1, 10) {
-                public void run() {
-                    String body = commentsStream[commentlist.getSelectedIndex()].getBody();
-                    String name = commentsStream[commentlist.getSelectedIndex()].getName();
-                    String created = commentsStream[commentlist.getSelectedIndex()].getCreated();
-                    UiApplication.getUiApplication().pushScreen(new CommentScreen(BkObjectScreen.this.objectID, name, body, created));
-                }
-            };
-            
-            
-            this.commentsDMItem = new MenuItem("Send Direct Message", 2, 10) {
-                public void run() {
-                    String name = commentsStream[commentlist.getSelectedIndex()].getName();
-                    UiApplication.getUiApplication().pushScreen(new SendDirectMessageScreen(name));
-                }
-            };
-            
-            this.ViewStreamItem = new MenuItem("View User Stream", 3, 10) {
-            	public void run() {
-            		String creator = commentsStream[commentlist.getSelectedIndex()].getName();
-        			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", 0, creator));
-            	}
-            };
-            
-            addMenuItem(this.commentItem);
-            addMenuItem(MenuItem.separator(4));
-            addMenuItem(this.refreshItem);
+    public BkObjectScreen(String objectID) {
+        Thread updateThread = new BkObjectThread(this.screen, objectID);
+        updateThread.start();
+        this.objectID = objectID;
+        
+        super.setTitle(title);
+        this.creatorField.setFont(this.bold);
+        
+        this.commentItem = new MenuItem("Post Comment", 5, 10) {
+            public void run() {
+            	UiApplication.getUiApplication().pushScreen(new PostCommentScreen(BkObjectScreen.this.objectID));
+            }
+        };
+        this.refreshItem = new MenuItem("Refresh", 6, 10) {
+            public void run() {
+                refresh();
+            }
+        };
+        
+        this.viewDetailsItem = new MenuItem("View Comment Details", 1, 10) {
+            public void run() {
+                String body = commentsStream[commentlist.getSelectedIndex()].getBody();
+                String name = commentsStream[commentlist.getSelectedIndex()].getName();
+                String created = commentsStream[commentlist.getSelectedIndex()].getCreated();
+                UiApplication.getUiApplication().pushScreen(new CommentScreen(BkObjectScreen.this.objectID, name, body, created));
+            }
+        };
+        
+        
+        this.commentsDMItem = new MenuItem("Send Direct Message", 2, 10) {
+            public void run() {
+                String name = commentsStream[commentlist.getSelectedIndex()].getName();
+                UiApplication.getUiApplication().pushScreen(new SendDirectMessageScreen(name));
+            }
+        };
+        
+        this.ViewStreamItem = new MenuItem("View User Stream", 3, 10) {
+        	public void run() {
+        		String creator = commentsStream[commentlist.getSelectedIndex()].getName();
+    			UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "person", 0, creator));
+        	}
+        };
+        
+        addMenuItem(this.commentItem);
+        addMenuItem(MenuItem.separator(4));
+        addMenuItem(this.refreshItem);
     }
     
     public void refresh() {
             UiApplication.getUiApplication().popScreen(this);
-            UiApplication.getUiApplication().pushScreen(new BkObjectScreen(objectID, type));
+            UiApplication.getUiApplication().pushScreen(new BkObjectScreen(objectID));
     }
     
-    public void updateObject(String body, String creator, String location, String created_at_as_words, boolean about, String photo, int commentscount) {
-            if (body.length() > 0) {
-                    this.body = body;
-            } else if (this.type.equals("Checkin")) {
-                    this.body = "Checked in";
-            } else {
-                    this.body = "";
-            }
-            this.created_at_as_words = created_at_as_words;
-            this.creator = creator;
-            this.location = location;
-            this.about = about;
-            this.photo = photo;
-            this.commentscount = commentscount;
-            UiApplication.getUiApplication().invokeLater(new Runnable() {
-                    public void run() {
-                            if (BkObjectScreen.this.commentscount > 0) {
-                                    Thread comments = new CommentThread(BkObjectScreen.this.screen, BkObjectScreen.this.objectID);
-                                    comments.start();
-                            }
-                            BkObjectScreen.this.creatorField.setText(BkObjectScreen.this.creator);
-                            if (BkObjectScreen.this.about) {
-                                    BkObjectScreen.this.locationField.setText("about " + BkObjectScreen.this.location);
-                            } else {
-                                    if (BkObjectScreen.this.location.startsWith("near")) {
-                                            BkObjectScreen.this.locationField.setText(BkObjectScreen.this.location);
-                                    } else {
-                                            BkObjectScreen.this.locationField.setText("@" + BkObjectScreen.this.location);
-                                    }
-                            }
-                            BkObjectScreen.this.createdField.setText(BkObjectScreen.this.created_at_as_words + " ago");
-                            BkObjectScreen.this.add(creatorField);
-                            if (BkObjectScreen.this.type.equals("Photo")){
-                                    Bitmap bmPhoto = HTTPPhoto.getPhoto(BkObjectScreen.this.photo);
-                                    if (bmPhoto != null) {
-                                            BkObjectScreen.this.photoField.setBitmap(bmPhoto);
-                                            BkObjectScreen.this.add(photoField);
-                                    }
-                            }
-                            if (BkObjectScreen.this.body.length() > 0 && BkObjectScreen.this.body.equals("null") == false) {
-                                    BkObjectScreen.this.bodyField.setText(BkObjectScreen.this.body);
-                                    BkObjectScreen.this.add(bodyField);
-                            }
-                            BkObjectScreen.this.add(new SeparatorField());
-                            BkObjectScreen.this.add(locationField);
-                            BkObjectScreen.this.add(new SeparatorField());
-                            BkObjectScreen.this.add(createdField);
+    public void updateObject(String type, String body, String creator, String location, String created_at_as_words, boolean about, String photo, int commentscount) {
+        this.type = type;
+    	if (body.length() > 0) {
+                this.body = body;
+        } else if (type.equals("checkin")) {
+                this.body = "Checked in";
+        } else {
+                this.body = "";
+        }
+        this.created_at_as_words = created_at_as_words;
+        this.creator = creator;
+        this.location = location;
+        this.about = about;
+        this.photo = photo;
+        this.commentscount = commentscount;
+        UiApplication.getUiApplication().invokeLater(new Runnable() {
+            public void run() {
+        		if (BkObjectScreen.this.commentscount > 0) {
+                    Thread comments = new CommentThread(BkObjectScreen.this.screen, BkObjectScreen.this.objectID);
+                    comments.start();
+                }
+                BkObjectScreen.this.creatorField.setText(BkObjectScreen.this.creator);
+                if (BkObjectScreen.this.about) {
+                	BkObjectScreen.this.locationField.setText("about " + BkObjectScreen.this.location);
+                } else {
+                    if (BkObjectScreen.this.location.startsWith("near")) {
+                        BkObjectScreen.this.locationField.setText(BkObjectScreen.this.location);
+                    } else {
+                        BkObjectScreen.this.locationField.setText("@" + BkObjectScreen.this.location);
                     }
-            });
+                }
+                BkObjectScreen.this.createdField.setText(BkObjectScreen.this.created_at_as_words + " ago");
+                BkObjectScreen.this.add(creatorField);
+                if (BkObjectScreen.this.type.equals("Photo")){
+                    Bitmap bmPhoto = HTTPPhoto.getPhoto(BkObjectScreen.this.photo);
+                    if (bmPhoto != null) {
+                        BkObjectScreen.this.photoField.setBitmap(bmPhoto);
+                        BkObjectScreen.this.add(photoField);
+                    }
+                }
+                if (BkObjectScreen.this.body.length() > 0 && BkObjectScreen.this.body.equals("null") == false) {
+                    BkObjectScreen.this.bodyField.setText(BkObjectScreen.this.body);
+                    BkObjectScreen.this.add(bodyField);
+                }
+                BkObjectScreen.this.add(new SeparatorField());
+                BkObjectScreen.this.add(locationField);
+                BkObjectScreen.this.add(new SeparatorField());
+                BkObjectScreen.this.add(createdField);
+            }
+        });
     }
     
     public void updateComments(final Comments[] commentsStream) {
-            this.commentsStream = commentsStream;
-            UiApplication.getUiApplication().invokeLater(new Runnable() { 
-                    public void run() {
-                            BkObjectScreen.this.commentlist.setEmptyString("Nothing to see here", DrawStyle.LEFT);
-                            BkObjectScreen.this.commentlist.setSize(BkObjectScreen.this.commentsStream.length);
-                            BkObjectScreen.this.commentlist.setCallback(new CommentsCallback(BkObjectScreen.this.commentsStream));
-                            BkObjectScreen.this.commentlist.setRowHeight(ListField.ROW_HEIGHT_FONT*3);
-                            add(new SeparatorField());
-                            LabelField commentLabel = new LabelField("Comments (" + commentscount + ")", LabelField.FIELD_HCENTER|LabelField.NON_FOCUSABLE);
-                            commentLabel.setFont(Font.getDefault().derive(Font.BOLD, Font.getDefault().getHeight()+5));
-                            add(commentLabel);
-                            add(new SeparatorField());
-                            add(BkObjectScreen.this.commentlist);
-                    }
-            });
+        this.commentsStream = commentsStream;
+        UiApplication.getUiApplication().invokeLater(new Runnable() { 
+            public void run() {
+                BkObjectScreen.this.commentlist.setEmptyString("Nothing to see here", DrawStyle.LEFT);
+                BkObjectScreen.this.commentlist.setSize(BkObjectScreen.this.commentsStream.length);
+                BkObjectScreen.this.commentlist.setCallback(new CommentsCallback(BkObjectScreen.this.commentsStream));
+                BkObjectScreen.this.commentlist.setRowHeight(ListField.ROW_HEIGHT_FONT*3);
+                add(new SeparatorField());
+                LabelField commentLabel = new LabelField("Comments (" + commentscount + ")", LabelField.FIELD_HCENTER|LabelField.NON_FOCUSABLE);
+                commentLabel.setFont(Font.getDefault().derive(Font.BOLD, Font.getDefault().getHeight()+5));
+                add(commentLabel);
+                add(new SeparatorField());
+                add(BkObjectScreen.this.commentlist);
+            }
+        });
     }
     
 	public class CommentListField extends ListField {

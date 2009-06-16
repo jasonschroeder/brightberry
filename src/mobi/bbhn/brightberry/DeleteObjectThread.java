@@ -28,39 +28,48 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
-import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.system.Display;
-import net.rim.device.api.ui.DrawStyle;
-import net.rim.device.api.ui.Font;
-import net.rim.device.api.ui.Graphics;
-import net.rim.device.api.ui.component.ListField;
-import net.rim.device.api.ui.component.ListFieldCallback;
+import javax.microedition.io.Connector;
+import javax.microedition.io.HttpConnection;
 
-class PlacemarkCallback implements ListFieldCallback {
-	Placemark[] placemark;
-
-	public PlacemarkCallback(Placemark[] placemark) {
-		this.placemark = placemark;
+public class DeleteObjectThread extends Thread {
+	String url = "http://brightkite.com/objects/";
+	HttpConnection httpConnection = null;
+	InputStream httpInput = null;
+	DataOutputStream httpOutput = null;
+	String serverResponse = "";
+	StreamScreen screen;
+	Settings settings = Settings.getInstance();
+	String type;
+	
+	public DeleteObjectThread(String objectid, StreamScreen screen, String type) {
+		this.screen = screen;
+		this.url = url + objectid + ".json";
+		this.type = type;
 	}
-	public void drawListRow(ListField list, Graphics g, int index, int y, int w) {
-		Font f = g.getFont();
-		int fontht = f.getHeight();
-		Bitmap drawbmp = Bitmap.getBitmapResource("img/icon_placemarks.gif");
-		int newy = (y+(drawbmp.getHeight()/2));
-		g.drawBitmap(2, newy, drawbmp.getWidth(), drawbmp.getHeight(), drawbmp, 0, 0);
-		g.setFont(f.derive(Font.BOLD));
-		g.drawText(placemark[index].getName(), drawbmp.getWidth()+3, y, DrawStyle.ELLIPSIS);
-		g.setFont(f);
-		g.drawText(placemark[index].getDisplayLocation(), drawbmp.getWidth()+3, y+fontht, DrawStyle.ELLIPSIS);
-    }
-	public Object get(ListField listField, int index) {
-        return null;
-    }
-    public int indexOfList(ListField listField, String prefix, int start) {
-        return listField.indexOfList(prefix, start);
-    }
-	public int getPreferredWidth(ListField listField) {
-		return Display.getWidth();
+
+	public void run() {
+		try {
+			this.url += NetworkConfig.getConnectionParameters(this.settings.getConnectionMode());
+			this.httpConnection = ((HttpConnection)Connector.open(this.url));
+			this.httpConnection.setRequestMethod("DELETE");
+			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
+			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
+			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
+			this.httpOutput = this.httpConnection.openDataOutputStream();
+			this.httpInput = this.httpConnection.openInputStream();
+			int rc = httpConnection.getResponseCode();
+			System.out.println("Response code: " + rc);
+			if (rc == 200) {
+				this.screen.callDelete(true, type);
+			} else {
+				this.screen.callDelete(false, type);
+			}
+	    } catch (IOException ex) {
+	    	ex.printStackTrace();
+	    }
 	}
 }

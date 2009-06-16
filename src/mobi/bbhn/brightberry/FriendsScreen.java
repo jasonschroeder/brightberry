@@ -34,19 +34,18 @@ import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.component.Dialog;
 import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.component.Status;
 import net.rim.device.api.ui.container.MainScreen;
 
-public class PlacemarkScreen extends MainScreen {
+public class FriendsScreen extends MainScreen {
 	MenuItem updateItem;
 	MenuItem whereAmIItem;
 	Settings settings = Settings.getInstance();
 	String message;
-	PlacemarkScreen screen = this;
+	FriendsScreen screen = this;
 	Placemark[] placemarks;
 	MenuItem checkinItem;
 	ListField list = new PlacemarkListField();
@@ -54,78 +53,83 @@ public class PlacemarkScreen extends MainScreen {
 	private MenuItem mapItem;
 	private MenuItem postnote;
 	private MenuItem postphoto;
-	private MenuItem deleteItem;
-	private boolean pldeleted;
 	protected boolean onSavePrompt() {
 		return true;
 	}
 
-	public PlacemarkScreen() {
-		Thread whereThread = new PlWhereAmIThread(this.screen);
+	public FriendsScreen() {
+		Thread whereThread = new FriendsThread(this.screen);
 	    whereThread.start();
 	    
-		super.setTitle(new LabelField("BrightBerry Placemarks", 1152921504606846980L));
+		super.setTitle(new LabelField("BrightBerry Friends", 1152921504606846980L));
 		
 		this.checkinItem = new MenuItem("Checkin Here", 1, 10) {
 			public void run() {
-				Placemark[] places = settings.getPlacemarks();
-				String id = places[PlacemarkScreen.this.list.getSelectedIndex()].getPlaceID();
-				Thread checkinThread = new CheckInThread(id, "placemark", PlacemarkScreen.this.screen);
-				checkinThread.start();
+				if (FriendsScreen.this.list.getSelectedIndex() > -1) {
+					Placemark[] places = settings.getPlacemarks();
+					String id = places[FriendsScreen.this.list.getSelectedIndex()].getId();
+					Thread checkinThread = new CheckInThread(id, "placemark", FriendsScreen.this.screen);
+					checkinThread.start();
+				} else {
+					Status.show("No Placemark selected");
+				}
 			}
 		};
 		
 		this.placestreamItem = new MenuItem("View Place Stream", 2, 10) {
 			public void run() {
-				Placemark[] places = settings.getPlacemarks();
-				String placeid = places[PlacemarkScreen.this.list.getSelectedIndex()].getPlaceID();
-				String placename = places[PlacemarkScreen.this.list.getSelectedIndex()].getName();
-				float latitude = places[PlacemarkScreen.this.list.getSelectedIndex()].getLatitude();
-				float longitude = places[PlacemarkScreen.this.list.getSelectedIndex()].getLongitude();
-				UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "place", 0, latitude, longitude, placeid, placename));
+				if (FriendsScreen.this.list.getSelectedIndex() > -1) {
+					Placemark[] places = settings.getPlacemarks();
+					String placeid = places[FriendsScreen.this.list.getSelectedIndex()].getId();
+					String placename = places[FriendsScreen.this.list.getSelectedIndex()].getName();
+					float latitude = places[FriendsScreen.this.list.getSelectedIndex()].getLatitude();
+					float longitude = places[FriendsScreen.this.list.getSelectedIndex()].getLongitude();
+					UiApplication.getUiApplication().pushScreen(new StreamScreen(true, "place", 0, latitude, longitude, placeid, placename));
+				} else {
+					Status.show("No Placemark selected");
+				}
 			}
 		};
 		
 		this.postnote = new MenuItem("Post Note About", 3, 10) {
 			public void run() {
-				Placemark[] places = settings.getPlacemarks();
-				String placeid = places[PlacemarkScreen.this.list.getSelectedIndex()].getPlaceID();
-				String placename = places[PlacemarkScreen.this.list.getSelectedIndex()].getName();
-				UiApplication.getUiApplication().pushScreen(new PostNoteScreen(placeid, placename));
+				if (FriendsScreen.this.list.getSelectedIndex() > -1) {
+					Placemark[] places = settings.getPlacemarks();
+					String placeid = places[FriendsScreen.this.list.getSelectedIndex()].getId();
+					String placename = places[FriendsScreen.this.list.getSelectedIndex()].getName();
+					UiApplication.getUiApplication().pushScreen(new PostNoteScreen(placeid, placename));
+				} else {
+					Status.show("No Placemark selected");
+				}
 			}
 		};
 		
 		this.postphoto = new MenuItem("Post Photo About", 4, 10) {
 			public void run() {
-				Placemark[] places = settings.getPlacemarks();
-				String placeid = places[PlacemarkScreen.this.list.getSelectedIndex()].getPlaceID();
-				String placename = places[PlacemarkScreen.this.list.getSelectedIndex()].getName();
-				UiApplication.getUiApplication().pushScreen(new PostPhotoScreen(placeid, placename));
+				if (FriendsScreen.this.list.getSelectedIndex() > -1) {
+					Placemark[] places = settings.getPlacemarks();
+					String placeid = places[FriendsScreen.this.list.getSelectedIndex()].getId();
+					String placename = places[FriendsScreen.this.list.getSelectedIndex()].getName();
+					UiApplication.getUiApplication().pushScreen(new PostPhotoScreen(placeid, placename));
+				} else {
+					Status.show("No Placemark selected");
+				}
 			}
 		};
 		
 		this.mapItem = new MenuItem("View on Blackberry Map", 5, 10) {
 			public void run() {
-				Placemark[] places = settings.getPlacemarks();
-				float latitude = places[PlacemarkScreen.this.list.getSelectedIndex()].getLatitude();
-				float longitude = places[PlacemarkScreen.this.list.getSelectedIndex()].getLongitude();
-				String label = places[PlacemarkScreen.this.list.getSelectedIndex()].getName();
-				String description = places[PlacemarkScreen.this.list.getSelectedIndex()].getDisplayLocation();
-	            String location = "<lbs>" + "<location lat='" + (int)(latitude*100000) + "' lon='" + (int)(longitude*100000) + "' label='" + label  +"' description='" + description + "'/>" + "</lbs>";
-	            System.out.println("Location string: " + location);
-	            Invoke.invokeApplication(Invoke.APP_TYPE_MAPS, new MapsArguments(MapsArguments.ARG_LOCATION_DOCUMENT, location));
-			}
-		};
-		
-		this.deleteItem = new MenuItem("Delete Placemark", 6, 10) {
-			public void run() {
-				int sure = Dialog.ask(Dialog.D_YES_NO, "Are you sure you want to delete this placemark?");
-				if (Dialog.YES == sure) {
-					System.out.println("User Answered Yes");
+				if (FriendsScreen.this.list.getSelectedIndex() > -1) {
 					Placemark[] places = settings.getPlacemarks();
-					int placemarkid = places[PlacemarkScreen.this.list.getSelectedIndex()].getPlacemarkID();
-					DeletePlacemarkThread delthread = new DeletePlacemarkThread(placemarkid, PlacemarkScreen.this);
-					delthread.start();
+					float latitude = places[FriendsScreen.this.list.getSelectedIndex()].getLatitude();
+					float longitude = places[FriendsScreen.this.list.getSelectedIndex()].getLongitude();
+					String label = places[FriendsScreen.this.list.getSelectedIndex()].getName();
+					String description = places[FriendsScreen.this.list.getSelectedIndex()].getDisplayLocation();
+		            String location = "<lbs>" + "<location lat='" + (int)(latitude*100000) + "' lon='" + (int)(longitude*100000) + "' label='" + label  +"' description='" + description + "'/>" + "</lbs>";
+		            System.out.println("Location string: " + location);
+		            Invoke.invokeApplication(Invoke.APP_TYPE_MAPS, new MapsArguments(MapsArguments.ARG_LOCATION_DOCUMENT, location));
+				} else {
+					Status.show("No Placemark selected");
 				}
 			}
 		};
@@ -133,14 +137,14 @@ public class PlacemarkScreen extends MainScreen {
 		this.updateItem = new MenuItem("Update Placemarks", 7, 10) {
 			public void run() {
 				Status.show("Updating placemarks");
-				Thread updateThread = new PlacemarksUpdateThread(PlacemarkScreen.this.screen);
+				Thread updateThread = new PlacemarksUpdateThread(FriendsScreen.this.screen);
 				updateThread.start();
 			}
 		};
 		
 		this.whereAmIItem = new MenuItem("Where Am I", 8, 10) {
 			public void run() {
-				Thread whereThread = new PlWhereAmIThread(PlacemarkScreen.this.screen);
+				Thread whereThread = new PlWhereAmIThread(FriendsScreen.this.screen);
 				whereThread.start();
 			}
 		};
@@ -164,10 +168,11 @@ public class PlacemarkScreen extends MainScreen {
 	public void updateStatus(String message) {
 		this.message = message;
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
+
 			public void run() {
-				Status.show("You successfully checked in at " + PlacemarkScreen.this.message);
-				if (UiApplication.getUiApplication().getActiveScreen() == PlacemarkScreen.this) {
-					UiApplication.getUiApplication().popScreen(PlacemarkScreen.this);
+				Status.show("You successfully checked in at " + FriendsScreen.this.message);
+				if (UiApplication.getUiApplication().getActiveScreen() == FriendsScreen.this) {
+					UiApplication.getUiApplication().popScreen(FriendsScreen.this);
 				}
 			}
 		});
@@ -177,8 +182,9 @@ public class PlacemarkScreen extends MainScreen {
 		this.message = message;
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
-				LabelField locationLabel = new LabelField("You're checked in @ " + PlacemarkScreen.this.message);
-				PlacemarkScreen.this.setStatus(locationLabel);
+				LabelField locationLabel = new LabelField("You're checked in @ " + FriendsScreen.this.message);
+				FriendsScreen.this.setStatus(locationLabel);
+				//PlacemarkScreen.this.statusField.setText("You are currently checked in at " + PlacemarkScreen.this.message);
 			}
 		});
 	}
@@ -187,27 +193,10 @@ public class PlacemarkScreen extends MainScreen {
 		this.placemarks = placemarks;
 		UiApplication.getUiApplication().invokeLater(new Runnable() { 
 			public void run() { 
-				PlacemarkScreen.this.settings.setPlacemarks(PlacemarkScreen.this.placemarks);
-				Settings.save(PlacemarkScreen.this.settings);
-				if (UiApplication.getUiApplication().getActiveScreen() == PlacemarkScreen.this) {
-					UiApplication.getUiApplication().popScreen(PlacemarkScreen.this.screen);
-					UiApplication.getUiApplication().pushScreen(new PlacemarkScreen());
-				}
-			}
-		});
-	}
-	
-	public void callDelete(boolean pldeleted) {
-		this.pldeleted = pldeleted;
-		UiApplication.getUiApplication().invokeLater(new Runnable() {
-			public void run() {
-				if (PlacemarkScreen.this.pldeleted) {
-					Status.show("Placemark Deleted, now updating Placemarks");
-					Thread updateThread = new PlacemarksUpdateThread(PlacemarkScreen.this.screen);
-					updateThread.start();
-				} else {
-					Dialog.alert("Error deleting Placemark");
-				}
+				FriendsScreen.this.settings.setPlacemarks(FriendsScreen.this.placemarks);
+				Settings.save(FriendsScreen.this.settings);
+				UiApplication.getUiApplication().popScreen(FriendsScreen.this.screen);
+				UiApplication.getUiApplication().pushScreen(new FriendsScreen());
 			}
 		});
 	}
@@ -219,7 +208,6 @@ public class PlacemarkScreen extends MainScreen {
 			contextMenu.addItem(postnote);
 			contextMenu.addItem(postphoto);
 			contextMenu.addItem(mapItem);
-			contextMenu.addItem(deleteItem);
 		}
 	}
 }

@@ -93,7 +93,8 @@ class PlacemarksUpdateThread extends Thread {
 				JSONObject jsonPlacemark = jsonArray.getJSONObject(x);
 				String placeName = jsonPlacemark.getString("placemark");
 				JSONObject jsonPlace = jsonPlacemark.getJSONObject("place");
-				String id = jsonPlace.getString("id");
+				String placeid = jsonPlace.getString("id");
+				int placemarkid = jsonPlacemark.getInt("id");
 				float latitude = (float)jsonPlace.getDouble("latitude");
 				float longitude = (float)jsonPlace.getDouble("longitude");
 				String name = jsonPlace.optString("name");
@@ -106,7 +107,7 @@ class PlacemarksUpdateThread extends Thread {
 				} else {
 					locationname = jsonPlace.getString("name"); 
 				}
-				placemarks.addElement(new Placemark(placeName, locationname, id, latitude, longitude));
+				placemarks.addElement(new Placemark(placemarkid, placeid, placeName, locationname, latitude, longitude));
 			}
 			rv = new Placemark[jsonArray.length()];
 			placemarks.copyInto(rv);

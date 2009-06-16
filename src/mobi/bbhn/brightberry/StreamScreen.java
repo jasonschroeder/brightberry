@@ -35,8 +35,10 @@ import net.rim.device.api.ui.ContextMenu;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
+import net.rim.device.api.ui.Keypad;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.Dialog;
@@ -59,8 +61,14 @@ public class StreamScreen extends MainScreen {
 			contextMenu.addItem(new ViewMapMenuItem());
 			contextMenu.addItem(MenuItem.separator(8));
 			contextMenu.addItem(new CheckinMenuItem());
+			contextMenu.addItem(new CreatePlacemark());
 		}
     };
+    BasicEditField debugpost = new BasicEditField("Go to post: ", "") {
+		protected void makeContextMenu(ContextMenu contextMenu) {
+    		contextMenu.addItem(new DebugMenuItem());
+		}
+	};
 	Settings settings = Settings.getInstance();
 	MenuItem refreshItem;
 	StreamScreen screen = this;
@@ -80,6 +88,10 @@ public class StreamScreen extends MainScreen {
 	private String placeid;
 	private String placename;
 	private String message;
+	private boolean deleted;
+	private String deletedtype;
+	private int debugger;
+	private boolean plcreated;
 	static boolean BKauth;
 	
 	// Regular constructor
@@ -286,8 +298,7 @@ public class StreamScreen extends MainScreen {
 		
 		public void run() {
 			String objectID = stream[list.getSelectedIndex()].getId();
-			String type = stream[list.getSelectedIndex()].getType();
-			UiApplication.getUiApplication().pushScreen(new BkObjectScreen(objectID, type));
+			UiApplication.getUiApplication().pushScreen(new BkObjectScreen(objectID));
 		}
 	}
 	
@@ -409,6 +420,53 @@ public class StreamScreen extends MainScreen {
 		}
 	}
 	
+	public final class DeleteObjectMenuItem extends MenuItem {
+		public DeleteObjectMenuItem() {
+			super("Delete " +  StreamScreen.this.stream[StreamScreen.this.list.getSelectedIndex()].getType().toUpperCase().substring(0, 1) + StreamScreen.this.stream[StreamScreen.this.list.getSelectedIndex()].getType().substring(1), 8, 1);
+		}
+		
+		public void run() {
+			String type = StreamScreen.this.stream[StreamScreen.this.list.getSelectedIndex()].getType().toUpperCase().substring(0, 1) + StreamScreen.this.stream[StreamScreen.this.list.getSelectedIndex()].getType().substring(1);
+			int sure = Dialog.ask(Dialog.D_YES_NO, "Are you sure you want to delete this " + type + "?");
+			if (Dialog.YES == sure) {
+				String objectid = stream[list.getSelectedIndex()].getId();
+				DeleteObjectThread delthread = new DeleteObjectThread(objectid, StreamScreen.this.screen, type);
+				delthread.start();
+			}
+		}
+	}
+	
+	public final class CreatePlacemark extends MenuItem {
+		public CreatePlacemark() {
+			super("Add To Placemarks", 9, 1);
+		}
+		
+		public void run() {
+			String placeid = StreamScreen.this.placeid;
+			String plname = StreamScreen.this.placename;
+			if (plname.length() > 20) {
+				plname = plname.substring(0, 19);
+			}
+			Dialog pldialog = new Dialog(Dialog.D_OK_CANCEL, "Placemark this place:", 0, Bitmap.getPredefinedBitmap(Bitmap.INFORMATION), Dialog.GLOBAL_STATUS);
+			BasicEditField placename = new BasicEditField("", plname, 20, BasicEditField.NO_NEWLINE);
+			pldialog.add(placename);
+			pldialog.add(new SeparatorField());
+			pldialog.add(new LabelField("Give your placemark a name. For example, \"home\", \"work\", \"hockey rink\""));
+			int answer = pldialog.doModal();
+			System.out.println("PD: " + answer);
+			System.out.println("Length: " + placename.getText().length());
+			if (answer == Dialog.OK) {
+				if (placename.getText().length() < 2) {
+					Dialog.alert("Placemark name must be greater than 2 characters");
+				} else {
+					PlacemarkCreateThread plcreate = new PlacemarkCreateThread(placeid, placename.getText(), StreamScreen.this);
+					plcreate.start();
+				}
+				System.out.println("Text: " + placename.getText());
+			}
+		}
+	}
+	
 	public void updateStatus(String message) {
 		this.message = message;
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
@@ -423,6 +481,13 @@ public class StreamScreen extends MainScreen {
 	
 	public class StreamListField extends ListField {
 		protected void makeContextMenu(ContextMenu contextMenu) {
+			String creator = StreamScreen.this.stream[StreamScreen.this.list.getSelectedIndex()].getCreator();
+			if (StreamScreen.this.settings.getUsername().equals(creator) == false) {
+				contextMenu.addItem(new SendDirectMessageMenuItem());
+			} else {
+				contextMenu.addItem(MenuItem.separator(8));
+				contextMenu.addItem(new DeleteObjectMenuItem());
+			}
 			if (StreamScreen.this.streamtoview.equals("place") == false) {
 				contextMenu.addItem(new ViewMapMenuItem());
 				contextMenu.addItem(new ViewPlaceItem());
@@ -430,10 +495,71 @@ public class StreamScreen extends MainScreen {
 			contextMenu.addItem(new ViewMoreMenuItem());
 			contextMenu.addItem(new FullTextMenuItem());
 			contextMenu.addItem(new PostCommentMenuItem());
-			contextMenu.addItem(new SendDirectMessageMenuItem());
 			if (StreamScreen.this.streamtoview.equals("person") == false) {
 				contextMenu.addItem(new ViewStreamItem());
 			}
 		}
+	}
+	
+	public void callDelete(boolean deleted, String type) {
+		this.deleted = deleted;
+		this.deletedtype = type;
+		UiApplication.getUiApplication().invokeLater(new Runnable() {
+			public void run() {
+				if (StreamScreen.this.deleted) {
+					Status.show(StreamScreen.this.deletedtype + " deleted");
+					StreamScreen.this.refresh();
+				} else {
+					Status.show("Unable to delete " + StreamScreen.this.deletedtype.toLowerCase());
+				}
+			}
+		});
+	}
+	
+	public boolean keyDown(int keycode, int time) {
+		char test = Keypad.map(keycode);
+		String mytest = "" + test;
+		if (mytest.equals("d") && this.debugger == 0) {
+			this.debugger = 1;
+		} else if (mytest.equals("e") && this.debugger == 1) {
+			this.debugger = 2;
+		} else if (mytest.equals("b") && this.debugger == 2) {
+			this.debugger = 3;
+		} else if (mytest.equals("u") && this.debugger == 3) {
+			this.debugger = 4;
+		} else if (mytest.equals("g") && this.debugger == 4) {
+			add(new SeparatorField());
+			add(debugpost);
+		} else {
+			this.debugger = 0;
+		}
+		return false;
+	}
+	
+	public final class DebugMenuItem extends MenuItem {
+		public DebugMenuItem() {
+			super("Go to Debug Post", 1, 1);
+		}
+		
+		public void run() {
+			UiApplication.getUiApplication().pushScreen(new BkObjectScreen(debugpost.getText()));
+		}
+	}
+	
+	public void plCreated(boolean success) {
+		this.plcreated = success;
+		UiApplication.getUiApplication().invokeLater(new Runnable() {
+			public void run() {
+				if (StreamScreen.this.plcreated) {
+					Dialog.alert("Placemark Created");
+				} else {
+					Dialog.alert("Unable to create placemark");
+				}
+			}
+		});
+	}
+	
+	protected boolean onSavePrompt() {
+		return true;
 	}
 }

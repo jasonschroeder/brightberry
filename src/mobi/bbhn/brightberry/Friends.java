@@ -28,56 +28,80 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.util.Comparator;
-import net.rim.device.api.util.Persistable;
 
-public class Placemark implements Persistable, Comparator {
-	private String name;
-	private String display_location;
-	private String placeid;
-	private float latitude;
-	private float longitude;
-	private int placemarkid;
+public class Friends implements Comparator {
+	private String username;
+	private String fullname;
+	private String last_active;
+	private String last_checkin;
+	private String last_location;
+	private String last_placeid;
+	private String last_placename;
+	private float last_latitude;
+	private float last_longitude;
+	private Bitmap avator;
 
-	public Placemark() {
-	}
-
-	public Placemark(int placemarkid, String placeid, String name, String display_location, float latitude, float longitude) {
-		this.placemarkid = placemarkid;
-		this.placeid = placeid;
-		this.name = name;
-		this.display_location = display_location;
-		this.latitude = latitude;
-		this.longitude = longitude;
+	public Friends() {
 	}
 
-	public int getPlacemarkID() {
-		return this.placemarkid;
+	public Friends(String username, String fullname, String last_active, String last_checkin, String last_location, String last_placeid, String last_placename, float last_latitude, float last_longitude, Bitmap avator) {
+		this.username = username;
+		this.fullname = fullname;
+		this.last_active = last_active;
+		this.last_checkin = last_checkin;
+		this.last_location = last_location;
+		this.last_placeid = last_placeid;
+		this.last_placename = last_placename;
+		this.last_latitude = last_latitude;
+		this.last_longitude = last_longitude;
+		this.avator = avator;
+	}
+
+	public String getUsername() {
+		return this.username;
 	}
 	
-	public String getPlaceID() {
-		return this.placeid;
+	public String getFullname() {
+		return this.fullname;
 	}
 	
-	public String getName() {
-		return this.name;
+	public String getLastActive() {
+		return this.last_active;
 	}
 	
-	public String getDisplayLocation() {
-		return this.display_location;
+	public String getLastCheckin() {
+		return this.last_checkin;
 	}
 	
-	public float getLatitude() {
-		return this.latitude;
+	public String getLastLocation() {
+		return this.last_location;
 	}
 	
-	public float getLongitude() {
-		return this.longitude;
+	public String getLastPlaceID() {
+		return this.last_placeid;
+	}
+	
+	public String getLastPlaceName() {
+		return this.last_placename;
+	}
+	
+	public float getLastLatitude() {
+		return this.last_latitude;
+	}
+	
+	public float getLastLongitude() {
+		return this.last_longitude;
+	}
+	
+	public Bitmap getAvator() {
+		return this.avator;
 	}
 	
 	public int compare(Object Object1, Object Object2) {
-		String name1 = ((Placemark) Object1).getName().toLowerCase();
-		String name2 = ((Placemark) Object2).getName().toLowerCase();
+		String name1 = ((Friends) Object1).getUsername().toLowerCase();
+		String name2 = ((Friends) Object2).getUsername().toLowerCase();
 		return name1.compareTo(name2);
 	}
 }
