@@ -161,7 +161,7 @@ public class BkObjectScreen extends MainScreen {
                 }
                 BkObjectScreen.this.createdField.setText(BkObjectScreen.this.created_at_as_words + " ago");
                 BkObjectScreen.this.add(creatorField);
-                if (BkObjectScreen.this.type.equals("Photo")){
+                if (BkObjectScreen.this.type.equals("photo")){
                     Bitmap bmPhoto = HTTPPhoto.getPhoto(BkObjectScreen.this.photo);
                     if (bmPhoto != null) {
                         BkObjectScreen.this.photoField.setBitmap(bmPhoto);

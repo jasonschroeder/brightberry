@@ -1,3 +1,7 @@
+=== 0.2.4
+* Fixes
+ * Fixes bug where you were unable to view the photo of any posts
+ 
 === 0.2.3
 * Fixes
  * If a search result set is shown the escape key will now clear the screen instead of taking you back to the main menu

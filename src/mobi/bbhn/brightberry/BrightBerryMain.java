@@ -42,7 +42,6 @@ import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.component.Status;
 import net.rim.device.api.ui.container.MainScreen;
 
-
 public class BrightBerryMain extends MainScreen {
 	Settings settings = Settings.getInstance();
 	MainButton searchBtn = new MainButton("Search & Check in", ButtonField.CONSUME_CLICK|ButtonField.FOCUSABLE);
