@@ -38,20 +38,17 @@ import javax.microedition.io.HttpConnection;
 import org.json.me.JSONArray;
 import org.json.me.JSONObject;
 
-import net.rim.device.api.system.Bitmap;
-
 class CommentThread extends Thread {
-	String url = "http://brightkite.com/objects/";
 	HttpConnection httpConnection = null;
 	InputStream httpInput = null;
 	String serverResponse = "";
 	BkObjectScreen screen;
 	String objectID;
 	Settings settings = Settings.getInstance();
+	private String url;
 
 	public CommentThread(BkObjectScreen screen, String objectID) {
-		CommentThread tmp56_55 = this;
-		tmp56_55.url = tmp56_55.url + objectID + "/comments.json";
+		this.url = "http://brightkite.com/objects/" + objectID + "/comments.json";
 		this.screen = screen;
 		this.objectID = objectID;
 	}
@@ -83,10 +80,9 @@ class CommentThread extends Thread {
 
 	private Comments[] parseJSON(String json) {
 		JSONArray jsonArray = null;
-
 		Vector comments = new Vector();
-
 		Comments[] rv = null;
+		Vector imagescached = new Vector();
 		try {
 			jsonArray = new JSONArray(json);
 
@@ -96,17 +92,13 @@ class CommentThread extends Thread {
 				JSONObject jsonCreator = jsonStream.getJSONObject("user");
 				String creator = jsonCreator.getString("login");
 				String avator = jsonCreator.getString("small_avatar_url");
-				Bitmap avtr;
-				if (ImageCache.inCache(creator)) {
-					avtr = ImageCache.getImage(creator);
-					System.out.println("Cached image used for " + creator);
-				} else {
-					avtr = HTTPPhoto.getAvator(avator);
-					ImageCache.cacheImage(creator, avtr);
-					System.out.println("Caching image for " + creator);
+				if (ImageCache.inCache(creator) == false && imagescached.contains(creator) == false) {
+					imagescached.addElement(creator);
+					AvatorThread getavtr = new AvatorThread(creator, avator);
+					getavtr.start();
 				}
 				String body = jsonStream.getString("comment");
-				comments.addElement(new Comments(creator, body, avtr, createdwords));
+				comments.addElement(new Comments(creator, body, createdwords));
 			}
 			rv = new Comments[jsonArray.length()];
 			comments.copyInto(rv);

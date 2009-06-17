@@ -33,16 +33,14 @@ import net.rim.device.api.system.Bitmap;
 public class Comments {
 	private String name;
 	private String body;
-	private Bitmap avator;
 	private String created_words;
 
 	public Comments() {
 	}
 
-	public Comments(String name, String body, Bitmap avator, String created_words) {
+	public Comments(String name, String body, String created_words) {
 		this.name = name;
 		this.body = body;
-		this.avator = avator;
 		this.created_words = created_words;
 	}
 
@@ -54,12 +52,12 @@ public class Comments {
 		return this.body;
 	}
 	
-	public void setAvator(Bitmap avator) {
-		this.avator = avator;
-	}
-	
 	public Bitmap getAvator() {
-		return this.avator;
+		if (ImageCache.inCache(this.name)) {
+			return ImageCache.getImage(this.name);
+		} else {
+			return Bitmap.getBitmapResource("img/default_avator.gif");
+		}
 	}
 	
 	public String getCreated() {

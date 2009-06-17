@@ -38,8 +38,6 @@ import javax.microedition.io.HttpConnection;
 import org.json.me.JSONArray;
 import org.json.me.JSONObject;
 
-import net.rim.device.api.system.Bitmap;
-
 class DirectMessageSentThread extends Thread {
 	String url = "http://brightkite.com/me/sent_messages.json";
 	HttpConnection httpConnection = null;
@@ -78,10 +76,10 @@ class DirectMessageSentThread extends Thread {
 
 	private DirectMessageSent[] parseJSON(String json) {
 		JSONArray jsonArray = null;
-
 		Vector msgsent = new Vector();
-
+		Vector imagescached = new Vector();
 		DirectMessageSent[] rv = null;
+		
 		try {
 			jsonArray = new JSONArray(json);
 
@@ -91,21 +89,14 @@ class DirectMessageSentThread extends Thread {
 				JSONObject jsonCreator = jsonStream.getJSONObject("recipient");
 				String creator = jsonCreator.getString("login");
 				String avator = jsonCreator.getString("small_avatar_url");
-				Bitmap avtr;
-				if (ImageCache.inCache(creator)) {
-					avtr = ImageCache.getImage(creator);
-					System.out.println("Cached image user for " + creator);
-				} else {
-					avtr = HTTPPhoto.getAvator(avator);
-					if (avtr == null) {
-						avtr = Bitmap.getBitmapResource("img/default_avator.gif");
-					}
-					ImageCache.cacheImage(creator, avtr);
-					System.out.println("Caching image for " + creator);
+				if (ImageCache.inCache(creator) == false && imagescached.contains(creator) == false) {
+					imagescached.addElement(creator);
+					AvatorThread getavtr = new AvatorThread(creator, avator);
+					getavtr.start();
 				}
 				String body = jsonStream.getString("body");
 				int id = jsonStream.getInt("id");
-				msgsent.addElement(new DirectMessageSent(creator, body, avtr, createdwords, id));
+				msgsent.addElement(new DirectMessageSent(creator, body, createdwords, id));
 			}
 			rv = new DirectMessageSent[jsonArray.length()];
 			msgsent.copyInto(rv);

@@ -1,3 +1,15 @@
+=== 0.2.5
+* New Features
+ * Now displays no posts if you are viewing a placestream with no objects
+ * Allows you clear the avator cache from the options screen
+ * Displays the number of avators in the cache
+ 
+* Fixes
+ * Combining one more WhereAmIThread to the main WhereAmIThread
+ * Reducing file size of the StreamThread
+ * Streams now load the avator in a thread instead of waiting for a response. Greatly improves speeds!
+ * Improved memory usage instead of loading an avator in the ImageCache and the Stream Object its only loaded in ImageCache
+ 
 === 0.2.4
 * Fixes
  * Fixes bug where you were unable to view the photo of any posts

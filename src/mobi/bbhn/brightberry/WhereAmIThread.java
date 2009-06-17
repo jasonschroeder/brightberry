@@ -47,18 +47,27 @@ public class WhereAmIThread extends Thread {
 	private String caller;
 	Settings settings = Settings.getInstance();
 
+	// Post Note Constructor
 	public WhereAmIThread(PostNoteScreen screen) {
 		this.caller = "note";
 		this.screen = screen;
 	}
 
+	// Post Photo Constructor
 	public WhereAmIThread(PostPhotoScreen screen) {
 		this.caller = "photo";
 		this.screen = screen;
 	}
 	
+	// Main Screen Constructor
 	public WhereAmIThread(BrightBerryMain screen) {
 		this.caller = "main";
+		this.screen = screen;
+	}
+	
+	// Placemark Constructor
+	public WhereAmIThread(PlacemarkScreen screen) {
+		this.caller = "placemark";
 		this.screen = screen;
 	}
 
@@ -87,8 +96,10 @@ public class WhereAmIThread extends Thread {
 				((PostNoteScreen) this.screen).updateLocation(this.LocationName, this.LocationID);
 			} else if (this.caller.equals("main")) {
 				((BrightBerryMain) this.screen).updateLocation(this.LocationName);
-			} else {
+			} else if (this.caller.equals("photo")) {
 				((PostPhotoScreen) this.screen).updateLocation(this.LocationName, this.LocationID);
+			} else if (this.caller.equals("placemark")) {
+				((PlacemarkScreen) this.screen).updateLocation(this.LocationName);
 			}
 	    } catch (IOException ex) {
 	    	ex.printStackTrace();

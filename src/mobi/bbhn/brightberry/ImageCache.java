@@ -46,4 +46,12 @@ public class ImageCache {
 	public static boolean inCache(String user) {
 		return ImageCache.imageTable.containsKey(user);
 	}
+	
+	public static void clearCache() {
+		ImageCache.imageTable.clear();
+	}
+	
+	public static int size() {
+		return ImageCache.imageTable.size();
+	}
 }

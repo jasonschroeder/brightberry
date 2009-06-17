@@ -41,13 +41,6 @@ import org.json.me.JSONObject;
 import net.rim.device.api.system.Bitmap;
 
 class StreamThread extends Thread {
-	String friends = "http://brightkite.com/me/friendstream.json?limit=";
-	String nearby = "http://brightkite.com/me/nearbystream.json?limit=";
-	String universe = "http://brightkite.com/objects.json?limit=";
-	String mentions = "http://brightkite.com/me/mentionsstream.json?limit=";
-	String me = "http://brightkite.com/me/objects.json?limit=";
-	String person = "http://brightkite.com/people/";
-	String place = "http://brightkite.com/places/";
 	String offset = "&offset=";
 	HttpConnection httpConnection = null;
 	String type;
@@ -90,19 +83,19 @@ class StreamThread extends Thread {
 	public void run() {
 		try {
 			if (this.type.equals("friend")) {
-				this.url = this.friends + this.maxEntries + this.offset + this.start;
+				this.url = "http://brightkite.com/me/friendstream.json?limit=" + this.maxEntries + this.offset + this.start;
 			} else if (this.type.equals("nearby")) {
-				this.url = this.nearby + this.maxEntries + this.offset + this.start;
+				this.url = "http://brightkite.com/me/nearbystream.json?limit=" + this.maxEntries + this.offset + this.start;
 			} else if (this.type.equals("universe")) {
-				this.url = this.universe + this.maxEntries + this.offset + this.start;
+				this.url = "http://brightkite.com/objects.json?limit=" + this.maxEntries + this.offset + this.start;
 			} else if (this.type.equals("mentions")) {
-				this.url = this.mentions + this.maxEntries + this.offset + this.start;
+				this.url = "http://brightkite.com/me/mentionsstream.json?limit=" + this.maxEntries + this.offset + this.start;
 			} else if (this.type.equals("person")) {
-				this.url = this.person + this.user + "/objects.json?limit=" + this.maxEntries + this.offset + this.start;
+				this.url = "http://brightkite.com/people/" + this.user + "/objects.json?limit=" + this.maxEntries + this.offset + this.start;
 			} else if (this.type.equals("place")) {
-				this.url = this.place + this.placeid + "/objects.json?limit=" + this.maxEntries + this.offset + this.start;
+				this.url = "http://brightkite.com/places/" + this.placeid + "/objects.json?limit=" + this.maxEntries + this.offset + this.start;
 			} else {
-				this.url = this.me + this.maxEntries + this.offset + this.start;
+				this.url = "http://brightkite.com/me/objects.json?limit=" + this.maxEntries + this.offset + this.start;
 			}
 			this.url += NetworkConfig.getConnectionParameters(this.settings.getConnectionMode());
 			this.httpConnection = ((HttpConnection)Connector.open(this.url));
@@ -125,8 +118,13 @@ class StreamThread extends Thread {
 			}
 
 			this.serverResponse = buffer.toString();
-			Stream[] places = parseJSON(this.serverResponse);
-			this.screen.updateStream(places);
+			System.out.println("Server Response: " + this.serverResponse);
+			if (this.serverResponse.startsWith("[]")) {
+				this.screen.noPosts();
+			} else {
+				Stream[] places = parseJSON(this.serverResponse);
+				this.screen.updateStream(places);
+			}
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
@@ -135,6 +133,7 @@ class StreamThread extends Thread {
 	private Stream[] parseJSON(String json) {
 		JSONArray jsonArray = null;
 		Vector stream = new Vector();
+		Vector imagescached = new Vector();
 		Stream[] rv = null;
 		
 		try {
@@ -148,19 +147,11 @@ class StreamThread extends Thread {
 				int comments = jsonStream.getInt("comments_count");
 				JSONObject jsonCreator = jsonStream.getJSONObject("creator");
 				String creator = jsonCreator.getString("login");
-				Bitmap avtr;
-				if (ImageCache.inCache(creator)) {
-					avtr = ImageCache.getImage(creator);
-					System.out.println("Cached image used for " + creator);
-				} else {
+				if (ImageCache.inCache(creator) == false && imagescached.contains(creator) == false) {
 					String avator = jsonCreator.getString("small_avatar_url");
-					System.out.println("Getting image " + avator);
-					avtr = HTTPPhoto.getAvator(avator);
-					if (avtr == null) {
-						avtr = Bitmap.getBitmapResource("img/default_avator.gif");
-					}
-					ImageCache.cacheImage(creator, avtr);
-					System.out.println("Caching image for " + creator);
+					imagescached.addElement(creator);
+					AvatorThread getavtr = new AvatorThread(creator, avator);
+					getavtr.start();
 				}
 				JSONObject jsonPlace = jsonStream.getJSONObject("place");
 				String locationname = "";
@@ -178,10 +169,10 @@ class StreamThread extends Thread {
 				String placeid = jsonPlace.getString("id");
 				if (type.equals("note")) {
 					String body = jsonStream.optString("body");
-					stream.addElement(new Stream("note", creator, avtr, createdwords, locationname, latitude, longitude, id, body, publicpst, comments, about, placeid));
+					stream.addElement(new Stream("note", creator, createdwords, locationname, latitude, longitude, id, body, publicpst, comments, about, placeid));
 				} else if (type.equals("checkin")) {
 					String body = "";
-					stream.addElement(new Stream("checkin", creator, avtr, createdwords, locationname, latitude, longitude, id, body, publicpst, comments, about, placeid));
+					stream.addElement(new Stream("checkin", creator, createdwords, locationname, latitude, longitude, id, body, publicpst, comments, about, placeid));
 				} else if (type.equals("photo")) {
 					String body = jsonStream.optString("body");
 					Bitmap photo = null;
@@ -192,10 +183,8 @@ class StreamThread extends Thread {
 						photo = HTTPPhoto.getFeedPhoto(photourl);
 					}
 					ImageCache.cacheImage(id, photo);
-					stream.addElement(new Stream("photo", creator, avtr, createdwords, locationname, latitude, longitude, id, body, publicpst, comments, about, photo, placeid));
+					stream.addElement(new Stream("photo", creator, createdwords, locationname, latitude, longitude, id, body, publicpst, comments, about, photo, placeid));
 				}
-				System.out.println("Longitude: " + longitude);
-				System.out.println("Latitude: " + latitude);
 			}
 			rv = new Stream[jsonArray.length()];
 			stream.copyInto(rv);

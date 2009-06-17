@@ -38,8 +38,6 @@ import javax.microedition.io.HttpConnection;
 import org.json.me.JSONArray;
 import org.json.me.JSONObject;
 
-import net.rim.device.api.system.Bitmap;
-
 class DirectMessageRcvThread extends Thread {
 	String url = "http://brightkite.com/me/received_messages.json";
 	HttpConnection httpConnection = null;
@@ -78,8 +76,8 @@ class DirectMessageRcvThread extends Thread {
 
 	private DirectMessageRcv[] parseJSON(String json) {
 		JSONArray jsonArray = null;
-
 		Vector msgrcv = new Vector();
+		Vector imagescached = new Vector();
 
 		DirectMessageRcv[] rv = null;
 		try {
@@ -91,21 +89,14 @@ class DirectMessageRcvThread extends Thread {
 				JSONObject jsonCreator = jsonStream.getJSONObject("sender");
 				String creator = jsonCreator.getString("login");
 				String avator = jsonCreator.getString("small_avatar_url");
-				Bitmap avtr;
-				if (ImageCache.inCache(creator)) {
-					avtr = ImageCache.getImage(creator);
-					System.out.println("Cached image used for " + creator);
-				} else {
-					avtr = HTTPPhoto.getAvator(avator);
-					if (avtr == null) {
-						avtr = Bitmap.getBitmapResource("img/default_avator.gif");
-					}
-					ImageCache.cacheImage(creator, avtr);
-					System.out.println("Caching image for " + creator);
+				if (ImageCache.inCache(creator) == false && imagescached.contains(creator) == false) {
+					imagescached.addElement(creator);
+					AvatorThread getavtr = new AvatorThread(creator, avator);
+					getavtr.start();
 				}
 				String body = jsonStream.getString("body");
 				int id = jsonStream.getInt("id");
-				msgrcv.addElement(new DirectMessageRcv(creator, body, avtr, createdwords, id));
+				msgrcv.addElement(new DirectMessageRcv(creator, body, createdwords, id));
 			}
 			rv = new DirectMessageRcv[jsonArray.length()];
 			msgrcv.copyInto(rv);

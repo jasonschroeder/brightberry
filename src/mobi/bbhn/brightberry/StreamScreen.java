@@ -28,6 +28,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
+import java.util.Date;
+
 import net.rim.blackberry.api.invoke.Invoke;
 import net.rim.blackberry.api.invoke.MapsArguments;
 import net.rim.device.api.system.Bitmap;
@@ -229,6 +231,8 @@ public class StreamScreen extends MainScreen {
 				this.statusField.setText("Loading " + this.title + "stream");
 			}
 			Thread posts;
+			Date start = new Date();
+			System.out.println("Start stream: " + start.toString());
 			if (this.streamtoview.equals("person")) {
 				posts = new StreamThread(this.screen, this.settings.getMaxEntries(), this.streamtoview, this.user, this.start);
 			} else if (this.streamtoview.equals("place")) {
@@ -261,6 +265,18 @@ public class StreamScreen extends MainScreen {
 				} else {
 					statusField.setText("No posts to display");
 				}
+				Date end = new Date();
+				System.out.println("End stream: " + end.toString());
+			}
+		});
+	}
+	
+	public void noPosts() {
+		UiApplication.getUiApplication().invokeLater(new Runnable() {
+			public void run() {
+				System.out.println("No posts");
+				delete(statusField);
+				add(new LabelField("There are no posts to show at this place yet. Be the first!", LabelField.FOCUSABLE|LabelField.FIELD_HCENTER));
 			}
 		});
 	}

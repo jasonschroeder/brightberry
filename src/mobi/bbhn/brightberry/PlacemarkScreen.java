@@ -61,7 +61,7 @@ public class PlacemarkScreen extends MainScreen {
 	}
 
 	public PlacemarkScreen() {
-		Thread whereThread = new PlWhereAmIThread(this.screen);
+		Thread whereThread = new WhereAmIThread(this.screen);
 	    whereThread.start();
 	    
 		super.setTitle(new LabelField("BrightBerry Placemarks", 1152921504606846980L));
@@ -140,7 +140,7 @@ public class PlacemarkScreen extends MainScreen {
 		
 		this.whereAmIItem = new MenuItem("Where Am I", 8, 10) {
 			public void run() {
-				Thread whereThread = new PlWhereAmIThread(PlacemarkScreen.this.screen);
+				Thread whereThread = new WhereAmIThread(PlacemarkScreen.this.screen);
 				whereThread.start();
 			}
 		};
@@ -173,7 +173,7 @@ public class PlacemarkScreen extends MainScreen {
 		});
 	}
 
-	public void updateWhereAmI(String message) {
+	public void updateLocation(String message) {
 		this.message = message;
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {

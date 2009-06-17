@@ -32,7 +32,6 @@ import net.rim.device.api.system.Bitmap;
 
 public class DirectMessageSent {
 	private String to;
-	private Bitmap avator;
 	private String body;
 	private String created_words;
 	private int id;
@@ -40,11 +39,10 @@ public class DirectMessageSent {
 	public DirectMessageSent() {
 	}
 
-	public DirectMessageSent(String to, String body, Bitmap avator, String created_words, int id) {
+	public DirectMessageSent(String to, String body, String created_words, int id) {
 		this.body = body;
 		this.created_words = created_words;
 		this.to = to;
-		this.avator = avator;
 		this.created_words = created_words;
 		this.id = id;
 	}
@@ -57,7 +55,11 @@ public class DirectMessageSent {
 		return this.body;
 	}
 	public Bitmap getAvator() {
-		return this.avator;
+		if (ImageCache.inCache(this.to)) {
+			return ImageCache.getImage(this.to);
+		} else {
+			return Bitmap.getBitmapResource("img/default_avator.gif");
+		}
 	}
 	
 	public String getCreated() {

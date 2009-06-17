@@ -34,7 +34,6 @@ public class Stream {
 	private String type;
 	private String id;
 	private String creator;
-	private Bitmap avator;
 	private Bitmap photo;
 	private String created_at_as_words;
 	private String body;
@@ -49,12 +48,11 @@ public class Stream {
 	public Stream() {
 	}
 
-	public Stream(String type, String creator, Bitmap avator, String created_at_as_words, String locationname, float latitude, float longitude, String id, String body, boolean publicpst, int comments, boolean about, String placeid) {
+	public Stream(String type, String creator, String created_at_as_words, String locationname, float latitude, float longitude, String id, String body, boolean publicpst, int comments, boolean about, String placeid) {
 		this.type = type;
 		this.created_at_as_words = created_at_as_words;
 		this.locationname = locationname;
 		this.creator = creator;
-		this.avator = avator;
 		this.id = id;
 		this.body = body;
 		this.publicpst = publicpst;
@@ -65,12 +63,11 @@ public class Stream {
 		this.placeid = placeid;
 	}
 	
-	public Stream(String type, String creator, Bitmap avator, String created_at_as_words, String locationname, float latitude, float longitude, String id, String body, boolean publicpst, int comments, boolean about, Bitmap photo, String placeid) {
+	public Stream(String type, String creator, String created_at_as_words, String locationname, float latitude, float longitude, String id, String body, boolean publicpst, int comments, boolean about, Bitmap photo, String placeid) {
 		this.type = type;
 		this.created_at_as_words = created_at_as_words;
 		this.locationname = locationname;
 		this.creator = creator;
-		this.avator = avator;
 		this.id = id;
 		this.body = body;
 		this.publicpst = publicpst;
@@ -93,11 +90,13 @@ public class Stream {
 	public String getCreator() {
 		return this.creator;
 	}
-	public void setAvator(Bitmap avator) {
-		this.avator = avator;
-	}
+	
 	public Bitmap getAvator() {
-		return this.avator;
+		if (ImageCache.inCache(this.creator)) {
+			return ImageCache.getImage(this.creator);
+		} else {
+			return Bitmap.getBitmapResource("img/default_avator.gif");
+		}
 	}
 	
 	public String getCreatedWords() {
@@ -122,10 +121,6 @@ public class Stream {
 	
 	public boolean getAbout() {
 		return this.about;
-	}
-	
-	public void setPhoto(Bitmap photo) {
-		this.photo = photo;
 	}
 	
 	public Bitmap getPhoto() {

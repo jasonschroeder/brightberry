@@ -42,6 +42,7 @@ import net.rim.device.api.ui.component.NumericChoiceField;
 import net.rim.device.api.ui.component.ObjectChoiceField;
 import net.rim.device.api.ui.component.PasswordEditField;
 import net.rim.device.api.ui.component.SeparatorField;
+import net.rim.device.api.ui.component.Status;
 import net.rim.device.api.ui.container.MainScreen;
 
 public class OptionsScreen extends MainScreen {
@@ -64,6 +65,9 @@ public class OptionsScreen extends MainScreen {
 	LabelField notifyLabel = new LabelField("Notification Settings", LabelField.FIELD_HCENTER);
 	LabelField gpsLabel = new LabelField("GPS Settings", LabelField.FIELD_HCENTER);
 	LabelField programLabel = new LabelField("BrightBerry Settings", LabelField.FIELD_HCENTER);
+	LabelField cacheLabel = new LabelField("Cache Settings", LabelField.FIELD_HCENTER);
+	LabelField imageLabel = new LabelField("Avators in cache: " + ImageCache.size());
+	ButtonField clearButtonField = new ButtonField("Clear Avator Cache", ButtonField.FIELD_HCENTER|ButtonField.NEVER_DIRTY);
 	ButtonField saveButtonField = new ButtonField("Save", ButtonField.FIELD_HCENTER);
 
 	public OptionsScreen() {
@@ -95,14 +99,27 @@ public class OptionsScreen extends MainScreen {
 		add(this.maxentriesField);
 		add(this.autoupdateField);
 		add(this.autowhereamiField);
+		add(new SeparatorField());
+		this.cacheLabel.setFont(boldfnt);
+		add(this.cacheLabel);
+		add(this.imageLabel);
 		
-		FieldChangeListener listener = new FieldChangeListener() {
+		FieldChangeListener clearlistener = new FieldChangeListener() {
+			public void fieldChanged(Field field, int context) {
+				ImageCache.clearCache();
+				Status.show("Image cache cleared");
+			}
+		};
+		this.clearButtonField.setChangeListener(clearlistener);
+		add(this.clearButtonField);
+		
+		FieldChangeListener savelistener = new FieldChangeListener() {
 			public void fieldChanged(Field field, int context) {
 				OptionsScreen.this.save();
 				OptionsScreen.this.close();
 			}
 		};
-		this.saveButtonField.setChangeListener(listener);
+		this.saveButtonField.setChangeListener(savelistener);
 		add(this.saveButtonField);
 		this.usernameField.setCursorPosition(this.usernameField.getText().length());
 	}

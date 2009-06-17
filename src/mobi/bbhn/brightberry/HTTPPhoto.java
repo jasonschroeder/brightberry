@@ -48,53 +48,6 @@ import net.rim.device.api.ui.component.Dialog;
 public class HTTPPhoto {
 	static Settings settings = Settings.getInstance();
 	
-	public static Bitmap getAvator(String url) { 
-		try {
-			url += NetworkConfig.getConnectionParameters(settings.getConnectionMode());
-			HttpConnection httpConnection = ((HttpConnection)Connector.open(url));
-			httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
-			httpConnection.setRequestProperty("Content-Language", "en-US");
-			httpConnection.setRequestProperty("Accept", "*/*");
-			httpConnection.setRequestProperty("Connection", "Keep-Alive");
-			httpConnection.setRequestProperty("Accept-Encoding", "gzip,deflate");
-			httpConnection.setRequestProperty("x-rim-transcode-content", "none");
-			DataInputStream iStrm = httpConnection.openDataInputStream();
-			
-			byte imageData[];
-			int length = (int) httpConnection.getLength();
-			if (length != -1) {
-				imageData = new byte[length];
-				iStrm.readFully(imageData);
-			} else {
-				ByteArrayOutputStream bStrm = new ByteArrayOutputStream();
-
-				int ch;
-				while ((ch = iStrm.read()) != -1) {
-					bStrm.write(ch);
-				}
-	
-				imageData = bStrm.toByteArray();
-				bStrm.close();
-			}
-			EncodedImage m_Image = EncodedImage.createEncodedImage(imageData, 0, imageData.length);
-			int oldHeight = m_Image.getHeight();
-			Font f = Font.getDefault();
-			int fontHeight = f.getHeight()*2;
-			
-			int numerator = Fixed32.toFP(oldHeight);
-			int denominator = Fixed32.toFP(fontHeight);
-			int widthScale = Fixed32.div(numerator, denominator);
-			
-			EncodedImage newEi = m_Image.scaleImage32(widthScale, widthScale);
-			Bitmap img = newEi.getBitmap();
-			return img;
-
-		} catch (IOException e) {
-			Dialog.alert("Caught Exception");
-		}
-		return null;
-	}
-	
 	public static Bitmap getPhoto(String url) { 
 		try {
 			int end = url.length() - 4;
