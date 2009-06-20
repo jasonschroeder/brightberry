@@ -39,15 +39,17 @@ import org.json.me.JSONArray;
 import org.json.me.JSONObject;
 
 class DirectMessageRcvThread extends Thread {
-	String url = "http://brightkite.com/me/received_messages.json";
+	String url = "http://brightkite.com/me/received_messages.json?limit=";
 	HttpConnection httpConnection = null;
 	InputStream httpInput = null;
 	String serverResponse = "";
 	DirectMessageRcvScreen screen;
 	Settings settings = Settings.getInstance();
+	String offset = "&offset=";
 
-	public DirectMessageRcvThread(DirectMessageRcvScreen directMessageRcvScreen) {
+	public DirectMessageRcvThread(DirectMessageRcvScreen directMessageRcvScreen, int maxMessages, int start) {
 		this.screen = directMessageRcvScreen;
+		this.url = this.url + maxMessages + this.offset + start;
 	}
 
 	public void run() {
@@ -88,10 +90,10 @@ class DirectMessageRcvThread extends Thread {
 				String createdwords = jsonStream.getString("created_at_as_words");
 				JSONObject jsonCreator = jsonStream.getJSONObject("sender");
 				String creator = jsonCreator.getString("login");
-				String avator = jsonCreator.getString("small_avatar_url");
+				String avatar = jsonCreator.getString("small_avatar_url");
 				if (ImageCache.inCache(creator) == false && imagescached.contains(creator) == false) {
 					imagescached.addElement(creator);
-					AvatorThread getavtr = new AvatorThread(creator, avator);
+					AvatarThread getavtr = new AvatarThread(creator, avatar);
 					getavtr.start();
 				}
 				String body = jsonStream.getString("body");

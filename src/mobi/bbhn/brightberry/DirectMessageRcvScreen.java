@@ -38,21 +38,31 @@ import net.rim.device.api.ui.component.ListField;
 import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.component.Status;
 import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.util.Arrays;
 
 public class DirectMessageRcvScreen extends MainScreen {
 	RichTextField statusField = new RichTextField("", 45035996273704960L);
 	Settings settings = Settings.getInstance();
 	DirectMessageRcvScreen screen = this;
-	ListField msglist = new DirectMessageRcvListField();
-	DirectMessageRcv[] directMessage;
-	private boolean deleted;
-	int deletedIndex;
-	
-	MenuItem sentItem = new MenuItem("Sent Messages", 7, 10) {
-		public void run() {
-			UiApplication.getUiApplication().pushScreen(new DirectMessageSentScreen());
+	ListField msglist = new ListField(0, ListField.MULTI_SELECT) {
+		protected void makeContextMenu(ContextMenu contextMenu) {
+			contextMenu.addItem(fulltextItem);
+			String name = directMessage[msglist.getSelectedIndex()].getSender();
+			if (name.equals(settings.getUsername()) == false) {
+				contextMenu.addItem(replyItem);
+			}
+			contextMenu.addItem(ViewStreamItem);
+			contextMenu.addItem(MenuItem.separator(4));
+			if (msglist.getSelection().length == 1) {
+			contextMenu.addItem(dlt1menuItem);
+			} else {
+				contextMenu.addItem(dltmanymenuItem);
+			}
 		}
 	};
+	DirectMessageRcv[] directMessage;
+	private boolean deleted;
+	int[] deletedIndexs;
 	
 	MenuItem fulltextItem = new MenuItem("View Full Text", 1, 10) {
 		public void run() {
@@ -61,7 +71,7 @@ public class DirectMessageRcvScreen extends MainScreen {
 		}
 	};
 	
-	MenuItem sendItem = new MenuItem("Reply", 2, 10) {
+	MenuItem replyItem = new MenuItem("Reply", 2, 10) {
 		public void run() {
 			String name = directMessage[msglist.getSelectedIndex()].getSender();
 			UiApplication.getUiApplication().pushScreen(new SendDirectMessageScreen(name));
@@ -75,28 +85,63 @@ public class DirectMessageRcvScreen extends MainScreen {
 		}
 	};
 	
-	MenuItem dltmenuItem = new MenuItem("Delete Message", 5, 10) {
+	MenuItem dlt1menuItem = new MenuItem("Delete Message", 5, 10) {
 		public void run() {
-			int sure = Dialog.ask(Dialog.D_YES_NO, "Are you sure you want to delete this message?");
-			if (Dialog.YES == sure) {
-				int id = directMessage[msglist.getSelectedIndex()].getID();
-				Thread deletetrd = new DirectMessageRcvDeleteThread(id, DirectMessageRcvScreen.this.screen);
-				deletetrd.start();
-				deletedIndex = msglist.getSelectedIndex();
-				Status.show("Deleting message");
-			}
+			DirectMessageRcvScreen.this.delfunc();
 		}
 	};
+	
+	MenuItem dltmanymenuItem = new MenuItem("Delete Messages", 5, 10) {
+		public void run() {
+			DirectMessageRcvScreen.this.delfunc();
+		}
+	};
+	
+	MenuItem sentItem = new MenuItem("Sent Messages", 7, 10) {
+		public void run() {
+			UiApplication.getUiApplication().pushScreen(new DirectMessageSentScreen(0));
+		}
+	};
+	
+	MenuItem nextItem = new MenuItem("Next " + settings.getMaxMessages() + " Messages", 9, 10) {
+		public void run() {
+			DirectMessageRcvScreen.this.start = DirectMessageRcvScreen.this.start + settings.getMaxMessages();
+			DirectMessageRcvScreen.this.refresh();
+		}
+	};
+	
+	MenuItem previousItem = new MenuItem("Previous " + settings.getMaxMessages() + " Messages", 10, 10) {
+		public void run() {
+			DirectMessageRcvScreen.this.start = DirectMessageRcvScreen.this.start - settings.getMaxMessages();
+			DirectMessageRcvScreen.this.refresh();
+		}
+	};
+	
+	MenuItem refreshmenuItem = new MenuItem("Refresh", 12, 10) {
+		public void run() {
+			DirectMessageRcvScreen.this.refresh();
+		}
+	};
+	
+	private int start;
 	
 	protected boolean onSavePrompt() {
 		return true;
 	}
 
-	public DirectMessageRcvScreen() {
-		Thread msgThread = new DirectMessageRcvThread(this.screen);
+	public DirectMessageRcvScreen(int start) {
+		this.start = start;
+		Thread msgThread = new DirectMessageRcvThread(this.screen, settings.getMaxMessages(), this.start);
 	    msgThread.start();
 		super.setTitle(new LabelField("BrightBerry Direct Messages Received", 1152921504606846980L));
 		addMenuItem(sentItem);
+		addMenuItem(MenuItem.separator(8));
+		addMenuItem(nextItem);
+		if (this.start >= settings.getMaxMessages()) {
+			addMenuItem(previousItem);
+		}
+		addMenuItem(MenuItem.separator(11));
+		addMenuItem(refreshmenuItem);
 	}
 
 	public void updateMessages(final DirectMessageRcv[] directMessage) {
@@ -110,34 +155,67 @@ public class DirectMessageRcvScreen extends MainScreen {
 					msglist.setRowHeight(ListField.ROW_HEIGHT_FONT*3);
 					add(msglist);
 				} else {
-					add(new LabelField("No message to display", LabelField.FIELD_HCENTER));
+					removeMenuItem(nextItem);
+					if (DirectMessageRcvScreen.this.start == 0) {
+						add(new LabelField("You haven't received any messages yet", LabelField.FIELD_HCENTER));
+					} else {
+						add(new LabelField("No messages to display", LabelField.FIELD_HCENTER));
+					}
 				}
 
 			}
 		});
 	}
 	
+	public void delfunc() {
+		int[] sel = msglist.getSelection();
+		int sure;
+		if (sel.length == 1) {
+			sure = Dialog.ask(Dialog.D_YES_NO, "Are you sure you want to delete this message?");
+		} else { 
+			sure = Dialog.ask(Dialog.D_YES_NO, "Are you sure you want to delete these " + sel.length + " messages?");
+		}
+		if (Dialog.YES == sure) {
+			Thread deletetrd = new DirectMessageRcvDeleteThread(sel, DirectMessageRcvScreen.this.screen);
+			deletetrd.start();
+			if (sel.length == 1) {
+				Status.show("Deleting message");
+			} else {
+				Status.show("Deleting messages");
+			}
+		}
+	}
+	public void refresh() {
+		UiApplication.getUiApplication().popScreen(this);
+		UiApplication.getUiApplication().pushScreen(new DirectMessageRcvScreen(this.start));
+	}
 	
-	public void callDelete(boolean deleted) {
+	public void callDelete(boolean deleted, int[] delindexs) {
 		this.deleted = deleted;
+		this.deletedIndexs = delindexs;
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
 				if (DirectMessageRcvScreen.this.deleted) {
-					Status.show("Message deleted");
+					if (DirectMessageRcvScreen.this.deletedIndexs.length == 1) {
+						Status.show("Message deleted");
+					} else {
+						Status.show("Messages deleted");
+					}
+					for (int i = DirectMessageRcvScreen.this.deletedIndexs.length-1; i >= 0; i--) {
+						Arrays.removeAt(DirectMessageRcvScreen.this.directMessage, DirectMessageRcvScreen.this.deletedIndexs[i]);
+						System.out.println("Deleted msg: " + DirectMessageRcvScreen.this.deletedIndexs[i]);
+					}
+					if (directMessage.length == 0) {
+						DirectMessageRcvScreen.this.refresh();
+					} else {
+						DirectMessageRcvScreen.this.msglist.setSize(directMessage.length);
+						UiApplication.getUiApplication().repaint();
+						DirectMessageRcvScreen.this.msglist.setSelectedIndex(0);
+					}
 				} else {
 					Status.show("Unable to delete message");
 				}
 			}
 		});
-	}
-	
-	public class DirectMessageRcvListField extends ListField {
-		protected void makeContextMenu(ContextMenu contextMenu) {
-			contextMenu.addItem(fulltextItem);
-			contextMenu.addItem(sendItem);
-			contextMenu.addItem(ViewStreamItem);
-			contextMenu.addItem(MenuItem.separator(4));
-			contextMenu.addItem(dltmenuItem);
-		}
 	}
 }

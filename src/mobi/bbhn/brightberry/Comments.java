@@ -52,11 +52,11 @@ public class Comments {
 		return this.body;
 	}
 	
-	public Bitmap getAvator() {
+	public Bitmap getAvatar() {
 		if (ImageCache.inCache(this.name)) {
 			return ImageCache.getImage(this.name);
 		} else {
-			return Bitmap.getBitmapResource("img/default_avator.gif");
+			return Bitmap.getBitmapResource("img/default_avatar.gif");
 		}
 	}
 	

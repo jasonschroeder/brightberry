@@ -52,6 +52,7 @@ import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.component.Status;
 import net.rim.device.api.ui.container.HorizontalFieldManager;
 import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.util.Arrays;
 
 public class StreamScreen extends MainScreen {
 	RichTextField statusField = new RichTextField("Status field", RichTextField.NON_FOCUSABLE);
@@ -94,6 +95,7 @@ public class StreamScreen extends MainScreen {
 	private String deletedtype;
 	private int debugger;
 	private boolean plcreated;
+	private int dlindex;
 	static boolean BKauth;
 	
 	// Regular constructor
@@ -256,13 +258,14 @@ public class StreamScreen extends MainScreen {
 						statusField.setText("No posts or checkins to show");
 					} else {
 						delete(statusField);
-						list.setEmptyString("No posts to display", DrawStyle.LEFT);
+						list.setEmptyString("No posts to display empty list", DrawStyle.LEFT);
 						list.setSize(StreamScreen.this.stream.length);
 						list.setCallback(new StreamCallback(StreamScreen.this.stream, StreamScreen.this.screen));
 						list.setRowHeight(ListField.ROW_HEIGHT_FONT*4);
 						add(list);
 					}
 				} else {
+					removeMenuItem(nextItem);
 					statusField.setText("No posts to display");
 				}
 				Date end = new Date();
@@ -446,7 +449,7 @@ public class StreamScreen extends MainScreen {
 			int sure = Dialog.ask(Dialog.D_YES_NO, "Are you sure you want to delete this " + type + "?");
 			if (Dialog.YES == sure) {
 				String objectid = stream[list.getSelectedIndex()].getId();
-				DeleteObjectThread delthread = new DeleteObjectThread(objectid, StreamScreen.this.screen, type);
+				DeleteObjectThread delthread = new DeleteObjectThread(objectid, StreamScreen.this.screen, type, list.getSelectedIndex());
 				delthread.start();
 			}
 		}
@@ -517,14 +520,18 @@ public class StreamScreen extends MainScreen {
 		}
 	}
 	
-	public void callDelete(boolean deleted, String type) {
+	public void callDelete(boolean deleted, String type, int listindex) {
 		this.deleted = deleted;
 		this.deletedtype = type;
+		this.dlindex = listindex;
 		UiApplication.getUiApplication().invokeLater(new Runnable() {
 			public void run() {
 				if (StreamScreen.this.deleted) {
 					Status.show(StreamScreen.this.deletedtype + " deleted");
-					StreamScreen.this.refresh();
+					Arrays.removeAt(StreamScreen.this.stream, StreamScreen.this.dlindex);
+					StreamScreen.this.list.delete(StreamScreen.this.dlindex);
+					StreamScreen.this.list.setSize(StreamScreen.this.stream.length);
+					UiApplication.getUiApplication().repaint();
 				} else {
 					Status.show("Unable to delete " + StreamScreen.this.deletedtype.toLowerCase());
 				}

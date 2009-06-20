@@ -32,6 +32,7 @@ import net.rim.device.api.system.Alert;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
+import net.rim.device.api.ui.Keypad;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
@@ -51,6 +52,7 @@ public class OptionsScreen extends MainScreen {
 	PasswordEditField passwordField = new PasswordEditField("Password: ", this.settings.getPassword());
 	NumericChoiceField maxentriesField = new NumericChoiceField("Max Entries: ", 5, 50, 5, this.settings.getMaxEntriesIndex());
 	NumericChoiceField maxsearchField = new NumericChoiceField("Max Search Results: ", 5, 50, 5, this.settings.getMaxSearchIndex());
+	NumericChoiceField maxmessagesField = new NumericChoiceField("Max Direct Messages: ", 5, 50, 5, this.settings.getMaxMessagesIndex());
 	CheckboxField autoupdateField = new CheckboxField("Update friendstream on startup", this.settings.getAutoUpdate());
 	CheckboxField autowhereamiField = new CheckboxField("Update Where Am I", this.settings.getAutoWhereAmI());
 	String choicestrs[] = {"Auto-Detect", "BIS", "BES", "TCP"};
@@ -66,9 +68,32 @@ public class OptionsScreen extends MainScreen {
 	LabelField gpsLabel = new LabelField("GPS Settings", LabelField.FIELD_HCENTER);
 	LabelField programLabel = new LabelField("BrightBerry Settings", LabelField.FIELD_HCENTER);
 	LabelField cacheLabel = new LabelField("Cache Settings", LabelField.FIELD_HCENTER);
-	LabelField imageLabel = new LabelField("Avators in cache: " + ImageCache.size());
-	ButtonField clearButtonField = new ButtonField("Clear Avator Cache", ButtonField.FIELD_HCENTER|ButtonField.NEVER_DIRTY);
-	ButtonField saveButtonField = new ButtonField("Save", ButtonField.FIELD_HCENTER);
+	LabelField imageLabel = new LabelField("Avatars in cache: " + ImageCache.size());
+	ButtonField clearButtonField = new ButtonField("Clear Avatar Cache", ButtonField.FIELD_HCENTER|ButtonField.NEVER_DIRTY);
+	ButtonField saveButtonField = new ButtonField("Save", ButtonField.FIELD_HCENTER) {
+		public boolean keyDown(int keycode, int time) {
+			char test = Keypad.map(keycode);
+			String mytest = "" + test;
+			if (mytest.equals("d") && OptionsScreen.this.debugger == 0) {
+				OptionsScreen.this.debugger = 1;
+			} else if (mytest.equals("e") && OptionsScreen.this.debugger == 1) {
+				OptionsScreen.this.debugger = 2;
+			} else if (mytest.equals("b") && OptionsScreen.this.debugger == 2) {
+				OptionsScreen.this.debugger = 3;
+			} else if (mytest.equals("u") && OptionsScreen.this.debugger == 3) {
+				OptionsScreen.this.debugger = 4;
+			} else if (mytest.equals("g") && OptionsScreen.this.debugger == 4) {
+				add(new SeparatorField());
+				add(new LabelField("Unread Messages: " + BrightBerry.getUnreadMessages()));
+		    	add(new LabelField("Pending Friends: " + BrightBerry.getPendingFriends()));
+		    	add(new LabelField("Friend Count: " + BrightBerry.getFriendCount()));
+			} else {
+				OptionsScreen.this.debugger = 0;
+			}
+			return false;
+		}
+	};
+	private int debugger;
 
 	public OptionsScreen() {
 		super.setTitle(new LabelField("BrightBerry Settings", 1152921504606846980L));
@@ -97,6 +122,7 @@ public class OptionsScreen extends MainScreen {
 		add(this.programLabel);
 		add(this.maxsearchField);
 		add(this.maxentriesField);
+		add(this.maxmessagesField);
 		add(this.autoupdateField);
 		add(this.autowhereamiField);
 		add(new SeparatorField());
@@ -134,6 +160,8 @@ public class OptionsScreen extends MainScreen {
 			this.settings.setMaxEntriesIndex(this.maxentriesField.getSelectedIndex());
 			this.settings.setMaxSearch(this.maxsearchField.getSelectedValue());
 			this.settings.setMaxSearchIndex(this.maxsearchField.getSelectedIndex());
+			this.settings.setMaxMessages(this.maxmessagesField.getSelectedValue());
+			this.settings.setMaxMessagesIndex(this.maxmessagesField.getSelectedIndex());
 			this.settings.setAutoUpdate(this.autoupdateField.getChecked());
 			this.settings.setAutoWhereAmI(this.autowhereamiField.getChecked());
 			this.settings.setPowerMode(this.powerConsumption.getSelectedIndex());
@@ -154,6 +182,7 @@ public class OptionsScreen extends MainScreen {
 			Settings.save(this.settings);
 		}
 	}
+	
 	public void close() {
 		UiApplication.getUiApplication().popScreen(this);
 		UiApplication.getUiApplication().pushScreen(new BrightBerryMain());

@@ -29,6 +29,7 @@ OF SUCH DAMAGE.
 */
 
 import net.rim.blackberry.api.browser.Browser;
+import net.rim.blackberry.api.browser.BrowserSession;
 import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
@@ -41,6 +42,7 @@ import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.component.Status;
 import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.container.VerticalFieldManager;
 
 public class BrightBerryMain extends MainScreen {
 	Settings settings = Settings.getInstance();
@@ -58,6 +60,8 @@ public class BrightBerryMain extends MainScreen {
 	
 	MainButton actsettingsBtn = new MainButton("Account Settings", ButtonField.CONSUME_CLICK|ButtonField.FOCUSABLE);
 	MainButton appsettingsBtn = new MainButton("Application Settings", ButtonField.CONSUME_CLICK|ButtonField.FOCUSABLE);
+	
+	MainButton signupBtn = new MainButton("Signup for an account", ButtonField.CONSUME_CLICK|ButtonField.FOCUSABLE);
 	private MenuItem aboutItem;
 	private MenuItem shutdownItem;
 	private MenuItem privacymodeItem;
@@ -105,7 +109,7 @@ public class BrightBerryMain extends MainScreen {
 		
 		FieldChangeListener MessageListener = new FieldChangeListener() {
 			public void fieldChanged(Field field, int context) {
-				UiApplication.getUiApplication().pushScreen(new DirectMessageRcvScreen());
+				UiApplication.getUiApplication().pushScreen(new DirectMessageRcvScreen(0));
 			}
 		};
 		
@@ -118,6 +122,14 @@ public class BrightBerryMain extends MainScreen {
 		FieldChangeListener MentionsListener = new FieldChangeListener() {
 			public void fieldChanged(Field field, int context) {
 				UiApplication.getUiApplication().pushScreen(new StreamScreen(BrightBerryMain.this.settings.getAutoUpdate(), "mentions", 0));
+			}
+		};
+		
+		FieldChangeListener SignupListener = new FieldChangeListener() {
+			public void fieldChanged(Field field, int context) {
+				BrowserSession browserSession = Browser.getDefaultSession();
+	            browserSession.displayPage("http://m.brightkite.com/account/signup");
+	            browserSession.showBrowser();
 			}
 		};
 		
@@ -210,6 +222,10 @@ public class BrightBerryMain extends MainScreen {
 		}
     	appsettingsBtn.setChangeListener(AppSettingsListener);
     	add(appsettingsBtn);
+    	if (this.settings.getAuthed() == false) {
+    		signupBtn.setChangeListener(SignupListener);
+    		add(signupBtn);
+    	}
     }
     
     public void callPrivacy(boolean string) {
@@ -247,8 +263,27 @@ public class BrightBerryMain extends MainScreen {
 			new Runnable() {
 				public void run() {
 					System.out.println("Checked in at " + BrightBerryMain.locationName);
+					VerticalFieldManager vfm = new VerticalFieldManager();
+					vfm.add(new SeparatorField());
 					LabelField locationLabel = new LabelField("You're checked in @ " + BrightBerryMain.locationName);
-					BrightBerryMain.this.setStatus(locationLabel);
+					vfm.add(locationLabel);
+					if (BrightBerry.getPendingFriends() == 1) {
+						LabelField friendsLabel = new LabelField("You have " +  BrightBerry.getPendingFriends() + " pending friend request!");
+						vfm.add(friendsLabel);
+					}
+					if (BrightBerry.getPendingFriends() > 1) {
+						LabelField friendsLabel = new LabelField("You have " +  BrightBerry.getPendingFriends() + " pending friend requests!");
+						vfm.add(friendsLabel);
+					}
+					if (BrightBerry.getUnreadMessages() == 1) {
+						LabelField unreadLabel = new LabelField("You have " + BrightBerry.getUnreadMessages() + " new message!");
+						vfm.add(unreadLabel);
+					}
+					if (BrightBerry.getUnreadMessages() > 1) {
+						LabelField unreadLabel = new LabelField("You have " + BrightBerry.getUnreadMessages() + " new messages!");
+						vfm.add(unreadLabel);
+					}
+					BrightBerryMain.this.setStatus(vfm);
 				}
 			});
 	}

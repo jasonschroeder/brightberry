@@ -80,15 +80,12 @@ public class WhereAmIThread extends Thread {
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpInput = this.httpConnection.openInputStream();
-
 			StringBuffer buffer = new StringBuffer();
-
 			int ch = 0;
 			while (ch != -1) {
 				ch = this.httpInput.read();
 				buffer.append((char)ch);
 			}
-
 			this.serverResponse = buffer.toString();
 			System.out.println("Server response: " + this.serverResponse);
 			parseJSON(this.serverResponse);
@@ -113,6 +110,9 @@ public class WhereAmIThread extends Thread {
 			JSONObject place = me.getJSONObject("place");
 			this.LocationName = place.getString("name");
 			this.LocationID = place.getString("id");
+			BrightBerry.setFriendCount(me.getInt("friends_count"));
+			BrightBerry.setUnreadMessages(me.getInt("unread_messages"));
+			BrightBerry.setPendingFriends(me.getInt("pending_friends"));
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}

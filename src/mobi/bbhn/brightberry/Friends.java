@@ -41,12 +41,12 @@ public class Friends implements Comparator {
 	private String last_placename;
 	private float last_latitude;
 	private float last_longitude;
-	private Bitmap avator;
+	private Bitmap avatar;
 
 	public Friends() {
 	}
 
-	public Friends(String username, String fullname, String last_active, String last_checkin, String last_location, String last_placeid, String last_placename, float last_latitude, float last_longitude, Bitmap avator) {
+	public Friends(String username, String fullname, String last_active, String last_checkin, String last_location, String last_placeid, String last_placename, float last_latitude, float last_longitude, Bitmap avatar) {
 		this.username = username;
 		this.fullname = fullname;
 		this.last_active = last_active;
@@ -56,7 +56,7 @@ public class Friends implements Comparator {
 		this.last_placename = last_placename;
 		this.last_latitude = last_latitude;
 		this.last_longitude = last_longitude;
-		this.avator = avator;
+		this.avatar = avatar;
 	}
 
 	public String getUsername() {
@@ -95,8 +95,8 @@ public class Friends implements Comparator {
 		return this.last_longitude;
 	}
 	
-	public Bitmap getAvator() {
-		return this.avator;
+	public Bitmap getAvatar() {
+		return this.avatar;
 	}
 	
 	public int compare(Object Object1, Object Object2) {

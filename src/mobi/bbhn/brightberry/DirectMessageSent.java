@@ -54,11 +54,11 @@ public class DirectMessageSent {
 	public String getBody() {
 		return this.body;
 	}
-	public Bitmap getAvator() {
+	public Bitmap getAvatar() {
 		if (ImageCache.inCache(this.to)) {
 			return ImageCache.getImage(this.to);
 		} else {
-			return Bitmap.getBitmapResource("img/default_avator.gif");
+			return Bitmap.getBitmapResource("img/default_avatar.gif");
 		}
 	}
 	

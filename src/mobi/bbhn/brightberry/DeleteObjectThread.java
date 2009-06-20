@@ -44,11 +44,13 @@ public class DeleteObjectThread extends Thread {
 	StreamScreen screen;
 	Settings settings = Settings.getInstance();
 	String type;
+	private int listindex;
 	
-	public DeleteObjectThread(String objectid, StreamScreen screen, String type) {
+	public DeleteObjectThread(String objectid, StreamScreen screen, String type, int listindex) {
 		this.screen = screen;
 		this.url = url + objectid + ".json";
 		this.type = type;
+		this.listindex = listindex;
 	}
 
 	public void run() {
@@ -64,9 +66,9 @@ public class DeleteObjectThread extends Thread {
 			int rc = httpConnection.getResponseCode();
 			System.out.println("Response code: " + rc);
 			if (rc == 200) {
-				this.screen.callDelete(true, type);
+				this.screen.callDelete(true, type, listindex);
 			} else {
-				this.screen.callDelete(false, type);
+				this.screen.callDelete(false, type, listindex);
 			}
 	    } catch (IOException ex) {
 	    	ex.printStackTrace();

@@ -1,14 +1,33 @@
+=== 0.2.6
+* New Features
+ * Deleting a post in the stream screen now doesn't refresh it just removed the array element
+ * Deleting a direct message received will now remove the array element
+ * Deleting a direct message sent will now remove the array element
+ * You can now delete a selection of direct messages received
+ * Hovering over a button in the main list will now show bold
+ * Hovering over a button in the stream screen will now show bold
+ * You can now refresh direct messages sent/received
+ * You can now see how many new messages you have
+ * You can now see how many pending friends requests you have
+ * There is now a debug screen in the Application Settings screen code is "debug" must be typed on the save button. This screen only shows you the current count of friends, pending requests, and unread messages
+ 
+* Fixes
+ * Fixed a bug where if you deleted something (message, post) and then scrolled to the bottom of the list it would throw an exception
+ * Fixed some font issue with certain themes not showing correctly
+ * Fixed an issue where if a user was deleted and you viewed their stream or got a DM from them it would error out with an exception
+ * Fixed a bug where pictures and avatars were pixelated and resized incorrectly
+ 
 === 0.2.5
 * New Features
  * Now displays no posts if you are viewing a placestream with no objects
- * Allows you clear the avator cache from the options screen
- * Displays the number of avators in the cache
+ * Allows you clear the avatar cache from the options screen
+ * Displays the number of avatars in the cache
  
 * Fixes
  * Combining one more WhereAmIThread to the main WhereAmIThread
  * Reducing file size of the StreamThread
- * Streams now load the avator in a thread instead of waiting for a response. Greatly improves speeds!
- * Improved memory usage instead of loading an avator in the ImageCache and the Stream Object its only loaded in ImageCache
+ * Streams now load the avatar in a thread instead of waiting for a response. Greatly improves speeds!
+ * Improved memory usage instead of loading an avatar in the ImageCache and the Stream Object its only loaded in ImageCache
  
 === 0.2.4
 * Fixes

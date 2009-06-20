@@ -54,11 +54,11 @@ public class DirectMessageRcv {
 		return this.body;
 	}
 	
-	public Bitmap getAvator() {
+	public Bitmap getAvatar() {
 		if (ImageCache.inCache(this.sender)) {
 			return ImageCache.getImage(this.sender);
 		} else {
-			return Bitmap.getBitmapResource("img/default_avator.gif");
+			return Bitmap.getBitmapResource("img/default_avatar.gif");
 		}
 	}
 	

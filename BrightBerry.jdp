@@ -28,7 +28,7 @@ ExcludeFromBuildAll=0
 [Files
 src\img\BKIcon.jpg
 src\img\BKIconNotify.jpg
-src\img\default_avator.gif
+src\img\default_avatar.gif
 src\img\icon_checkin.gif
 src\img\icon_comments.gif
 src\img\icon_happening.gif
@@ -43,7 +43,7 @@ src\img\icon_public.gif
 src\img\icon_settings.gif
 src\img\listArrow.png
 src\mobi\bbhn\brightberry\AboutScreen.java
-src\mobi\bbhn\brightberry\AvatorThread.java
+src\mobi\bbhn\brightberry\AvatarThread.java
 src\mobi\bbhn\brightberry\BkObjectScreen.java
 src\mobi\bbhn\brightberry\BkObjectThread.java
 src\mobi\bbhn\brightberry\BrightBerry.java
@@ -138,4 +138,4 @@ Title=BrightBerry
 Type=0
 UserData=|src
 Vendor=Hallgren Networks
-Version=0.2.5
+Version=0.2.6

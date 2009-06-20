@@ -28,12 +28,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
-import javax.microedition.lcdui.Font;
-
 import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Graphics;
 import net.rim.device.api.ui.Keypad;
 
@@ -41,6 +40,8 @@ public class StreamButton extends Field {
 	private String _text;
 	private int backgroundColour = BrightBerry.buttonbgcolor;
 	private int highlightColour = BrightBerry.buttonhlcolor;
+	private boolean bold = false;
+	Font boldfnt = this.getFont().derive(Font.BOLD);
 	
 	StreamButton (String intext, long style) {
     	super(style);
@@ -56,17 +57,19 @@ public class StreamButton extends Field {
 	}
 	
 	protected void onFocus(int direction) {   
-		backgroundColour = highlightColour;   
+		backgroundColour = highlightColour;
+		bold = true;
 		invalidate();
 	}
 	
 	protected void onUnfocus() {   
 		backgroundColour = BrightBerry.buttonbgcolor;
+		bold = false;
 		invalidate();
 	} 
 	
 	public int getPreferredHeight(){
-    	return Font.getDefaultFont().getHeight()+10;
+    	return this.getFont().getHeight()+10;
     }
 	
 	public int getPreferredWidth(){
@@ -74,6 +77,9 @@ public class StreamButton extends Field {
     }
 	
 	protected void paint(Graphics graphics) {
+		if (bold) {
+			graphics.setFont(boldfnt);
+		}
         graphics.setColor(Color.BLACK);   
         graphics.fillRect(0, 0, getWidth(), getHeight());
         graphics.setColor(backgroundColour);

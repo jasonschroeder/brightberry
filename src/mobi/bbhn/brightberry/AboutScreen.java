@@ -53,9 +53,12 @@ public class AboutScreen extends MainScreen {
         add(new RichTextField("This is not an official Brightkite app in no way does this application represent the views or opinions of Brightkite or No Sleep Media LLC."));
         add(new SeparatorField());
         RichTextField gpswarn = new RichTextField("Using this program you are responsible for all charges associated with data/GPS usage");
-        gpswarn.setFont(Font.getDefault().derive(Font.BOLD));
+        gpswarn.setFont(this.getFont().derive(Font.BOLD));
         add(gpswarn);
         add(new SeparatorField());
         add(new RichTextField("THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."));
+        RichTextField gregbutt = new RichTextField("@gregz is a butthead!");
+        gregbutt.setFont(this.getFont().derive(Font.DROP_SHADOW_RIGHT_EFFECT));
+        add(gregbutt);
 	}
 }

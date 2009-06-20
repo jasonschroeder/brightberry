@@ -38,8 +38,8 @@ public class Settings implements Persistable {
 	private boolean Authed;
 	private String Username;
 	private String Password;
-	private int MaxEntries;
-	private int MaxEntriesIndex;
+	private int maxEntries;
+	private int maxEntriesIndex;
 	private boolean AutoUpdate;
 	private Placemark[] placemarks;
 	private int ConnectionMode;
@@ -53,6 +53,8 @@ public class Settings implements Persistable {
 	private int maxSearch;
 	private int maxSearchIndex;
 	private boolean AutoWhereAmI;
+	private int maxMessages;
+	private int maxMessagesIndex;
 	private static Settings settings;
 	private static final long STOREHASH = 0x6cdd063e456b4742L;
 	private static PersistentObject persist = PersistentStore.getPersistentObject(STOREHASH);
@@ -61,8 +63,8 @@ public class Settings implements Persistable {
 		this.Authed = false;
 		this.Username = "";
 		this.Password = "";
-		this.MaxEntries = 10;
-		this.MaxEntriesIndex = 1;
+		this.maxEntries = 10;
+		this.maxEntriesIndex = 1;
 		this.AutoUpdate = true;
 		this.AutoWhereAmI = true;
 		this.ConnectionMode = 0;
@@ -74,6 +76,8 @@ public class Settings implements Persistable {
 		this.snapRadiusIndex = 0;
 		this.maxSearch = 10;
 		this.maxSearchIndex = 1;
+		this.maxMessages = 20;
+		this.maxMessagesIndex = 3;
 		if (Alert.isVibrateSupported()) {
 			this.vibrateOnPost = true;
 		} else {
@@ -116,20 +120,20 @@ public class Settings implements Persistable {
 		return this.Password;
 	}
 
-	public void setMaxEntries(int maxentries) {
-		this.MaxEntries = maxentries;
+	public void setMaxEntries(int maxEntries) {
+		this.maxEntries = maxEntries;
 	}
 
 	public int getMaxEntries() {
-		return this.MaxEntries;
+		return this.maxEntries;
 	}
 
-	public void setMaxEntriesIndex(int maxentriesindex) {
-		this.MaxEntriesIndex = maxentriesindex;
+	public void setMaxEntriesIndex(int maxEntriesIndex) {
+		this.maxEntriesIndex = maxEntriesIndex;
 	}
 
 	public int getMaxEntriesIndex() {
-		return this.MaxEntriesIndex;
+		return this.maxEntriesIndex;
 	}
 
 	public void setAutoUpdate(boolean autoupdate) {
@@ -234,6 +238,22 @@ public class Settings implements Persistable {
 	
 	public boolean getAutoWhereAmI() {
 		return this.AutoWhereAmI;
+	}
+	
+	public void setMaxMessages(int maxMessages) {
+		this.maxMessages = maxMessages;
+	}
+	
+	public int getMaxMessages() {
+		return this.maxMessages;
+	}
+	
+	public void setMaxMessagesIndex(int maxMessagesIndex) {
+		this.maxMessagesIndex = maxMessagesIndex;
+	}
+	
+	public int getMaxMessagesIndex() {
+		return this.maxMessagesIndex;
 	}
 
 	public String getAuthHeader() {

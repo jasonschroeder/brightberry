@@ -62,7 +62,6 @@ public class CheckUsername {
 			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			String combo = this.username + ":" + this.password;
 			this.httpConnection.setRequestProperty("Authorization", "Basic " + Base64OutputStream.encodeAsString(combo.getBytes(), 0, combo.getBytes().length, false, false));
-			this.httpInput = this.httpConnection.openInputStream();
 			int rc = httpConnection.getResponseCode();
 			System.out.println("Response code; " + rc);
 			if (rc == HttpConnection.HTTP_OK) {

@@ -61,17 +61,17 @@ class StreamCallback implements ListFieldCallback {
 	
 		String type = friendstream[index].getType();
 		String body = friendstream[index].getBody();
-		Bitmap avator = friendstream[index].getAvator();
+		Bitmap avatar = friendstream[index].getAvatar();
 		String location = friendstream[index].getLocationName();
 		
-		g.drawBitmap(0, y, avator.getWidth(), avator.getHeight(), avator, 0, 0);
+		g.drawBitmap(0, y, avatar.getWidth(), avatar.getHeight(), avatar, 0, 0);
 		g.setFont(f.derive(Font.BOLD));
 		if (type.equals("photo")) {
 			Bitmap p_Image = friendstream[index].getPhoto();
 			g.drawBitmap(Display.getWidth()-p_Image.getWidth(), y, p_Image.getWidth(), p_Image.getHeight(), p_Image, 0, 0);
 			w = Display.getWidth()-p_Image.getWidth();
 		}
-		g.drawText(friendstream[index].getCreator(), avator.getWidth()+1, y, DrawStyle.LEFT, w);
+		g.drawText(friendstream[index].getCreator(), avatar.getWidth()+1, y, DrawStyle.LEFT, w);
 		int cc = friendstream[index].getCommentCount();
 		String comment = "(" + cc + ")";
 		g.setFont(f);
@@ -93,18 +93,18 @@ class StreamCallback implements ListFieldCallback {
 					
 		EncodedImage tnewEi = t_Image.scaleImage32(theightScale, theightScale);
 		Bitmap tImage = tnewEi.getBitmap();
-		g.drawBitmap(avator.getWidth()+1, y+fontht, tImage.getWidth(), fontht, tImage, 0, 0);
+		g.drawBitmap(avatar.getWidth()+1, y+fontht, tImage.getWidth(), fontht, tImage, 0, 0);
 		
 		if (type.equals("photo")) {
-			w = w-avator.getWidth()-t_Image.getWidth()-2;
+			w = w-avatar.getWidth()-t_Image.getWidth()-2;
 		}
 		
 		if (type.equals("checkin") == false) {
 			if (body.equals("null") == false) {
-				g.drawText(body, avator.getWidth()+tImage.getWidth()+1, y+fontht, DrawStyle.ELLIPSIS, w);
+				g.drawText(body, avatar.getWidth()+tImage.getWidth()+1, y+fontht, DrawStyle.ELLIPSIS, w);
 			}
 		} else {
-			g.drawText("Checked in", avator.getWidth()+tImage.getWidth()+1, y+fontht, DrawStyle.ELLIPSIS, w);
+			g.drawText("Checked in", avatar.getWidth()+tImage.getWidth()+1, y+fontht, DrawStyle.ELLIPSIS, w);
 		}
 		
 		if (type.equals("photo")) {

@@ -28,11 +28,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
-import javax.microedition.lcdui.Font;
 
 import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Display;
 import net.rim.device.api.ui.Field;
+import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Keypad;
 
 import net.rim.device.api.ui.Graphics;
@@ -40,6 +40,8 @@ import net.rim.device.api.ui.Graphics;
 public class MainButton extends Field {
 	private String _text;
 	private int backgroundColour = BrightBerry.itembgcolor;
+	private boolean bold = false;
+	Font boldfnt = this.getFont().derive(Font.BOLD);
 	private int highlightColour = BrightBerry.itemhlcolor;
 	
 	MainButton (String intext, long style){
@@ -56,17 +58,19 @@ public class MainButton extends Field {
 	}
 	
 	protected void onFocus(int direction) {   
-		backgroundColour = highlightColour;   
+		backgroundColour = highlightColour;
+		bold = true;
 		invalidate();
 	}
 	
 	protected void onUnfocus() {   
 		backgroundColour = BrightBerry.itembgcolor;
+		bold = false;
 		invalidate();
 	} 
 	
 	public int getPreferredHeight(){
-    	return Font.getDefaultFont().getHeight()+10;
+    	return this.getFont().getHeight()+10;
     }
 	
 	public int getPreferredWidth(){
@@ -97,12 +101,19 @@ public class MainButton extends Field {
         } else if (_text.endsWith("Settings")) {
         	drawbmp = Bitmap.getBitmapResource("img/icon_settings.gif");
         }
+        int fntnewy = (getHeight()/2)-(this.getFont().getHeight()/2);
         if (drawbmp != null) {
-        	int newy = (getHeight()/2)-(drawbmp.getHeight()/2);
-        	graphics.drawBitmap(2, newy, drawbmp.getWidth(), drawbmp.getHeight(), drawbmp, 0, 0);
-        	graphics.drawText(_text, drawbmp.getWidth()+4, newy);
+        	int bmpnewy = (getHeight()/2)-(drawbmp.getHeight()/2);
+        	graphics.drawBitmap(2, bmpnewy, drawbmp.getWidth(), drawbmp.getHeight(), drawbmp, 0, 0);
+        	if (bold) {
+        		graphics.setFont(boldfnt);
+        	}
+        	graphics.drawText(_text, drawbmp.getWidth()+4, fntnewy);
         } else {
-        	graphics.drawText(_text, 2, 5);
+        	if (bold) {
+        		graphics.setFont(boldfnt);
+        	}
+        	graphics.drawText(_text, 2, fntnewy);
         }
         Bitmap arrow = Bitmap.getBitmapResource("img/listArrow.png");
         int newarrowy = (getHeight()/2)-(arrow.getHeight()/2);

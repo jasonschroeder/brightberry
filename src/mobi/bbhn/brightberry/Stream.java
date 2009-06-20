@@ -91,11 +91,11 @@ public class Stream {
 		return this.creator;
 	}
 	
-	public Bitmap getAvator() {
+	public Bitmap getAvatar() {
 		if (ImageCache.inCache(this.creator)) {
 			return ImageCache.getImage(this.creator);
 		} else {
-			return Bitmap.getBitmapResource("img/default_avator.gif");
+			return Bitmap.getBitmapResource("img/default_avatar.gif");
 		}
 	}
 	

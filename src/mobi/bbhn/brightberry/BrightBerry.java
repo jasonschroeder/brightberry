@@ -30,11 +30,12 @@ OF SUCH DAMAGE.
 
 import net.rim.device.api.applicationcontrol.ApplicationPermissions;
 import net.rim.device.api.applicationcontrol.ApplicationPermissionsManager;
+import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.ui.Color;
 import net.rim.device.api.ui.UiApplication;
 
 public class BrightBerry extends UiApplication {
-	static String version = "0.2.5-ALPHA";
+	static String version = "0.2.6-ALPHA";
 	static String gmkey = "ABQIAAAAyqsOf4y12VmEo_2G0kkmUxRpIJO9csrDHHCYF6wRDNKwcymzzRQrUdTZ3AkMMnIbfqA_JKHMK0MjHw";
 	static String useragent = "BrightBerry " + version;
 	static int itembgcolor = Color.WHITE;
@@ -43,6 +44,9 @@ public class BrightBerry extends UiApplication {
 	static int buttonfontcolor = Color.BLACK;
 	static int buttonbgcolor = Color.WHITE;
 	static int buttonhlcolor = Color.LIGHTBLUE;
+	static int pendingFriends;
+	static int friendCount;
+	static int unreadMessages;
 	
 	public static void main(String[] args) {
 		BrightBerry instance = new BrightBerry();
@@ -60,11 +64,13 @@ public class BrightBerry extends UiApplication {
 		ApplicationPermissions newPermissions = new ApplicationPermissions();
 		boolean permissionsRequest = false;
 		
-		int keyInject = permissionsManager.getPermission(ApplicationPermissions.PERMISSION_EVENT_INJECTOR);
-        if (keyInject == ApplicationPermissions.VALUE_DENY){
-            newPermissions.addPermission(ApplicationPermissions.PERMISSION_EVENT_INJECTOR);
-            permissionsRequest = true;
-        }
+		if (DeviceInfo.hasCamera()) {
+			int keyInject = permissionsManager.getPermission(ApplicationPermissions.PERMISSION_EVENT_INJECTOR);
+	        if (keyInject == ApplicationPermissions.VALUE_DENY){
+	            newPermissions.addPermission(ApplicationPermissions.PERMISSION_EVENT_INJECTOR);
+	            permissionsRequest = true;
+	        }
+		}
         
         int locationApi = permissionsManager.getPermission(ApplicationPermissions.PERMISSION_LOCATION_API);
         if (locationApi == ApplicationPermissions.VALUE_DENY) {
@@ -72,11 +78,13 @@ public class BrightBerry extends UiApplication {
         	permissionsRequest = true;
         }
         
+        /*
         int browserFilter = permissionsManager.getPermission(ApplicationPermissions.PERMISSION_BROWSER_FILTER);
         if (browserFilter == ApplicationPermissions.VALUE_DENY) {
         	newPermissions.addPermission(ApplicationPermissions.PERMISSION_BROWSER_FILTER);
         	permissionsRequest = true;
         }
+        */
         
         int externalConnections = permissionsManager.getPermission(ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS);
         if (externalConnections == ApplicationPermissions.VALUE_DENY) {
@@ -115,6 +123,29 @@ public class BrightBerry extends UiApplication {
         }
         sb.append(source.substring(patIdx));
         return sb.toString();
-
     }
+	
+	public static int getPendingFriends() {
+		return BrightBerry.pendingFriends;
+	}
+	
+	public static void setPendingFriends(int count) {
+		BrightBerry.pendingFriends = count;
+	}
+	
+	public static int getFriendCount() {
+		return BrightBerry.friendCount;
+	}
+	
+	public static void setFriendCount(int count) {
+		BrightBerry.friendCount = count;
+	}
+	
+	public static int getUnreadMessages() {
+		return BrightBerry.unreadMessages;
+	}
+	
+	public static void setUnreadMessages(int count) {
+		BrightBerry.unreadMessages = count;
+	}
 }

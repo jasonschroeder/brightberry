@@ -46,7 +46,7 @@ class DirectMessageSentCallback implements ListFieldCallback {
 		Font f = g.getFont();
 		int fontht = f.getHeight();
 		g.setFont(f.derive(Font.BOLD));
-		Bitmap p_Image = directmessage[index].getAvator();
+		Bitmap p_Image = directmessage[index].getAvatar();
 		g.drawBitmap(0, y, p_Image.getWidth(), p_Image.getHeight(), p_Image, 0, 0);
 		g.drawText("To: " + directmessage[index].getTo(), p_Image.getWidth(), y, DrawStyle.ELLIPSIS, w-p_Image.getWidth());
 		g.setFont(f);

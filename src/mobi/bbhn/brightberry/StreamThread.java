@@ -148,9 +148,9 @@ class StreamThread extends Thread {
 				JSONObject jsonCreator = jsonStream.getJSONObject("creator");
 				String creator = jsonCreator.getString("login");
 				if (ImageCache.inCache(creator) == false && imagescached.contains(creator) == false) {
-					String avator = jsonCreator.getString("small_avatar_url");
+					String avatar = jsonCreator.getString("small_avatar_url");
 					imagescached.addElement(creator);
-					AvatorThread getavtr = new AvatorThread(creator, avator);
+					AvatarThread getavtr = new AvatarThread(creator, avatar);
 					getavtr.start();
 				}
 				JSONObject jsonPlace = jsonStream.getJSONObject("place");

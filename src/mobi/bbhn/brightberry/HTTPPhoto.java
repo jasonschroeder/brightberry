@@ -43,7 +43,6 @@ import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.ui.Font;
 import net.rim.device.api.ui.Screen;
 import net.rim.device.api.ui.UiApplication;
-import net.rim.device.api.ui.component.Dialog;
 
 public class HTTPPhoto {
 	static Settings settings = Settings.getInstance();
@@ -86,7 +85,7 @@ public class HTTPPhoto {
 				bStrm.close();
 			}
 			EncodedImage m_Image = EncodedImage.createEncodedImage(imageData, 0, imageData.length);
-			int oldWidth = m_Image.getHeight();
+			int oldWidth = m_Image.getWidth();
 			int screenWidth = Display.getWidth();
 			
 			int numerator = Fixed32.toFP(oldWidth);
@@ -98,7 +97,7 @@ public class HTTPPhoto {
 			return img;
 
 		} catch (IOException e) {
-			Dialog.alert("Caught Exception");
+			System.out.println("Caugh an exception: " + e.toString());
 		}
 		return null;
 	}
@@ -141,8 +140,8 @@ public class HTTPPhoto {
 				bStrm.close();
 			}
 			EncodedImage m_Image = EncodedImage.createEncodedImage(imageData, 0, imageData.length);
-			int oldHeight = m_Image.getWidth();
-			Font f = Font.getDefault();
+			int oldHeight = m_Image.getHeight();
+			Font f = UiApplication.getUiApplication().getActiveScreen().getFont();
 			int fontHeight = f.getHeight()*2;
 			
 			int numerator = Fixed32.toFP(oldHeight);
@@ -154,7 +153,7 @@ public class HTTPPhoto {
 			return img;
 
 		} catch (IOException e) {
-			Dialog.alert("Caught Exception");
+			System.out.println("Caugh an exception: " + e.toString());
 		}
 		return null;
 	}
@@ -202,10 +201,8 @@ public class HTTPPhoto {
 			return img;
 
 		} catch (IOException e) {
-			Dialog.alert("Caught Exception");
+			System.out.println("Caugh an exception: " + e.toString());
 		}
 		return null;
 	}
-	
-	
 }

@@ -28,42 +28,51 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
+import net.rim.device.api.util.Arrays;
+
 public class DirectMessageSentDeleteThread extends Thread {
 	String url = "http://brightkite.com/me/sent_messages/";
 	HttpConnection httpConnection = null;
-	InputStream httpInput = null;
-	DataOutputStream httpOutput = null;
 	String serverResponse = "";
 	DirectMessageSentScreen screen;
 	Settings settings = Settings.getInstance();
+	private int[] sel;
 	
-	public DirectMessageSentDeleteThread(int id, DirectMessageSentScreen screen) {
+	public DirectMessageSentDeleteThread(int[] sel, DirectMessageSentScreen screen) {
 		this.screen = screen;
-		this.url = url + id;
+		this.sel = sel;
 	}
 
 	public void run() {
 		try {
-			this.url += NetworkConfig.getConnectionParameters(this.settings.getConnectionMode());
-			this.httpConnection = ((HttpConnection)Connector.open(this.url));
-			this.httpConnection.setRequestMethod("DELETE");
-			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
-			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
-			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
-			this.httpOutput = this.httpConnection.openDataOutputStream();
-			this.httpInput = this.httpConnection.openInputStream();
-			int rc = httpConnection.getResponseCode();
-			if (rc == 302) {
-				this.screen.callDelete(true);
+			int[] deleted = {};
+			for (int i = 0; i < this.sel.length; i++) {
+				this.url = this.url + this.screen.directMessage[i].getID();
+				this.url += NetworkConfig.getConnectionParameters(this.settings.getConnectionMode());
+				this.httpConnection = ((HttpConnection)Connector.open(this.url));
+				this.httpConnection.setRequestMethod("DELETE");
+				this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
+				this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
+				this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
+				int rc = httpConnection.getResponseCode();
+				if (rc == 302) {
+					Arrays.add(deleted, this.sel[i]);
+				}
+				this.httpConnection.close();
+				this.url = "http://brightkite.com/me/sent_messages/";
+			}
+			for (int i = 0; i < deleted.length; i++) {
+				System.out.println("Deleted: " + deleted[i]);
+			}
+			if (deleted.length > 0) {
+				this.screen.callDelete(true, deleted);
 			} else {
-				this.screen.callDelete(false);
+				this.screen.callDelete(false, this.sel);
 			}
 	    } catch (IOException ex) {
 	    	ex.printStackTrace();

@@ -91,10 +91,10 @@ class CommentThread extends Thread {
 				String createdwords = jsonStream.getString("created_at_as_words");
 				JSONObject jsonCreator = jsonStream.getJSONObject("user");
 				String creator = jsonCreator.getString("login");
-				String avator = jsonCreator.getString("small_avatar_url");
+				String avatar = jsonCreator.getString("small_avatar_url");
 				if (ImageCache.inCache(creator) == false && imagescached.contains(creator) == false) {
 					imagescached.addElement(creator);
-					AvatorThread getavtr = new AvatorThread(creator, avator);
+					AvatarThread getavtr = new AvatarThread(creator, avatar);
 					getavtr.start();
 				}
 				String body = jsonStream.getString("comment");

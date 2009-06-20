@@ -45,7 +45,7 @@ public class CommentScreen extends MainScreen {
 	public CommentScreen(String objectID, String name, String body, String created) {
 		super.setTitle(new LabelField("BrightBerry Comment Details", Field.FIELD_HCENTER));
 		RichTextField user = new RichTextField(name);
-		user.setFont(Font.getDefault().derive(Font.BOLD));
+		user.setFont(this.getFont().derive(Font.BOLD));
 		add(user);
 		add(new SeparatorField());
 		add(new RichTextField(body));

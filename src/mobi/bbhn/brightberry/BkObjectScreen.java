@@ -56,7 +56,7 @@ public class BkObjectScreen extends MainScreen {
     LabelField title = new LabelField("BrightBerry Details", Field.FIELD_HCENTER);
     MenuItem refreshItem;
     ListField commentlist = new CommentListField();
-    Font bold = Font.getDefault().derive(Font.BOLD);
+    Font bold = this.getFont().derive(Font.BOLD);
     private String body;
     private String creator;
     private String location;
@@ -190,7 +190,7 @@ public class BkObjectScreen extends MainScreen {
                 BkObjectScreen.this.commentlist.setRowHeight(ListField.ROW_HEIGHT_FONT*3);
                 add(new SeparatorField());
                 LabelField commentLabel = new LabelField("Comments (" + commentscount + ")", LabelField.FIELD_HCENTER|LabelField.NON_FOCUSABLE);
-                commentLabel.setFont(Font.getDefault().derive(Font.BOLD, Font.getDefault().getHeight()+5));
+                commentLabel.setFont(BkObjectScreen.this.getFont().derive(Font.BOLD, BkObjectScreen.this.getFont().getHeight()+5));
                 add(commentLabel);
                 add(new SeparatorField());
                 add(BkObjectScreen.this.commentlist);
