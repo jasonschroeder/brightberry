@@ -32,7 +32,6 @@ import net.rim.device.api.system.Alert;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.Font;
-import net.rim.device.api.ui.Keypad;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
@@ -46,7 +45,7 @@ import net.rim.device.api.ui.component.SeparatorField;
 import net.rim.device.api.ui.component.Status;
 import net.rim.device.api.ui.container.MainScreen;
 
-public class OptionsScreen extends MainScreen {
+public class SettingsScreen extends MainScreen {
 	Settings settings = Settings.getInstance();
 	BasicEditField usernameField = new BasicEditField("Username: ", this.settings.getUsername(), 64, BasicEditField.NO_NEWLINE);
 	PasswordEditField passwordField = new PasswordEditField("Password: ", this.settings.getPassword());
@@ -70,32 +69,9 @@ public class OptionsScreen extends MainScreen {
 	LabelField cacheLabel = new LabelField("Cache Settings", LabelField.FIELD_HCENTER);
 	LabelField imageLabel = new LabelField("Avatars in cache: " + ImageCache.size());
 	ButtonField clearButtonField = new ButtonField("Clear Avatar Cache", ButtonField.FIELD_HCENTER|ButtonField.NEVER_DIRTY);
-	ButtonField saveButtonField = new ButtonField("Save", ButtonField.FIELD_HCENTER) {
-		public boolean keyDown(int keycode, int time) {
-			char test = Keypad.map(keycode);
-			String mytest = "" + test;
-			if (mytest.equals("d") && OptionsScreen.this.debugger == 0) {
-				OptionsScreen.this.debugger = 1;
-			} else if (mytest.equals("e") && OptionsScreen.this.debugger == 1) {
-				OptionsScreen.this.debugger = 2;
-			} else if (mytest.equals("b") && OptionsScreen.this.debugger == 2) {
-				OptionsScreen.this.debugger = 3;
-			} else if (mytest.equals("u") && OptionsScreen.this.debugger == 3) {
-				OptionsScreen.this.debugger = 4;
-			} else if (mytest.equals("g") && OptionsScreen.this.debugger == 4) {
-				add(new SeparatorField());
-				add(new LabelField("Unread Messages: " + BrightBerry.getUnreadMessages()));
-		    	add(new LabelField("Pending Friends: " + BrightBerry.getPendingFriends()));
-		    	add(new LabelField("Friend Count: " + BrightBerry.getFriendCount()));
-			} else {
-				OptionsScreen.this.debugger = 0;
-			}
-			return false;
-		}
-	};
-	private int debugger;
+	ButtonField saveButtonField = new ButtonField("Save", ButtonField.FIELD_HCENTER);
 
-	public OptionsScreen() {
+	public SettingsScreen() {
 		super.setTitle(new LabelField("BrightBerry Settings", 1152921504606846980L));
 		System.out.println("Into the options screen");
 		Font boldfnt = this.getFont().derive(Font.BOLD);
@@ -141,8 +117,8 @@ public class OptionsScreen extends MainScreen {
 		
 		FieldChangeListener savelistener = new FieldChangeListener() {
 			public void fieldChanged(Field field, int context) {
-				OptionsScreen.this.save();
-				OptionsScreen.this.close();
+				SettingsScreen.this.save();
+				SettingsScreen.this.close();
 			}
 		};
 		this.saveButtonField.setChangeListener(savelistener);

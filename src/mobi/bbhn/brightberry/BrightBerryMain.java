@@ -56,6 +56,7 @@ public class BrightBerryMain extends MainScreen {
 	MainButton visitedplacesBtn = new MainButton("Visited Places", ButtonField.CONSUME_CLICK|ButtonField.FOCUSABLE);
 	MainButton placemarkBtn = new MainButton("Placemarks", ButtonField.CONSUME_CLICK|ButtonField.FOCUSABLE);
 	MainButton messagesBtn = new MainButton("Messages", ButtonField.CONSUME_CLICK|ButtonField.FOCUSABLE);
+	MainButton commentsBtn = new MainButton("Comments", ButtonField.CONSUME_CLICK|ButtonField.FOCUSABLE);
 	MainButton mentionsBtn = new MainButton("Mentions", ButtonField.CONSUME_CLICK|ButtonField.FOCUSABLE);
 	
 	MainButton actsettingsBtn = new MainButton("Account Settings", ButtonField.CONSUME_CLICK|ButtonField.FOCUSABLE);
@@ -115,13 +116,19 @@ public class BrightBerryMain extends MainScreen {
 		
 		FieldChangeListener AppSettingsListener = new FieldChangeListener() {
 			public void fieldChanged(Field field, int context) {
-				UiApplication.getUiApplication().pushScreen(new OptionsScreen());
+				UiApplication.getUiApplication().pushScreen(new SettingsScreen());
 			}
 		};
 		
 		FieldChangeListener MentionsListener = new FieldChangeListener() {
 			public void fieldChanged(Field field, int context) {
 				UiApplication.getUiApplication().pushScreen(new StreamScreen(BrightBerryMain.this.settings.getAutoUpdate(), "mentions", 0));
+			}
+		};
+		
+		FieldChangeListener FriendsListener = new FieldChangeListener() {
+			public void fieldChanged(Field field, int context) {
+				UiApplication.getUiApplication().pushScreen(new FriendsScreen(0));
 			}
 		};
 		
@@ -179,6 +186,7 @@ public class BrightBerryMain extends MainScreen {
 		
 		this.shutdownItem = new MenuItem("Shut down", 500, 10) {
 			public void run() {
+				BrightBerry.removeMenus();
 				System.exit(0);
 			}
 		};
@@ -208,6 +216,8 @@ public class BrightBerryMain extends MainScreen {
 	    		add(postphotoBtn);
 	    	}
 	    	add(new SeparatorField());
+	    	friendsBtn.setChangeListener(FriendsListener);
+	    	add(friendsBtn);
 	    	placemarkBtn.setChangeListener(PlacemarkListener);
 	    	add(placemarkBtn);
 	    	messagesBtn.setChangeListener(MessageListener);

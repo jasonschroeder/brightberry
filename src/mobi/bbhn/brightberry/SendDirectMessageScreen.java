@@ -33,15 +33,19 @@ import net.rim.device.api.ui.FieldChangeListener;
 import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.AutoTextEditField;
+import net.rim.device.api.ui.component.BasicEditField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.LabelField;
+import net.rim.device.api.ui.component.RichTextField;
 import net.rim.device.api.ui.component.Status;
 import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.container.VerticalFieldManager;
 
 public class SendDirectMessageScreen extends MainScreen implements FieldChangeListener {
 	Settings settings = Settings.getInstance();
 	SendDirectMessageScreen screen = this;
 	AutoTextEditField note = new AutoTextEditField("Message: ", "", 140, AutoTextEditField.SPELLCHECKABLE|AutoTextEditField.NO_NEWLINE);
+	RichTextField leftField = new RichTextField("Characters Left: 140/140", RichTextField.NON_FOCUSABLE);
 	ButtonField postBtn;
 	MenuItem updateItem;
 	private String user;
@@ -49,7 +53,13 @@ public class SendDirectMessageScreen extends MainScreen implements FieldChangeLi
 	protected boolean onSavePrompt() {
 		return true;
 	}
-
+	
+	FieldChangeListener inputListener = new FieldChangeListener() {
+		public void fieldChanged(Field field, int context) {
+			int charleft = 140-((BasicEditField) field).getTextLength();
+			leftField.setText("Characters Left: " + charleft + "/140");
+		}
+	};
 	
 	public SendDirectMessageScreen(String user) {
 		this.user = user;
@@ -70,8 +80,12 @@ public class SendDirectMessageScreen extends MainScreen implements FieldChangeLi
 		
 		postBtn = new ButtonField("Send Message", ButtonField.CONSUME_CLICK);
 		postBtn.setChangeListener(this);
+		note.setChangeListener(inputListener);
 		add(note);
 		add(postBtn);
+		VerticalFieldManager status = new VerticalFieldManager();
+		status.add(leftField);
+		setStatus(status);
 
 	}
 	

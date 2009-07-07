@@ -512,11 +512,19 @@ public class StreamScreen extends MainScreen {
 				contextMenu.addItem(new ViewPlaceItem());
 			}
 			contextMenu.addItem(new ViewMoreMenuItem());
-			contextMenu.addItem(new FullTextMenuItem());
+			if (stream[list.getSelectedIndex()].getType().equals("checkin") == false) {
+				contextMenu.addItem(new FullTextMenuItem());
+			}
 			contextMenu.addItem(new PostCommentMenuItem());
 			if (StreamScreen.this.streamtoview.equals("person") == false) {
 				contextMenu.addItem(new ViewStreamItem());
 			}
+		}
+		
+		protected boolean trackwheelClick(int status, int time) {
+			String objectID = stream[list.getSelectedIndex()].getId();
+			UiApplication.getUiApplication().pushScreen(new BkObjectScreen(objectID));
+			return true;
 		}
 	}
 	

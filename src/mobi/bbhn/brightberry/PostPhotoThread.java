@@ -90,8 +90,19 @@ public class PostPhotoThread extends Thread {
 			
 			String message1 = "";
 			message1 += "-----------------------------4664151417711" + CrLf;
-			message1 += "Content-Disposition: form-data; name=\"photo[photo]\"; filename=\"BrightBerry-uploadedimage.jpg\"" + CrLf;
-			message1 += "Content-Type: image/jpeg" + CrLf;
+			if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+				message1 += "Content-Disposition: form-data; name=\"photo[photo]\"; filename=\"BrightBerry-uploadedimage.jpg\"" + CrLf;
+				message1 += "Content-Type: image/jpeg" + CrLf;
+			} else if (filename.endsWith(".png")) {
+				message1 += "Content-Disposition: form-data; name=\"photo[photo]\"; filename=\"BrightBerry-uploadedimage.png\"" + CrLf;
+				message1 += "Content-Type: image/x-png" + CrLf;
+			} else if (filename.endsWith(".gif")) {
+				message1 += "Content-Disposition: form-data; name=\"photo[photo]\"; filename=\"BrightBerry-uploadedimage.gif\"" + CrLf;
+				message1 += "Content-Type: image/gif" + CrLf;
+			} else if (filename.endsWith(".bmp")) {
+				message1 += "Content-Disposition: form-data; name=\"photo[photo]\"; filename=\"BrightBerry-uploadedimage.bmp\"" + CrLf;
+				message1 += "Content-Type: image/x-ms-bmp" + CrLf;
+			}
 			message1 += CrLf;
 
 			String message2 = "";

@@ -28,46 +28,38 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Vector;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
+import org.json.me.JSONArray;
 import org.json.me.JSONObject;
 
-public class CheckInThread extends Thread {
+class PendingFriendsThread extends Thread {
+	String url = "http://brightkite.com/me/pending_friends.json";
 	HttpConnection httpConnection = null;
 	InputStream httpInput = null;
-	DataOutputStream httpOutput = null;
-	String url = "http://brightkite.com/places/";
-	String host = "brightkite.com";
 	String serverResponse = "";
-	Object screen = null;
-	String message = "";
+	FriendsScreen screen;
 	Settings settings = Settings.getInstance();
-	String caller;
+	String offset = "&offset=";
 
-	public CheckInThread(String id, String caller, Object screen) {
-		this.url = this.url + id + "/checkins.json";
-		this.caller = caller;
+	public PendingFriendsThread(FriendsScreen screen) {
 		this.screen = screen;
 	}
 
 	public void run() {
-		try {
+		try { 
 			this.url += NetworkConfig.getConnectionParameters(this.settings.getConnectionMode());
 			this.httpConnection = ((HttpConnection)Connector.open(this.url));
-			this.httpConnection.setRequestMethod("POST");
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
-			this.httpOutput = this.httpConnection.openDataOutputStream();
-			this.httpOutput.write(this.message.getBytes());
 			this.httpInput = this.httpConnection.openInputStream();
-
 			StringBuffer buffer = new StringBuffer();
 
 			int ch = 0;
@@ -77,28 +69,38 @@ public class CheckInThread extends Thread {
 			}
 
 			this.serverResponse = buffer.toString();
-			if (this.caller.equals("placemark")) {
-				((PlacemarkScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
-			} else if (this.caller.equals("search")) {
-				((SearchPlaceScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
-			} else if (this.caller.equals("stream")) {
-				((StreamScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
-			} else if (this.caller.equals("friends")) {
-				((FriendsScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
-			}
+			this.screen.updatePendingFriends(parseJSON(this.serverResponse));
 		} catch (IOException ex) {
+			ex.printStackTrace();
 		}
 	}
-	
-	private String parseJSON(String json) {
-		JSONObject me = null;
+
+	private PendingFriends[] parseJSON(String json) {
+		JSONArray jsonArray = null;
+		Vector fl = new Vector();
+		Vector imagescached = new Vector();
+
+		PendingFriends[] rv = null;
 		try {
-			me = new JSONObject(json);
-			JSONObject place = me.getJSONObject("place");
-			return(place.getString("name"));
+			jsonArray = new JSONArray(json);
+
+			for (int x = 0; x < jsonArray.length(); ++x) {
+				JSONObject jsonFriends = jsonArray.getJSONObject(x);
+				String username = jsonFriends.getString("login");
+				String fullname = jsonFriends.getString("fullname");
+				if (ImageCache.inCache(username) == false && imagescached.contains(username) == false) {
+					imagescached.addElement(username);
+					String avatar = jsonFriends.getString("small_avatar_url");
+					AvatarThread getavtr = new AvatarThread(username, avatar);
+					getavtr.start();
+				}
+				fl.addElement(new PendingFriends(username, fullname));
+			}
+			rv = new PendingFriends[jsonArray.length()];
+			fl.copyInto(rv);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
-		return "";
+		return rv;
 	}
 }

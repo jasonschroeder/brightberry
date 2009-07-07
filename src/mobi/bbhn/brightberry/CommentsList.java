@@ -42,6 +42,7 @@ class CommentsCallback implements ListFieldCallback {
 	public CommentsCallback(Comments[] comments) {
 		this.comments = comments;
 	}
+	
 	public void drawListRow(ListField list, Graphics g, int index, int y, int w) {
 		Font f = g.getFont();
 		int fontht = f.getHeight();
@@ -56,9 +57,11 @@ class CommentsCallback implements ListFieldCallback {
 	public Object get(ListField listField, int index) {
         return null;
     }
+	
     public int indexOfList(ListField listField, String prefix, int start) {
         return listField.indexOfList(prefix, start);
     }
+    
 	public int getPreferredWidth(ListField listField) {
 		return Display.getWidth();
 	}

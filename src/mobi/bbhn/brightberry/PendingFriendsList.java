@@ -28,28 +28,37 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
-import net.rim.device.api.ui.Field;
+
+import net.rim.device.api.system.Bitmap;
+import net.rim.device.api.system.Display;
+import net.rim.device.api.ui.DrawStyle;
 import net.rim.device.api.ui.Font;
-import net.rim.device.api.ui.component.LabelField;
-import net.rim.device.api.ui.component.RichTextField;
-import net.rim.device.api.ui.component.SeparatorField;
-import net.rim.device.api.ui.container.MainScreen;
+import net.rim.device.api.ui.Graphics;
+import net.rim.device.api.ui.component.ListField;
+import net.rim.device.api.ui.component.ListFieldCallback;
 
+class PendingFriendsCallback implements ListFieldCallback {
+	PendingFriends[] pendingfriends;
 
-public class CommentScreen extends MainScreen {
-	Settings settings = Settings.getInstance();
-	protected boolean onSavePrompt() {
-		return true;
+	public PendingFriendsCallback(PendingFriends[] pendingfriends) {
+		this.pendingfriends = pendingfriends;
 	}
-	
-	public CommentScreen(String objectID, String name, String body, String created) {
-		super.setTitle(new LabelField("BrightBerry Comment Details", Field.FIELD_HCENTER));
-		RichTextField user = new RichTextField(name);
-		user.setFont(this.getFont().derive(Font.BOLD));
-		add(user);
-		add(new SeparatorField());
-		add(new RichTextField(body));
-		add(new SeparatorField());
-		add(new RichTextField(created + " ago"));
+	public void drawListRow(ListField list, Graphics g, int index, int y, int w) {
+		Font f = g.getFont();
+		Bitmap drawbmp = pendingfriends[index].getAvatar();
+		g.drawBitmap(2, y, drawbmp.getWidth(), drawbmp.getHeight(), drawbmp, 0, 0);
+		g.setFont(f.derive(Font.BOLD));
+		System.out.println("Y is " + y);
+		g.drawText(pendingfriends[index].getUsername(), drawbmp.getWidth()+3, y, DrawStyle.ELLIPSIS, w-drawbmp.getWidth()-3);
+		g.drawText(pendingfriends[index].getFullname(), drawbmp.getWidth()+3, list.getHeight()/2, DrawStyle.ELLIPSIS, w-drawbmp.getWidth()-3);
+    }
+	public Object get(ListField listField, int index) {
+        return null;
+    }
+    public int indexOfList(ListField listField, String prefix, int start) {
+        return listField.indexOfList(prefix, start);
+    }
+	public int getPreferredWidth(ListField listField) {
+		return Display.getWidth();
 	}
 }

@@ -100,6 +100,8 @@ public class MainButton extends Field {
         	drawbmp = Bitmap.getBitmapResource("img/icon_mentions.gif");
         } else if (_text.endsWith("Settings")) {
         	drawbmp = Bitmap.getBitmapResource("img/icon_settings.gif");
+        } else if (_text.endsWith("Friends")) {
+        	drawbmp = Bitmap.getBitmapResource("img/icon_friends.png");
         }
         int fntnewy = (getHeight()/2)-(this.getFont().getHeight()/2);
         if (drawbmp != null) {

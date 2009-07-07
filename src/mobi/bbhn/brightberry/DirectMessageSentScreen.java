@@ -58,6 +58,7 @@ public class DirectMessageSentScreen extends MainScreen {
 			} else {
 				contextMenu.addItem(dltmanyMenuItem);
 			}
+			contextMenu.addItem(blockItem);
 		}
 	};
 	DirectMessageSent[] directMessage;
@@ -93,6 +94,21 @@ public class DirectMessageSentScreen extends MainScreen {
 	MenuItem dltmanyMenuItem = new MenuItem("Delete Messages", 5, 10) {
 		public void run() {
 			DirectMessageSentScreen.this.delfunc();
+		}
+	};
+	
+	MenuItem blockItem = new MenuItem("Block User", 6, 10) {
+		public void run() {
+			if (DirectMessageSentScreen.this.msglist.getSelectedIndex() > -1) {
+				String username = directMessage[msglist.getSelectedIndex()].getTo();
+				int sure = Dialog.ask(Dialog.D_YES_NO, "Are you sure you want to block " + username + "?");
+				if (Dialog.YES == sure) {
+					Thread blockThread = new BlockUserThread(username, DirectMessageSentScreen.this);
+					blockThread.start();
+				}
+			} else {
+				Status.show("No user Selected");
+			}
 		}
 	};
 	
@@ -205,5 +221,22 @@ public class DirectMessageSentScreen extends MainScreen {
 				}
 			}
 		});
+	}
+	
+	public void callBlocked(final boolean blocked) {
+		UiApplication.getUiApplication().invokeLater(
+				new Runnable() {
+					public void run() {
+						if (blocked == true) {
+							Status.show("User blocked");
+							if (UiApplication.getUiApplication().getActiveScreen() == DirectMessageSentScreen.this) {
+								DirectMessageSentScreen.this.refresh();
+							}
+						} else {
+							Status.show("Unable to block user");
+						}
+					}
+				}
+			);
 	}
 }

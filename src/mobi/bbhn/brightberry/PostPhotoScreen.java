@@ -29,9 +29,18 @@ OF SUCH DAMAGE.
 */
 
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
+
 import net.rim.blackberry.api.invoke.CameraArguments;
 import net.rim.blackberry.api.invoke.Invoke;
+import net.rim.device.api.math.Fixed32;
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.Characters;
+import net.rim.device.api.system.EncodedImage;
 import net.rim.device.api.system.EventInjector;
 import net.rim.device.api.ui.Field;
 import net.rim.device.api.ui.FieldChangeListener;
@@ -39,6 +48,7 @@ import net.rim.device.api.ui.MenuItem;
 import net.rim.device.api.ui.UiApplication;
 import net.rim.device.api.ui.component.AutoTextEditField;
 import net.rim.device.api.ui.component.BasicEditField;
+import net.rim.device.api.ui.component.BitmapField;
 import net.rim.device.api.ui.component.ButtonField;
 import net.rim.device.api.ui.component.EditField;
 import net.rim.device.api.ui.component.LabelField;
@@ -76,6 +86,7 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 	private BrightBerryJournalListener _fileListener;
 	private BrightBerry _uiApp;
 	private String filetoupload;
+	private boolean fromExplorer = false;
 	
 	protected boolean onSavePrompt() {
 		return true;
@@ -88,17 +99,33 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 		}
 	};
 	
-	// Post photo at the current checked in location
+	// Post photo at the current checked in location from the app
 	public PostPhotoScreen() {
 		_uiApp = (BrightBerry)UiApplication.getUiApplication();
-        _fileListener = new BrightBerryJournalListener(this);        
-        _uiApp.addFileSystemJournalListener(_fileListener);
-        
+    	_fileListener = new BrightBerryJournalListener(this);        
+    	_uiApp.addFileSystemJournalListener(_fileListener);
+        	
 		Thread whereThread = new WhereAmIThread(this.screen);
 		whereThread.start();
 		setTitle(new LabelField("BrightBerry Post Photo", Field.FIELD_HCENTER));
 		postBtn = new ButtonField("Post Photo", ButtonField.CONSUME_CLICK);
 		postBtn.setChangeListener(this);
+	}
+	
+	// Post a photo at the current checked in location from file explorer
+	public PostPhotoScreen(String filename) {
+		filetoupload = filename;
+	    int lastSlash = filename.lastIndexOf('/') + 1;
+        String newfilename = filename.substring(lastSlash, filename.length());
+		this.fileName.setText(newfilename);
+		this.fromExplorer = true;
+		
+		Thread whereThread = new WhereAmIThread(this.screen);
+		whereThread.start();
+		setTitle(new LabelField("BrightBerry Post Photo", Field.FIELD_HCENTER));
+		postBtn = new ButtonField("Post Photo", ButtonField.CONSUME_CLICK);
+		postBtn.setChangeListener(this);
+		
 	}
 	
 	// Post photo about a location
@@ -177,7 +204,11 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 					PostPhotoScreen.this.add(fileName);
 					PostPhotoScreen.this.add(postBtn);
 					PostPhotoScreen.this.addMenuItem(updateItem);
-					Invoke.invokeApplication(Invoke.APP_TYPE_CAMERA, new CameraArguments());
+					if (PostPhotoScreen.this.fromExplorer == false) {
+						Invoke.invokeApplication(Invoke.APP_TYPE_CAMERA, new CameraArguments());
+					} else {
+						PostPhotoScreen.this.drawPreview(PostPhotoScreen.this.filetoupload);
+					}
 				}
 			});
 	}
@@ -190,6 +221,36 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 	    int lastSlash = filename.lastIndexOf('/') + 1;
         String newfilename = filename.substring(lastSlash, filename.length());
 		this.fileName.setText(newfilename);
+		drawPreview(filename);
 		_uiApp.removeFileSystemJournalListener(_fileListener);
+	}
+	
+	public void drawPreview(String filename) {
+		try {
+			FileConnection fconn = (FileConnection)Connector.open("file://" + filename);
+			// If no exception is thrown, then the URI is valid, but the file may or may not exist.
+			if (fconn.exists()) {
+				InputStream input = fconn.openInputStream();
+				int available = (int) fconn.fileSize();
+				System.out.println("Available: " + available);
+				byte[] data = new byte[available];
+				input.read(data, 0, available);
+				EncodedImage image = EncodedImage.createEncodedImage(data, 0, data.length);
+				int oldHeight = image.getHeight();
+				int Height = 150;
+				
+				int numerator = Fixed32.toFP(oldHeight);
+				int denominator = Fixed32.toFP(Height);
+				int widthScale = Fixed32.div(numerator, denominator);
+				
+				EncodedImage newEi = image.scaleImage32(widthScale, widthScale);
+				Bitmap b = newEi.getBitmap();
+				BitmapField picture = new BitmapField(b, BitmapField.FOCUSABLE|BitmapField.FIELD_HCENTER);
+				add(picture);
+			}
+			fconn.close();
+		} catch (IOException e) {
+			System.out.println(e.toString());
+		}
 	}
 }

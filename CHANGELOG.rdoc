@@ -1,3 +1,27 @@
+=== 0.2.8 TODOs
+* New Features
+ * Viewing user details
+ * Viewing comments stream
+ * Sending friends requests
+ 
+=== 0.2.7
+* New Features
+ * You can now accept friend requests
+ * You can now view a list of your friends
+ * You can now block users in the direct messages received screen
+ * You can now block users in the direct messages sent screen
+ * You can now block users in the friend list
+ * Click a item in a stream will now bring up details about it. Instead of a menu
+ * You can now upload a photo from the native Blackberry file explorer
+ * Posting a photo will now show you a preview before you upload it
+ * Sending a direct message now shows you how much text you have left
+ 
+* Fixes
+ * Renamed OptionsScreen.java to SettingsScreen.java
+
+* Removed Features
+ * Debug from the Application Settings screen
+ 
 === 0.2.6
 * New Features
  * Deleting a post in the stream screen now doesn't refresh it just removed the array element

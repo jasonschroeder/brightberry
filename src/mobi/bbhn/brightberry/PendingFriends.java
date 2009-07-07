@@ -29,30 +29,17 @@ OF SUCH DAMAGE.
 */
 
 import net.rim.device.api.system.Bitmap;
-import net.rim.device.api.util.Comparator;
 
-public class Friends implements Comparator {
+public class PendingFriends {
 	private String username;
 	private String fullname;
-	private String last_active;
-	private String last_checkin;
-	private String last_placeid;
-	private String last_placename;
-	private float last_latitude;
-	private float last_longitude;
 
-	public Friends() {
+	public PendingFriends() {
 	}
 
-	public Friends(String username, String fullname, String last_active, String last_checkin, String last_placeid, String last_placename, float last_latitude, float last_longitude) {
+	public PendingFriends(String username, String fullname) {
 		this.username = username;
 		this.fullname = fullname;
-		this.last_active = last_active;
-		this.last_checkin = last_checkin;
-		this.last_placeid = last_placeid;
-		this.last_placename = last_placename;
-		this.last_latitude = last_latitude;
-		this.last_longitude = last_longitude;
 	}
 
 	public String getUsername() {
@@ -63,41 +50,11 @@ public class Friends implements Comparator {
 		return this.fullname;
 	}
 	
-	public String getLastActive() {
-		return this.last_active;
-	}
-	
-	public String getLastCheckin() {
-		return this.last_checkin;
-	}
-	
-	public String getLastPlaceID() {
-		return this.last_placeid;
-	}
-	
-	public String getLastPlaceName() {
-		return this.last_placename;
-	}
-	
-	public float getLastLatitude() {
-		return this.last_latitude;
-	}
-	
-	public float getLastLongitude() {
-		return this.last_longitude;
-	}
-	
 	public Bitmap getAvatar() {
 		if (ImageCache.inCache(this.username)) {
 			return ImageCache.getImage(this.username);
 		} else {
 			return Bitmap.getBitmapResource("img/default_avatar.gif");
 		}
-	}
-	
-	public int compare(Object Object1, Object Object2) {
-		String name1 = ((Friends) Object1).getUsername().toLowerCase();
-		String name2 = ((Friends) Object2).getUsername().toLowerCase();
-		return name1.compareTo(name2);
 	}
 }

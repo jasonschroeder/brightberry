@@ -54,10 +54,11 @@ public class DirectMessageRcvScreen extends MainScreen {
 			contextMenu.addItem(ViewStreamItem);
 			contextMenu.addItem(MenuItem.separator(4));
 			if (msglist.getSelection().length == 1) {
-			contextMenu.addItem(dlt1menuItem);
+				contextMenu.addItem(dlt1menuItem);
 			} else {
 				contextMenu.addItem(dltmanymenuItem);
 			}
+			contextMenu.addItem(blockItem);
 		}
 	};
 	DirectMessageRcv[] directMessage;
@@ -97,27 +98,42 @@ public class DirectMessageRcvScreen extends MainScreen {
 		}
 	};
 	
-	MenuItem sentItem = new MenuItem("Sent Messages", 7, 10) {
+	MenuItem blockItem = new MenuItem("Block User", 6, 10) {
+		public void run() {
+			if (DirectMessageRcvScreen.this.msglist.getSelectedIndex() > -1) {
+				String username = directMessage[msglist.getSelectedIndex()].getSender();
+				int sure = Dialog.ask(Dialog.D_YES_NO, "Are you sure you want to block " + username + "?");
+				if (Dialog.YES == sure) {
+					Thread blockThread = new BlockUserThread(username, DirectMessageRcvScreen.this);
+					blockThread.start();
+				}
+			} else {
+				Status.show("No user Selected");
+			}
+		}
+	};
+	
+	MenuItem sentItem = new MenuItem("Sent Messages", 8, 10) {
 		public void run() {
 			UiApplication.getUiApplication().pushScreen(new DirectMessageSentScreen(0));
 		}
 	};
 	
-	MenuItem nextItem = new MenuItem("Next " + settings.getMaxMessages() + " Messages", 9, 10) {
+	MenuItem nextItem = new MenuItem("Next " + settings.getMaxMessages() + " Messages", 10, 10) {
 		public void run() {
 			DirectMessageRcvScreen.this.start = DirectMessageRcvScreen.this.start + settings.getMaxMessages();
 			DirectMessageRcvScreen.this.refresh();
 		}
 	};
 	
-	MenuItem previousItem = new MenuItem("Previous " + settings.getMaxMessages() + " Messages", 10, 10) {
+	MenuItem previousItem = new MenuItem("Previous " + settings.getMaxMessages() + " Messages", 11, 10) {
 		public void run() {
 			DirectMessageRcvScreen.this.start = DirectMessageRcvScreen.this.start - settings.getMaxMessages();
 			DirectMessageRcvScreen.this.refresh();
 		}
 	};
 	
-	MenuItem refreshmenuItem = new MenuItem("Refresh", 12, 10) {
+	MenuItem refreshmenuItem = new MenuItem("Refresh", 13, 10) {
 		public void run() {
 			DirectMessageRcvScreen.this.refresh();
 		}
@@ -217,5 +233,22 @@ public class DirectMessageRcvScreen extends MainScreen {
 				}
 			}
 		});
+	}
+	
+	public void callBlocked(final boolean blocked) {
+		UiApplication.getUiApplication().invokeLater(
+				new Runnable() {
+					public void run() {
+						if (blocked == true) {
+							Status.show("User blocked");
+							if (UiApplication.getUiApplication().getActiveScreen() == DirectMessageRcvScreen.this) {
+								DirectMessageRcvScreen.this.refresh();
+							}
+						} else {
+							Status.show("Unable to block user");
+						}
+					}
+				}
+			);
 	}
 }

@@ -35,23 +35,23 @@ import java.io.InputStream;
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 
-import org.json.me.JSONObject;
+import net.rim.blackberry.api.browser.URLEncodedPostData;
+import net.rim.device.api.system.Alert;
 
-public class CheckInThread extends Thread {
+public class FriendAcceptThread extends Thread {
+	String url = "http://brightkite.com/me/friendship.json";
 	HttpConnection httpConnection = null;
 	InputStream httpInput = null;
 	DataOutputStream httpOutput = null;
-	String url = "http://brightkite.com/places/";
-	String host = "brightkite.com";
 	String serverResponse = "";
-	Object screen = null;
-	String message = "";
+	FriendsScreen screen;
 	Settings settings = Settings.getInstance();
-	String caller;
-
-	public CheckInThread(String id, String caller, Object screen) {
-		this.url = this.url + id + "/checkins.json";
-		this.caller = caller;
+	private String poststring;
+	
+	public FriendAcceptThread(String username, FriendsScreen screen) {
+		URLEncodedPostData urlenc = new URLEncodedPostData(URLEncodedPostData.DEFAULT_CHARSET, true);
+		urlenc.append("person_id", username);
+		this.poststring = urlenc.toString();
 		this.screen = screen;
 	}
 
@@ -63,42 +63,25 @@ public class CheckInThread extends Thread {
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Content-Language", "en-US");
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
+			this.httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpOutput = this.httpConnection.openDataOutputStream();
-			this.httpOutput.write(this.message.getBytes());
+			this.httpOutput.write(this.poststring.getBytes());
 			this.httpInput = this.httpConnection.openInputStream();
-
-			StringBuffer buffer = new StringBuffer();
-
-			int ch = 0;
-			while (ch != -1) {
-				ch = this.httpInput.read();
-				buffer.append((char)ch);
+			int rc = httpConnection.getResponseCode();
+			if (rc == 201) {
+				if (Alert.isVibrateSupported() && settings.getVibrateOnPost()) {
+					Alert.startVibrate(2000);
+				}
+				this.screen.callAccepted(true);
+			} else {
+				this.screen.callAccepted(false);
 			}
-
-			this.serverResponse = buffer.toString();
-			if (this.caller.equals("placemark")) {
-				((PlacemarkScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
-			} else if (this.caller.equals("search")) {
-				((SearchPlaceScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
-			} else if (this.caller.equals("stream")) {
-				((StreamScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
-			} else if (this.caller.equals("friends")) {
-				((FriendsScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
-			}
-		} catch (IOException ex) {
-		}
-	}
-	
-	private String parseJSON(String json) {
-		JSONObject me = null;
-		try {
-			me = new JSONObject(json);
-			JSONObject place = me.getJSONObject("place");
-			return(place.getString("name"));
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
-		return "";
+			System.out.println("Post was: " + this.poststring);
+			System.out.println("Auth was: "+ Settings.getInstance().getAuthHeader());
+			System.out.println("Response code was: " + rc);
+	    } catch (IOException ex) {
+	    	ex.printStackTrace();
+	    }
 	}
 }

@@ -28,14 +28,26 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
+import net.rim.blackberry.api.menuitem.ApplicationMenuItem;
+import net.rim.blackberry.api.menuitem.ApplicationMenuItemRepository;
 import net.rim.device.api.applicationcontrol.ApplicationPermissions;
 import net.rim.device.api.applicationcontrol.ApplicationPermissionsManager;
+import net.rim.device.api.system.Application;
+import net.rim.device.api.system.ApplicationDescriptor;
+import net.rim.device.api.system.Bitmap;
 import net.rim.device.api.system.DeviceInfo;
 import net.rim.device.api.ui.Color;
+import net.rim.device.api.ui.Manager;
+import net.rim.device.api.ui.Screen;
+import net.rim.device.api.ui.Ui;
 import net.rim.device.api.ui.UiApplication;
+import net.rim.device.api.ui.UiEngine;
+import net.rim.device.api.ui.component.Dialog;
+import net.rim.device.api.ui.component.LabelField;
+import net.rim.device.api.ui.component.SeparatorField;
 
 public class BrightBerry extends UiApplication {
-	static String version = "0.2.6-ALPHA";
+	static String version = "0.2.7-ALPHA";
 	static String gmkey = "ABQIAAAAyqsOf4y12VmEo_2G0kkmUxRpIJO9csrDHHCYF6wRDNKwcymzzRQrUdTZ3AkMMnIbfqA_JKHMK0MjHw";
 	static String useragent = "BrightBerry " + version;
 	static int itembgcolor = Color.WHITE;
@@ -47,8 +59,15 @@ public class BrightBerry extends UiApplication {
 	static int pendingFriends;
 	static int friendCount;
 	static int unreadMessages;
+	final static long RUNSTORE = 0xb1850218a6a07789L;
+	static ApplicationMenuItem imagemenu = new BrightBerryPhotoMenuItem();
+	static long locationToAddMenuItem = ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER;
+    static ApplicationMenuItemRepository amir = ApplicationMenuItemRepository.getInstance();
+    static ApplicationDescriptor app = ApplicationDescriptor.currentApplicationDescriptor();
 	
 	public static void main(String[] args) {
+        amir.addMenuItem(locationToAddMenuItem, imagemenu, app);
+        
 		BrightBerry instance = new BrightBerry();
 		instance.checkPermissions();
 		instance.checkPermissions();
@@ -77,14 +96,6 @@ public class BrightBerry extends UiApplication {
         	newPermissions.addPermission(ApplicationPermissions.PERMISSION_LOCATION_API);
         	permissionsRequest = true;
         }
-        
-        /*
-        int browserFilter = permissionsManager.getPermission(ApplicationPermissions.PERMISSION_BROWSER_FILTER);
-        if (browserFilter == ApplicationPermissions.VALUE_DENY) {
-        	newPermissions.addPermission(ApplicationPermissions.PERMISSION_BROWSER_FILTER);
-        	permissionsRequest = true;
-        }
-        */
         
         int externalConnections = permissionsManager.getPermission(ApplicationPermissions.PERMISSION_EXTERNAL_CONNECTIONS);
         if (externalConnections == ApplicationPermissions.VALUE_DENY) {
@@ -147,5 +158,40 @@ public class BrightBerry extends UiApplication {
 	
 	public static void setUnreadMessages(int count) {
 		BrightBerry.unreadMessages = count;
+	}
+    
+	private static class BrightBerryPhotoMenuItem extends ApplicationMenuItem {
+		BrightBerryPhotoMenuItem() {
+			super(20);
+		}
+		
+		public String toString() {
+			return "Send To BrightBerry";
+		}
+		        
+		 public Object run(Object context) {
+			 String filename = context.toString().substring(7);
+			 if (filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".gif") || filename.endsWith(".png") || filename.endsWith(".bmp")) {
+				 Application.getApplication().requestForeground();
+				 UiApplication.getUiApplication().pushScreen(new PostPhotoScreen(filename));
+			 } else {
+				 UiEngine _uiEngine = Ui.getUiEngine();
+				 Screen _screen = new Dialog(Dialog.D_OK, "Warning:", Dialog.D_OK, Bitmap.getPredefinedBitmap(Bitmap.EXCLAMATION), Manager.VERTICAL_SCROLL);		
+				 LabelField _text = new LabelField("File type not supported");
+				 LabelField _pic = new LabelField("Brightkite supports JPEG, GIF, PNG, and BMP");
+				 _screen.add(_text);
+				 _screen.add(new SeparatorField());
+				 _screen.add(_pic);
+				 _uiEngine.pushGlobalScreen(_screen, 1, UiEngine.GLOBAL_QUEUE);
+			 }
+			 return context;
+		 } 
+	}
+
+	public static void removeMenus() {
+	    boolean remove = amir.removeMenuItem(locationToAddMenuItem, imagemenu);
+	    if (remove == false) {
+	    	System.out.println("Unable to remove item");
+	    }
 	}
 }
