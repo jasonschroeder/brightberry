@@ -41,33 +41,11 @@ public class WhereAmIThread extends Thread {
 	HttpConnection httpConnection = null;
 	InputStream httpInput = null;
 	String serverResponse = "";
-	private String LocationName;
-	private String LocationID;
-	private Object screen;
-	private String caller;
 	Settings settings = Settings.getInstance();
-
-	// Post Note Constructor
-	public WhereAmIThread(PostNoteScreen screen) {
-		this.caller = "note";
-		this.screen = screen;
-	}
-
-	// Post Photo Constructor
-	public WhereAmIThread(PostPhotoScreen screen) {
-		this.caller = "photo";
-		this.screen = screen;
-	}
+	private BrightBerryMain screen;
 	
 	// Main Screen Constructor
 	public WhereAmIThread(BrightBerryMain screen) {
-		this.caller = "main";
-		this.screen = screen;
-	}
-	
-	// Placemark Constructor
-	public WhereAmIThread(PlacemarkScreen screen) {
-		this.caller = "placemark";
 		this.screen = screen;
 	}
 
@@ -80,23 +58,25 @@ public class WhereAmIThread extends Thread {
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpInput = this.httpConnection.openInputStream();
-			StringBuffer buffer = new StringBuffer();
-			int ch = 0;
-			while (ch != -1) {
-				ch = this.httpInput.read();
-				buffer.append((char)ch);
+			int rc = this.httpConnection.getResponseCode();
+			if (rc == 503) {
+				BrightBerry.displayAlert("Error", "BrightKite is too busy at the moment try again later");
+			} else if (rc == 401 || rc == 403) {
+				BrightBerry.errorUnauthorized();
+			} else {
+				StringBuffer buffer = new StringBuffer();
+				int ch = 0;
+				while (ch != -1) {
+					ch = this.httpInput.read();
+					buffer.append((char)ch);
+				}
+				parseJSON(buffer.toString());
 			}
-			this.serverResponse = buffer.toString();
-			System.out.println("Server response: " + this.serverResponse);
-			parseJSON(this.serverResponse);
-			if (this.caller.equals("note")) {
-				((PostNoteScreen) this.screen).updateLocation(this.LocationName, this.LocationID);
-			} else if (this.caller.equals("main")) {
-				((BrightBerryMain) this.screen).updateLocation(this.LocationName);
-			} else if (this.caller.equals("photo")) {
-				((PostPhotoScreen) this.screen).updateLocation(this.LocationName, this.LocationID);
-			} else if (this.caller.equals("placemark")) {
-				((PlacemarkScreen) this.screen).updateLocation(this.LocationName);
+			if (this.httpInput != null) {
+				this.httpInput.close();
+			}
+			if (this.httpConnection != null) {
+				this.httpConnection.close();
 			}
 	    } catch (IOException ex) {
 	    	ex.printStackTrace();
@@ -105,14 +85,15 @@ public class WhereAmIThread extends Thread {
 
 	private void parseJSON(String json) {
 		JSONObject me = null;
+		System.out.println("/me.json Response: " + json);
 		try {
 			me = new JSONObject(json);
 			JSONObject place = me.getJSONObject("place");
-			this.LocationName = place.getString("name");
-			this.LocationID = place.getString("id");
-			BrightBerry.setFriendCount(me.getInt("friends_count"));
+			BrightBerry.setCurrentPlace(place.getString("name"));
+			BrightBerry.setCurrentPlaceID(place.getString("id"));
 			BrightBerry.setUnreadMessages(me.getInt("unread_messages"));
 			BrightBerry.setPendingFriends(me.getInt("pending_friends"));
+			this.screen.updateCurrentPlace();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}

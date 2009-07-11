@@ -41,6 +41,8 @@ import net.rim.device.api.ui.component.Dialog;
 public class UpgradeThread extends Thread {
 	static Settings settings = Settings.getInstance();
 	BrightBerryMain screen;
+	HttpConnection httpConnection = null;
+	InputStream httpInput = null;
 	
 	public UpgradeThread(BrightBerryMain BrightBerryMain) {
 		this.screen = BrightBerryMain;
@@ -50,24 +52,24 @@ public class UpgradeThread extends Thread {
 		try {
 			String url = "http://bbhn.mobi/version.php?version=" + BrightBerry.version;
 			url += NetworkConfig.getConnectionParameters(settings.getConnectionMode());
-			HttpConnection httpConnection = ((HttpConnection)Connector.open(url));
-			httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
-			httpConnection.setRequestProperty("Content-Language", "en-US");
-			httpConnection.setRequestProperty("x-rim-transcode-content", "none");
-			InputStream httpInput = httpConnection.openInputStream();
-
+			this.httpConnection = ((HttpConnection)Connector.open(url));
+			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
+			this.httpConnection.setRequestProperty("Content-Language", "en-US");
+			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
+			this.httpInput = this.httpConnection.openInputStream();
 			StringBuffer buffer = new StringBuffer();
-
 			int ch = 0;
 			while (ch != -1) {
 				ch = httpInput.read();
 				buffer.append((char)ch);
 			}
-
-			String serverResponse = buffer.toString();
-			boolean upgrade = parseJSON(serverResponse);
-			this.screen.callUpgrade(upgrade);
-
+			this.screen.callUpgrade(parseJSON(buffer.toString()));
+			if (this.httpInput != null) {
+				this.httpInput.close();
+			}
+			if (this.httpConnection != null) {
+				this.httpConnection.close();
+			}
 		} catch (IOException e) {
 			Dialog.alert("Caught Exception");
 		}

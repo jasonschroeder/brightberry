@@ -30,7 +30,6 @@ OF SUCH DAMAGE.
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
@@ -38,7 +37,6 @@ import javax.microedition.io.HttpConnection;
 public class PrivacyThread extends Thread {
 	String url = "http://brightkite.com/me/config.json";
 	HttpConnection httpConnection = null;
-	InputStream httpInput = null;
 	DataOutputStream httpOutput = null;
 	String serverResponse = "";
 	BrightBerryMain screen;
@@ -68,15 +66,25 @@ public class PrivacyThread extends Thread {
 				this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 				this.httpOutput = this.httpConnection.openDataOutputStream();
 				this.httpOutput.write(this.postmode.getBytes());
-				this.httpInput = this.httpConnection.openInputStream();
-				int rc = httpConnection.getResponseCode();
+				int rc = this.httpConnection.getResponseCode();
 				if (rc == 200) {
 					this.screen.callPrivacy(true);
 				} else {
+					if (rc == 503) {
+						BrightBerry.displayAlert("Error", "BrightKite is too busy at the moment try again later");
+					} else if (rc == 401 || rc == 403) {
+						BrightBerry.errorUnauthorized();
+					}
 					this.screen.callPrivacy(false);
 				}
 			} else {
 				this.screen.callPrivacy(false);
+			}
+			if (this.httpOutput != null) {
+				this.httpOutput.close();
+			}
+			if (this.httpConnection != null) {
+				this.httpConnection.close();
 			}
 	    } catch (IOException ex) {
 	    	ex.printStackTrace();

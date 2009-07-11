@@ -84,6 +84,12 @@ public class HTTPPhoto {
 				imageData = bStrm.toByteArray();
 				bStrm.close();
 			}
+			if (iStrm != null) {
+				iStrm.close();
+			}
+			if (httpConnection != null) {
+				httpConnection.close();
+			}
 			EncodedImage m_Image = EncodedImage.createEncodedImage(imageData, 0, imageData.length);
 			int oldWidth = m_Image.getWidth();
 			int screenWidth = Display.getWidth();
@@ -95,7 +101,6 @@ public class HTTPPhoto {
 			EncodedImage newEi = m_Image.scaleImage32(widthScale, widthScale);
 			Bitmap img = newEi.getBitmap();
 			return img;
-
 		} catch (IOException e) {
 			System.out.println("Caugh an exception: " + e.toString());
 		}
@@ -138,6 +143,12 @@ public class HTTPPhoto {
 	
 				imageData = bStrm.toByteArray();
 				bStrm.close();
+			}
+			if (iStrm != null) {
+				iStrm.close();
+			}
+			if (httpConnection != null) {
+				httpConnection.close();
 			}
 			EncodedImage m_Image = EncodedImage.createEncodedImage(imageData, 0, imageData.length);
 			int oldHeight = m_Image.getHeight();
@@ -195,6 +206,12 @@ public class HTTPPhoto {
 	
 				imageData = bStrm.toByteArray();
 				bStrm.close();
+			}
+			if (iStrm != null) {
+				iStrm.close();
+			}
+			if (httpConnection != null) {
+				httpConnection.close();
 			}
 			EncodedImage m_Image = EncodedImage.createEncodedImage(imageData, 0, imageData.length);
 			Bitmap img = m_Image.getBitmap();

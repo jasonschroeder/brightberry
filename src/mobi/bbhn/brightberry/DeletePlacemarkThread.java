@@ -28,9 +28,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
@@ -38,8 +36,6 @@ import javax.microedition.io.HttpConnection;
 public class DeletePlacemarkThread extends Thread {
 	String url = "http://brightkite.com/me/placemarks/";
 	HttpConnection httpConnection = null;
-	InputStream httpInput = null;
-	DataOutputStream httpOutput = null;
 	String serverResponse = "";
 	PlacemarkScreen screen;
 	Settings settings = Settings.getInstance();
@@ -57,14 +53,22 @@ public class DeletePlacemarkThread extends Thread {
 			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
-			this.httpOutput = this.httpConnection.openDataOutputStream();
-			this.httpInput = this.httpConnection.openInputStream();
 			int rc = httpConnection.getResponseCode();
 			System.out.println("Response code: " + rc);
 			if (rc == 200) {
 				this.screen.callDelete(true);
 			} else {
-				this.screen.callDelete(false);
+				if (rc == 503) {
+					BrightBerry.displayAlert("Error", "BrightKite is too busy at the moment try again later");
+					this.screen.callDelete(false);
+				} else if (rc == 401 || rc == 403) {
+					BrightBerry.errorUnauthorized();
+				} else {
+					this.screen.callDelete(false);
+				}
+			}
+			if (this.httpConnection != null) {
+				this.httpConnection.close();
 			}
 	    } catch (IOException ex) {
 	    	ex.printStackTrace();

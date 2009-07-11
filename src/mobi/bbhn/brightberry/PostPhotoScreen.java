@@ -81,7 +81,6 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 		}
 	};
 	boolean Posted;
-	private static String locationName;
 	private static String locationID;
 	private BrightBerryJournalListener _fileListener;
 	private BrightBerry _uiApp;
@@ -101,31 +100,28 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 	
 	// Post photo at the current checked in location from the app
 	public PostPhotoScreen() {
+		locationID = BrightBerry.getCurrentPlaceID();
 		_uiApp = (BrightBerry)UiApplication.getUiApplication();
     	_fileListener = new BrightBerryJournalListener(this);        
     	_uiApp.addFileSystemJournalListener(_fileListener);
-        	
-		Thread whereThread = new WhereAmIThread(this.screen);
-		whereThread.start();
 		setTitle(new LabelField("BrightBerry Post Photo", Field.FIELD_HCENTER));
 		postBtn = new ButtonField("Post Photo", ButtonField.CONSUME_CLICK);
 		postBtn.setChangeListener(this);
+		drawRest();
 	}
 	
 	// Post a photo at the current checked in location from file explorer
 	public PostPhotoScreen(String filename) {
+		locationID = BrightBerry.getCurrentPlaceID();
 		filetoupload = filename;
 	    int lastSlash = filename.lastIndexOf('/') + 1;
         String newfilename = filename.substring(lastSlash, filename.length());
 		this.fileName.setText(newfilename);
 		this.fromExplorer = true;
-		
-		Thread whereThread = new WhereAmIThread(this.screen);
-		whereThread.start();
 		setTitle(new LabelField("BrightBerry Post Photo", Field.FIELD_HCENTER));
 		postBtn = new ButtonField("Post Photo", ButtonField.CONSUME_CLICK);
 		postBtn.setChangeListener(this);
-		
+		drawRest();
 	}
 	
 	// Post photo about a location
@@ -153,6 +149,26 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 		add(postBtn);
 		addMenuItem(updateItem);
 		Invoke.invokeApplication(Invoke.APP_TYPE_CAMERA, new CameraArguments());
+	}
+	
+	public void drawRest() {
+		VerticalFieldManager status = new VerticalFieldManager();
+		status.add(leftField);
+		status.add(new SeparatorField());
+		status.add(statusField);
+		setStatus(status);
+		statusField.setText("You're checked in @ " + BrightBerry.getCurrentPlace());
+		note.setChangeListener(PostPhotoScreen.this.inputListener);
+		note.setCursorPosition(0);
+		add(note);
+		add(fileName);
+		add(postBtn);
+		addMenuItem(updateItem);
+		if (fromExplorer == false) {
+			Invoke.invokeApplication(Invoke.APP_TYPE_CAMERA, new CameraArguments());
+		} else {
+			drawPreview(filetoupload);
+		}
 	}
 	
 	public void fieldChanged(Field field, int context) {
@@ -184,33 +200,6 @@ public class PostPhotoScreen extends MainScreen implements FieldChangeListener {
 					}
 				}
 			);
-	}
-	
-	public void updateLocation(String locName, String locID){
-		locationName = locName;
-		locationID = locID;
-		UiApplication.getUiApplication().invokeLater(
-			new Runnable() {
-				public void run() {
-					VerticalFieldManager status = new VerticalFieldManager();
-					status.add(leftField);
-					status.add(new SeparatorField());
-					status.add(statusField);
-					PostPhotoScreen.super.setStatus(status);
-					PostPhotoScreen.this.statusField.setText("You're checked in @ " + PostPhotoScreen.locationName);
-					PostPhotoScreen.this.note.setChangeListener(PostPhotoScreen.this.inputListener);
-					PostPhotoScreen.this.note.setCursorPosition(0);
-					PostPhotoScreen.this.add(note);
-					PostPhotoScreen.this.add(fileName);
-					PostPhotoScreen.this.add(postBtn);
-					PostPhotoScreen.this.addMenuItem(updateItem);
-					if (PostPhotoScreen.this.fromExplorer == false) {
-						Invoke.invokeApplication(Invoke.APP_TYPE_CAMERA, new CameraArguments());
-					} else {
-						PostPhotoScreen.this.drawPreview(PostPhotoScreen.this.filetoupload);
-					}
-				}
-			});
 	}
 	
 	public void updateFileName (String filename) {

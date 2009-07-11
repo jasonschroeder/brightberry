@@ -61,16 +61,26 @@ class FriendsThread extends Thread {
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpInput = this.httpConnection.openInputStream();
-			StringBuffer buffer = new StringBuffer();
-
-			int ch = 0;
-			while (ch != -1) {
-				ch = this.httpInput.read();
-				buffer.append((char)ch);
+			int rc = this.httpConnection.getResponseCode();
+			if (rc == 503) {
+				BrightBerry.displayAlert("Error", "BrightKite is too busy at the moment try again later");
+			} else if (rc == 401 || rc == 403) {
+				BrightBerry.errorUnauthorized();
+			} else {
+				StringBuffer buffer = new StringBuffer();
+				int ch = 0;
+				while (ch != -1) {
+					ch = this.httpInput.read();
+					buffer.append((char)ch);
+				}
+				this.screen.updateFriends(parseJSON(buffer.toString()));
 			}
-
-			this.serverResponse = buffer.toString();
-			this.screen.updateFriends(parseJSON(this.serverResponse));
+			if (this.httpInput != null) {
+				this.httpInput.close();
+			}
+			if (this.httpConnection != null) {
+				this.httpConnection.close();
+			}
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}

@@ -74,6 +74,9 @@ public class DirectMessageRcvDeleteThread extends Thread {
 			} else {
 				this.screen.callDelete(false, this.sel);
 			}
+			if (this.httpConnection != null) {
+				this.httpConnection.close();
+			}
 	    } catch (IOException ex) {
 	    	ex.printStackTrace();
 	    }

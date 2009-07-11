@@ -51,18 +51,15 @@ public class PrivacyGet {
 			httpConnection.setRequestProperty("Authorization", settings.getAuthHeader());
 			httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			InputStream httpInput = httpConnection.openInputStream();
-
 			StringBuffer buffer = new StringBuffer();
-
 			int ch = 0;
 			while (ch != -1) {
 				ch = httpInput.read();
 				buffer.append((char)ch);
 			}
-
-			String serverResponse = buffer.toString();
-			return parseJSON(serverResponse);
-
+			httpConnection.close();
+			httpInput.close();
+			return parseJSON(buffer.toString());
 		} catch (IOException e) {
 			Dialog.alert("Caught Exception");
 		}
@@ -71,12 +68,15 @@ public class PrivacyGet {
 	
 	private static boolean parseJSON(String json) {
 		JSONObject me = null;
+		System.out.println("/me/config.json Response: " + json);
 		try {
 			me = new JSONObject(json);
 			String prvmode = me.getString("privacy_mode");
 			if (prvmode.equals("private")) {
+				System.out.println ("Private");
 				return true;
 			} else {
+				System.out.println ("Public");
 				return false;
 			}
 		} catch (Exception e) {

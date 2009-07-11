@@ -30,7 +30,6 @@ OF SUCH DAMAGE.
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
@@ -40,7 +39,6 @@ import net.rim.blackberry.api.browser.URLEncodedPostData;
 public class PlacemarkCreateThread extends Thread {
 	String url = "http://brightkite.com/places/";
 	HttpConnection httpConnection = null;
-	InputStream httpInput = null;
 	DataOutputStream httpOutput = null;
 	String serverResponse = "";
 	Object screen;
@@ -80,20 +78,33 @@ public class PlacemarkCreateThread extends Thread {
 			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpOutput = this.httpConnection.openDataOutputStream();
 			this.httpOutput.write(this.placemarkpost.getBytes());
-			this.httpInput = this.httpConnection.openInputStream();
 			int rc = httpConnection.getResponseCode();
 			if (this.caller.equals("search")) {
 				if (rc == 201) {
 					((SearchPlaceScreen) this.screen).plCreated(true);
+				} else if (rc == 503) {
+					BrightBerry.displayAlert("Error", "BrightKite is too busy at the moment try again later");
+				} else if (rc == 401 || rc == 403) {
+					BrightBerry.errorUnauthorized();
 				} else {
 					((SearchPlaceScreen) this.screen).plCreated(false);
 				}
 			} else if (this.caller.equals("stream")) {
 				if (rc == 201) {
 					((StreamScreen) this.screen).plCreated(true);
+				} else if (rc == 503) {
+					BrightBerry.displayAlert("Error", "BrightKite is too busy at the moment try again later");
+				} else if (rc == 401 || rc == 403) {
+					BrightBerry.errorUnauthorized();
 				} else {
 					((StreamScreen) this.screen).plCreated(false);
 				}
+			}
+			if (this.httpOutput != null) {
+				this.httpOutput.close();
+			}
+			if (this.httpConnection != null) {
+				this.httpConnection.close();
 			}
 			System.out.println("Post was: " + this.placemarkpost);
 			System.out.println("Auth was: "+ Settings.getInstance().getAuthHeader());

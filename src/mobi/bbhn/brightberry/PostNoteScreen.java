@@ -61,7 +61,6 @@ public class PostNoteScreen extends MainScreen implements FieldChangeListener {
 		}
 	};
 	private static boolean Posted;
-	private static String locationName;
 	private static String locationID;
 	
 	FieldChangeListener inputListener = new FieldChangeListener() {
@@ -77,12 +76,22 @@ public class PostNoteScreen extends MainScreen implements FieldChangeListener {
 	
 	// Post note at the current checked in location
 	public PostNoteScreen() {
-		Thread whereThread = new WhereAmIThread(this.screen);
-		whereThread.start();
-		
+		locationID = BrightBerry.getCurrentPlaceID();
 		setTitle(new LabelField("BrightBerry Post Note", Field.FIELD_HCENTER)); 
 		postBtn = new ButtonField("Post Note", ButtonField.CONSUME_CLICK);
 		postBtn.setChangeListener(this);
+		
+		VerticalFieldManager status = new VerticalFieldManager();
+		status.add(leftField);
+		status.add(new SeparatorField());
+		status.add(statusField);
+		setStatus(status);
+		statusField.setText("You're checked in @ " + BrightBerry.getCurrentPlace());
+		note.setChangeListener(PostNoteScreen.this.inputListener);
+		add(note);
+		note.setCursorPosition(0);
+		add(postBtn);
+		addMenuItem(updateItem);
 	}
 	
 	// Post note about a location
@@ -131,26 +140,5 @@ public class PostNoteScreen extends MainScreen implements FieldChangeListener {
 					}
 				}
 			);
-	}
-	
-	public void updateLocation(String locName, String locID){
-		locationName = locName;
-		locationID = locID;
-		UiApplication.getUiApplication().invokeLater(
-			new Runnable() {
-				public void run() {
-					VerticalFieldManager status = new VerticalFieldManager();
-					status.add(leftField);
-					status.add(new SeparatorField());
-					status.add(statusField);
-					PostNoteScreen.super.setStatus(status);
-					PostNoteScreen.this.statusField.setText("You're checked in @ " + PostNoteScreen.locationName);
-					PostNoteScreen.this.note.setChangeListener(PostNoteScreen.this.inputListener);
-					PostNoteScreen.this.add(note);
-					PostNoteScreen.this.note.setCursorPosition(0);
-					PostNoteScreen.this.add(postBtn);
-					PostNoteScreen.this.addMenuItem(updateItem);
-				}
-			});
 	}
 }

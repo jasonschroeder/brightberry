@@ -30,7 +30,6 @@ OF SUCH DAMAGE.
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
@@ -41,7 +40,6 @@ import net.rim.device.api.system.Alert;
 public class FriendAcceptThread extends Thread {
 	String url = "http://brightkite.com/me/friendship.json";
 	HttpConnection httpConnection = null;
-	InputStream httpInput = null;
 	DataOutputStream httpOutput = null;
 	String serverResponse = "";
 	FriendsScreen screen;
@@ -67,7 +65,6 @@ public class FriendAcceptThread extends Thread {
 			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpOutput = this.httpConnection.openDataOutputStream();
 			this.httpOutput.write(this.poststring.getBytes());
-			this.httpInput = this.httpConnection.openInputStream();
 			int rc = httpConnection.getResponseCode();
 			if (rc == 201) {
 				if (Alert.isVibrateSupported() && settings.getVibrateOnPost()) {
@@ -75,7 +72,18 @@ public class FriendAcceptThread extends Thread {
 				}
 				this.screen.callAccepted(true);
 			} else {
+				if (rc == 503) {
+					BrightBerry.displayAlert("Error", "BrightKite is too busy at the moment try again later");
+				} else if (rc == 401 || rc == 403) {
+					BrightBerry.errorUnauthorized();
+				}
 				this.screen.callAccepted(false);
+			}
+			if (this.httpOutput != null) {
+				this.httpOutput.close();
+			}
+			if (this.httpConnection != null) {
+				this.httpConnection.close();
 			}
 			System.out.println("Post was: " + this.poststring);
 			System.out.println("Auth was: "+ Settings.getInstance().getAuthHeader());

@@ -40,7 +40,6 @@ public class BkObjectThread extends Thread {
 	String url = "http://brightkite.com/objects/";
 	HttpConnection httpConnection = null;
 	InputStream httpInput = null;
-	String serverResponse = "";
 	private String body = "";
 	private String creator;
 	private BkObjectScreen screen;
@@ -66,18 +65,29 @@ public class BkObjectThread extends Thread {
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpInput = this.httpConnection.openInputStream();
-
-			StringBuffer buffer = new StringBuffer();
-
-			int ch = 0;
-			while (ch != -1) {
-				ch = this.httpInput.read();
-				buffer.append((char)ch);
+			int rc = this.httpConnection.getResponseCode();
+			if (rc == 503) {
+				BrightBerry.displayAlert("Error", "BrightKite is too busy at the moment try again later");
+			} else if (rc == 401 || rc == 403) {
+				BrightBerry.errorUnauthorized();
+			} else {
+				StringBuffer buffer = new StringBuffer();
+				int ch = 0;
+				while (ch != -1) {
+					ch = this.httpInput.read();
+					buffer.append((char)ch);
+				}
+				parseJSON(buffer.toString());
+				this.screen.updateObject(type, body, creator, location, created_at_as_words, about, photo, commentscount);
 			}
-
-			this.serverResponse = buffer.toString();
-			parseJSON(this.serverResponse);
-			this.screen.updateObject(type, body, creator, location, created_at_as_words, about, photo, commentscount);
+			if (this.httpInput != null) {
+				this.httpInput.close();
+				System.out.println("HTTP Input closed");
+			}
+			if (this.httpConnection != null) {
+				this.httpConnection.close();
+				System.out.println("HTTP Connection closed");
+			}
 	    } catch (IOException ex) {
 	    	ex.printStackTrace();
 	    }

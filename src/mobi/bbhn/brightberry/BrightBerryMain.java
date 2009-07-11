@@ -68,12 +68,10 @@ public class BrightBerryMain extends MainScreen {
 	private MenuItem privacymodeItem;
 	private boolean priupdated;
 	private MenuItem licenseItem;
-	private BrightBerryMain screen = this;
 	private MenuItem refreshlocItem;
 	private boolean upgradeavailable;
 	private MenuItem upgradeItem;
 	private MenuItem latestnewsItem;
-	private static String locationName;
 	
     public BrightBerryMain() {
     	super.setTitle(new LabelField("BrightBerry", 1152921504606846980L));
@@ -142,7 +140,7 @@ public class BrightBerryMain extends MainScreen {
 		
 		this.refreshlocItem = new MenuItem("Refresh Location", 1, 10) {
 			public void run() {
-				Thread whereThread = new WhereAmIThread(BrightBerryMain.this.screen);
+				Thread whereThread = new WhereAmIThread(BrightBerryMain.this);
 				whereThread.start();
 			}
 		};
@@ -267,46 +265,46 @@ public class BrightBerryMain extends MainScreen {
 		});
     }
     
-    public void updateLocation(String locName){
-		BrightBerryMain.locationName = locName;
-		UiApplication.getUiApplication().invokeLater(
-			new Runnable() {
-				public void run() {
-					System.out.println("Checked in at " + BrightBerryMain.locationName);
-					VerticalFieldManager vfm = new VerticalFieldManager();
-					vfm.add(new SeparatorField());
-					LabelField locationLabel = new LabelField("You're checked in @ " + BrightBerryMain.locationName);
-					vfm.add(locationLabel);
-					if (BrightBerry.getPendingFriends() == 1) {
-						LabelField friendsLabel = new LabelField("You have " +  BrightBerry.getPendingFriends() + " pending friend request!");
-						vfm.add(friendsLabel);
-					}
-					if (BrightBerry.getPendingFriends() > 1) {
-						LabelField friendsLabel = new LabelField("You have " +  BrightBerry.getPendingFriends() + " pending friend requests!");
-						vfm.add(friendsLabel);
-					}
-					if (BrightBerry.getUnreadMessages() == 1) {
-						LabelField unreadLabel = new LabelField("You have " + BrightBerry.getUnreadMessages() + " new message!");
-						vfm.add(unreadLabel);
-					}
-					if (BrightBerry.getUnreadMessages() > 1) {
-						LabelField unreadLabel = new LabelField("You have " + BrightBerry.getUnreadMessages() + " new messages!");
-						vfm.add(unreadLabel);
-					}
-					BrightBerryMain.this.setStatus(vfm);
-				}
-			});
-	}
-    
     public boolean onClose() {
+    	BrightBerry.toBackground();
 		UiApplication.getUiApplication().requestBackground();
 		return true;
 	}
     
     protected void onFocusNotify(boolean focus) {
-    	if (this.settings.getAuthed() && this.settings.getAutoWhereAmI() && focus) {
-    		Thread whereThread = new WhereAmIThread(this.screen);
+    	if (this.settings.getAuthed() && this.settings.getAutoWhereAmI() && focus && BrightBerry.isBackground()) {
+    		Thread whereThread = new WhereAmIThread(this);
 			whereThread.start();
+			BrightBerry.fromBackground();
     	}
+    	System.out.println("onFocusNotify: " + focus);
+    }
+    
+    public void updateCurrentPlace() {
+    	UiApplication.getUiApplication().invokeLater(new Runnable() {
+			public void run() {
+		    	VerticalFieldManager vfm = new VerticalFieldManager();
+				vfm.add(new SeparatorField());
+				LabelField locationLabel = new LabelField("You're checked in @ " + BrightBerry.getCurrentPlace());
+				vfm.add(locationLabel);
+				if (BrightBerry.getPendingFriends() == 1) {
+					LabelField friendsLabel = new LabelField("You have " +  BrightBerry.getPendingFriends() + " pending friend request!");
+					vfm.add(friendsLabel);
+				}
+				if (BrightBerry.getPendingFriends() > 1) {
+					LabelField friendsLabel = new LabelField("You have " +  BrightBerry.getPendingFriends() + " pending friend requests!");
+					vfm.add(friendsLabel);
+				}
+				if (BrightBerry.getUnreadMessages() == 1) {
+					LabelField unreadLabel = new LabelField("You have " + BrightBerry.getUnreadMessages() + " new message!");
+					vfm.add(unreadLabel);
+				}
+				if (BrightBerry.getUnreadMessages() > 1) {
+					LabelField unreadLabel = new LabelField("You have " + BrightBerry.getUnreadMessages() + " new messages!");
+					vfm.add(unreadLabel);
+				}
+				BrightBerryMain.this.setStatus(vfm);
+			}
+    	});
     }
 }

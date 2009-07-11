@@ -55,10 +55,17 @@ class PlacemarkCallback implements ListFieldCallback {
 		g.drawText(placemark[index].getDisplayLocation(), drawbmp.getWidth()+3, y+fontht, DrawStyle.ELLIPSIS);
     }
 	public Object get(ListField listField, int index) {
-        return null;
+        return placemark[index];
     }
     public int indexOfList(ListField listField, String prefix, int start) {
-        return listField.indexOfList(prefix, start);
+    	System.out.println("Into the indexOfList");
+    	for (int i=start; i < placemark.length; i++) {
+			String name = (String) placemark[i].getName().toLowerCase();
+			if (name.startsWith(prefix.toLowerCase())) {
+				return i;
+			}
+		}
+		return -1;
     }
 	public int getPreferredWidth(ListField listField) {
 		return Display.getWidth();

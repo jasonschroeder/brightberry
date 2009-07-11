@@ -1,9 +1,20 @@
-=== 0.2.8 TODOs
+=== 0.2.9 TODOs
 * New Features
  * Viewing user details
  * Viewing comments stream
  * Sending friends requests
  
+=== 0.2.8
+ * New Features
+  * You can now search in placemarks by pressing a key when the list is displayed.
+  * Will now display a message if Brightkite is overloaded (And take you back to the main screen)
+  * Will now display a message if you account is invalid such as username and/or password issue (And take you back to the settings screen)
+  
+ * Fixes
+  * Thread for WhereAmI would run excessivly and unpredictally. Now only calls when the program is brought from the background, user requests an update, or user checks in elsewhere
+  * Freed up resources after they were used.
+  * Removed friend count varabile since its not used for right now.
+  
 === 0.2.7
 * New Features
  * You can now accept friend requests

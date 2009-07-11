@@ -28,7 +28,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
-import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -42,7 +41,7 @@ public class PostPhotoThread extends Thread {
 	String url = "http://brightkite.com/places/";
 	HttpConnection httpConnection = null;
 	InputStream httpInput = null;
-	DataOutputStream httpOutput = null;
+	OutputStream os = null;
 	String serverResponse = "";
 	PostPhotoScreen screen;
 	static Settings settings = Settings.getInstance();
@@ -58,21 +57,16 @@ public class PostPhotoThread extends Thread {
 	}
 	
 	public void run() {
-		HttpConnection conn = null;
-		OutputStream os = null;
-		InputStream is = null;
-
 		url += NetworkConfig.getConnectionParameters(settings.getConnectionMode());
 
 		try {
-			System.out.println("url:" + url);
-			conn = (HttpConnection) Connector.open(url);
-			conn.setRequestProperty("User-Agent", BrightBerry.useragent);
-			conn.setRequestProperty("Content-Language", "en-US");
-			conn.setRequestProperty("Authorization", settings.getAuthHeader());
-			conn.setRequestProperty("x-rim-transcode-content", "none");
-			conn.setRequestMethod(HttpConnection.POST);
-			conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=---------------------------4664151417711");
+			this.httpConnection = (HttpConnection) Connector.open(url);
+			this.httpConnection.setRequestProperty("User-Agent", BrightBerry.useragent);
+			this.httpConnection.setRequestProperty("Content-Language", "en-US");
+			this.httpConnection.setRequestProperty("Authorization", settings.getAuthHeader());
+			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
+			this.httpConnection.setRequestMethod(HttpConnection.POST);
+			this.httpConnection.setRequestProperty("Content-Type", "multipart/form-data; boundary=---------------------------4664151417711");
 
 			System.out.println("File Name: file://" + filename);
 			FileConnection fcon = (FileConnection)Connector.open("file://" + filename);
@@ -109,7 +103,7 @@ public class PostPhotoThread extends Thread {
 			message2 += CrLf + "-----------------------------4664151417711--" + CrLf;
 
 			System.out.println("open os");
-			os = conn.openOutputStream();
+			os = this.httpConnection.openOutputStream();
 			
 			System.out.println(message0);
 			os.write(message0.getBytes());
@@ -138,14 +132,14 @@ public class PostPhotoThread extends Thread {
 			os.flush();
 
 			System.out.println("open is");
-			is = conn.openInputStream();
+			this.httpInput = this.httpConnection.openInputStream();
 
 			char buff = 512;
 			int len;
 			byte[] data = new byte[buff];
 			do {
 				System.out.println("READ");
-				len = is.read(data);
+				len = this.httpInput.read(data);
 
 				if (len > 0) {
 					System.out.println(new String(data, 0, len));
@@ -153,32 +147,32 @@ public class PostPhotoThread extends Thread {
 			} while (len > 0);
 
 			System.out.println("DONE");
-			int rc = conn.getResponseCode();
+			int rc = this.httpConnection.getResponseCode();
 			if (rc == 201) {
 				if (Alert.isVibrateSupported() && settings.getVibrateOnPost()) {
 					Alert.startVibrate(2000);
 				}
 				screen.callPosted(true);
 			} else {
+				if (rc == 503) {
+					BrightBerry.displayAlert("Error", "BrightKite is too busy at the moment try again later");
+				} else if (rc == 401 || rc == 403) {
+					BrightBerry.errorUnauthorized();
+				}
 				screen.callPosted(false);
 			}
 			System.out.println("Response code: " + rc);
+			if (this.os != null) {
+				this.os.close();
+			}
+			if (this.httpInput != null) {
+				this.httpInput.close();
+			}
+			if (this.httpConnection != null) {
+				this.httpConnection.close();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			System.out.println("Close connection");
-			try {
-				os.close();
-			} catch (Exception e) {
-			}
-			try {
-				is.close();
-			} catch (Exception e) {
-			}
-			try {
-				conn.close();
-			} catch (Exception e) {
-			}
 		}
 	}
 }

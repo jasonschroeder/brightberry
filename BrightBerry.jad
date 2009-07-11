@@ -1,23 +1,23 @@
 Manifest-Version: 1.0
-MIDlet-Version: 0.2.7
-MIDlet-Jar-Size: 383788
+MIDlet-Version: 0.2.8
+MIDlet-Jar-Size: 428294
 RIM-COD-URL-2: BrightBerry-2.cod
 MicroEdition-Configuration: CLDC-1.1
 MIDlet-Jar-URL: BrightBerry.jar
-RIM-COD-Module-Dependencies: net_rim_cldc,net_rim_bbapi_browser,net_rim_bbapi_menuitem,net_rim_os,net_rim_bbapi_invoke,net_rim_locationapi
+RIM-COD-Module-Dependencies: net_rim_cldc,net_rim_bbapi_browser,net_rim_bbapi_menuitem,net_rim_bbapi_mailv2,net_rim_os,net_rim_bbapi_invoke,net_rim_locationapi
 RIM-COD-URL-1: BrightBerry-1.cod
-RIM-COD-SHA1-2: 4c 51 0a 82 32 30 4f c3 3b db 02 a4 a2 4c 4a 37 e8 77 7d 61
-RIM-COD-SHA1-1: 43 a7 f9 fe 81 b7 cb cb 5d 47 44 a1 2d 87 d9 4e 2b 58 39 53
+RIM-COD-SHA1-2: fc 91 56 15 35 da 9c b1 e4 e4 19 1e 9f b1 7b c1 cc eb 0f ce
+RIM-COD-SHA1-1: bf a9 42 9f 33 9b 5f b2 e6 69 fa fc 06 b2 3a 67 60 6d 27 6a
 RIM-MIDlet-Flags-1: 0
-RIM-COD-Size-2: 20456
+RIM-COD-Size-2: 31968
 RIM-COD-Module-Name: BrightBerry
-RIM-COD-Size-1: 62028
-RIM-COD-Size: 62516
+RIM-COD-Size-1: 59324
+RIM-COD-Size: 71900
 MIDlet-Name: BrightBerry
-RIM-COD-Creation-Time: 1246926959
+RIM-COD-Creation-Time: 1247292660
 MIDlet-1: BrightBerry,img/BKIcon.jpg,
 RIM-COD-URL: BrightBerry.cod
 MIDlet-Description: Unofficial Blackberry app for Brightkite using the REST-API
-RIM-COD-SHA1: 82 73 75 8a 69 98 7a 79 a5 7d 86 3d ee d3 c7 69 ee b9 56 eb
+RIM-COD-SHA1: 03 9c e2 85 97 7e 4d a1 e6 c4 2f 0d d0 3f 2d 79 cf c7 78 8b
 MicroEdition-Profile: MIDP-2.0
 MIDlet-Vendor: Hallgren Networks

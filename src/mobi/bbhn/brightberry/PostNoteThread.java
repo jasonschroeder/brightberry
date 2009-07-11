@@ -30,7 +30,6 @@ OF SUCH DAMAGE.
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
@@ -41,7 +40,6 @@ import net.rim.device.api.system.Alert;
 public class PostNoteThread extends Thread {
 	String url = "http://brightkite.com/places/";
 	HttpConnection httpConnection = null;
-	InputStream httpInput = null;
 	DataOutputStream httpOutput = null;
 	String serverResponse = "";
 	PostNoteScreen screen;
@@ -68,7 +66,6 @@ public class PostNoteThread extends Thread {
 			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpOutput = this.httpConnection.openDataOutputStream();
 			this.httpOutput.write(this.note.getBytes());
-			this.httpInput = this.httpConnection.openInputStream();
 			int rc = httpConnection.getResponseCode();
 			if (rc == 201) {
 				if (Alert.isVibrateSupported() && settings.getVibrateOnPost()) {
@@ -76,7 +73,18 @@ public class PostNoteThread extends Thread {
 				}
 				this.screen.callPosted(true);
 			} else {
+				if (rc == 503) {
+					BrightBerry.displayAlert("Error", "BrightKite is too busy at the moment try again later");
+				} else if (rc == 401 || rc == 403) {
+					BrightBerry.errorUnauthorized();
+				}
 				this.screen.callPosted(false);
+			}
+			if (this.httpOutput != null) {
+				this.httpOutput.close();
+			}
+			if (this.httpConnection != null) {
+				this.httpConnection.close();
 			}
 			System.out.println("Post was: " + this.note);
 			System.out.println("Auth was: "+ Settings.getInstance().getAuthHeader());

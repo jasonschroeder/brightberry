@@ -29,7 +29,6 @@ OF SUCH DAMAGE.
 */
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
@@ -38,9 +37,8 @@ import net.rim.device.api.io.Base64OutputStream;
 
 public class CheckUsername {
 	Settings settings = Settings.getInstance();
-	String url = "http://brightkite.com/me.json";
+	String url = "http://brightkite.com/me/config.json";
 	HttpConnection httpConnection = null;
-	InputStream httpInput = null;
 	String serverResponse = "";
 	String username;
 	String password;
@@ -64,11 +62,15 @@ public class CheckUsername {
 			this.httpConnection.setRequestProperty("Authorization", "Basic " + Base64OutputStream.encodeAsString(combo.getBytes(), 0, combo.getBytes().length, false, false));
 			int rc = httpConnection.getResponseCode();
 			System.out.println("Response code; " + rc);
+			if (this.httpConnection != null) {
+				this.httpConnection.close();
+			}
 			if (rc == HttpConnection.HTTP_OK) {
 				return true;
 			} else {
 				return false;
 			}
+			
 	    } catch (IOException ex) {
 	    	System.out.println("Caught exception");
 	    	ex.printStackTrace();

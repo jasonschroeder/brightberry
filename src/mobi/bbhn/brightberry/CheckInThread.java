@@ -67,26 +67,41 @@ public class CheckInThread extends Thread {
 			this.httpOutput = this.httpConnection.openDataOutputStream();
 			this.httpOutput.write(this.message.getBytes());
 			this.httpInput = this.httpConnection.openInputStream();
-
-			StringBuffer buffer = new StringBuffer();
-
-			int ch = 0;
-			while (ch != -1) {
-				ch = this.httpInput.read();
-				buffer.append((char)ch);
+			int rc = this.httpConnection.getResponseCode();
+			if (rc == 503) {
+				BrightBerry.displayAlert("Error", "BrightKite is too busy at the moment try again later");
+			} else if (rc == 401 || rc == 403) {
+				BrightBerry.errorUnauthorized();
+			} else {
+				StringBuffer buffer = new StringBuffer();
+				int ch = 0;
+				while (ch != -1) {
+					ch = this.httpInput.read();
+					buffer.append((char)ch);
+				}
+				this.serverResponse = buffer.toString();
+				if (this.caller.equals("placemark")) {
+					((PlacemarkScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
+				} else if (this.caller.equals("search")) {
+					((SearchPlaceScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
+				} else if (this.caller.equals("stream")) {
+					((StreamScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
+				} else if (this.caller.equals("friends")) {
+					((FriendsScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
+				}
+				BrightBerry.toBackground();
 			}
-
-			this.serverResponse = buffer.toString();
-			if (this.caller.equals("placemark")) {
-				((PlacemarkScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
-			} else if (this.caller.equals("search")) {
-				((SearchPlaceScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
-			} else if (this.caller.equals("stream")) {
-				((StreamScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
-			} else if (this.caller.equals("friends")) {
-				((FriendsScreen) this.screen).updateStatus(parseJSON(this.serverResponse));
+			if (this.httpInput != null) {
+				this.httpInput.close();
+			}
+			if (this.httpOutput != null) {
+				this.httpOutput.close();
+			}
+			if (this.httpConnection != null) {
+				this.httpConnection.close();
 			}
 		} catch (IOException ex) {
+			System.out.println("Caught exception: " + ex.toString());
 		}
 	}
 	

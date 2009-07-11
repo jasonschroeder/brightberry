@@ -28,10 +28,19 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
 */
 
+import me.regexp.RE;
+import net.rim.blackberry.api.mail.Address;
+import net.rim.blackberry.api.mail.MessagingException;
+import net.rim.blackberry.api.mail.NoSuchServiceException;
+import net.rim.blackberry.api.mail.Session;
+import net.rim.blackberry.api.mail.Store;
+import net.rim.blackberry.api.mail.event.FolderEvent;
+import net.rim.blackberry.api.mail.event.FolderListener;
 import net.rim.blackberry.api.menuitem.ApplicationMenuItem;
 import net.rim.blackberry.api.menuitem.ApplicationMenuItemRepository;
 import net.rim.device.api.applicationcontrol.ApplicationPermissions;
 import net.rim.device.api.applicationcontrol.ApplicationPermissionsManager;
+import net.rim.device.api.system.Alert;
 import net.rim.device.api.system.Application;
 import net.rim.device.api.system.ApplicationDescriptor;
 import net.rim.device.api.system.Bitmap;
@@ -47,7 +56,7 @@ import net.rim.device.api.ui.component.LabelField;
 import net.rim.device.api.ui.component.SeparatorField;
 
 public class BrightBerry extends UiApplication {
-	static String version = "0.2.7-ALPHA";
+	static String version = "0.2.8-ALPHA";
 	static String gmkey = "ABQIAAAAyqsOf4y12VmEo_2G0kkmUxRpIJO9csrDHHCYF6wRDNKwcymzzRQrUdTZ3AkMMnIbfqA_JKHMK0MjHw";
 	static String useragent = "BrightBerry " + version;
 	static int itembgcolor = Color.WHITE;
@@ -57,15 +66,43 @@ public class BrightBerry extends UiApplication {
 	static int buttonbgcolor = Color.WHITE;
 	static int buttonhlcolor = Color.LIGHTBLUE;
 	static int pendingFriends;
-	static int friendCount;
 	static int unreadMessages;
+	static String currentPlace;
+	static String currentPlaceID;
 	final static long RUNSTORE = 0xb1850218a6a07789L;
 	static ApplicationMenuItem imagemenu = new BrightBerryPhotoMenuItem();
 	static long locationToAddMenuItem = ApplicationMenuItemRepository.MENUITEM_FILE_EXPLORER;
     static ApplicationMenuItemRepository amir = ApplicationMenuItemRepository.getInstance();
     static ApplicationDescriptor app = ApplicationDescriptor.currentApplicationDescriptor();
+	private static boolean background = true;
 	
 	public static void main(String[] args) {
+		Store store = Session.getDefaultInstance().getStore();
+		store.addFolderListener(new FolderListener() {
+			   public void messagesAdded(FolderEvent e) {
+				   if (e.getMessage().isInbound() == true) {
+						try {
+							Address from = e.getMessage().getFrom();
+							if (from.getAddr().toString().endsWith("no-reply@brightkite.com")) {
+								Alert.startVibrate(3000);
+								System.out.println("Brightkite Message!!!");
+								RE r = new RE("http://brightkite.com/objects/[A-za-z0-9]$");
+								boolean matched = r.match(e.getMessage().getBodyText());
+								System.out.println("Object Match" + matched);
+							}
+						} catch (MessagingException e1) {
+						}
+						System.out.println("New email is inbound");
+						System.out.println("Subject is: " + e.getMessage().getSubject());
+				   }
+			   }
+
+				public void messagesRemoved(FolderEvent e) {
+					System.out.println("Message Deleted");
+					System.out.println("Subject is: " + e.getMessage().getSubject());
+				}
+			});
+		
         amir.addMenuItem(locationToAddMenuItem, imagemenu, app);
         
 		BrightBerry instance = new BrightBerry();
@@ -144,20 +181,28 @@ public class BrightBerry extends UiApplication {
 		BrightBerry.pendingFriends = count;
 	}
 	
-	public static int getFriendCount() {
-		return BrightBerry.friendCount;
-	}
-	
-	public static void setFriendCount(int count) {
-		BrightBerry.friendCount = count;
-	}
-	
 	public static int getUnreadMessages() {
 		return BrightBerry.unreadMessages;
 	}
 	
 	public static void setUnreadMessages(int count) {
 		BrightBerry.unreadMessages = count;
+	}
+	
+	public static void setCurrentPlace(String currentPlace) {
+		BrightBerry.currentPlace = currentPlace;
+	}
+	
+	public static String getCurrentPlace() {
+		return BrightBerry.currentPlace;
+	}
+	
+	public static void setCurrentPlaceID(String currentPlaceID) {
+		BrightBerry.currentPlaceID = currentPlaceID;
+	}
+	
+	public static String getCurrentPlaceID() {
+		return BrightBerry.currentPlaceID;
 	}
     
 	private static class BrightBerryPhotoMenuItem extends ApplicationMenuItem {
@@ -193,5 +238,41 @@ public class BrightBerry extends UiApplication {
 	    if (remove == false) {
 	    	System.out.println("Unable to remove item");
 	    }
+	}
+	
+	public static void displayAlert(String title, final String message) {
+		final Screen _screen = new Dialog(Dialog.D_OK, title + ":", Dialog.D_OK, Bitmap.getPredefinedBitmap(Bitmap.EXCLAMATION), Manager.VERTICAL_SCROLL);		
+		LabelField _text = new LabelField(message);
+		_screen.add(_text);
+		UiApplication.getUiApplication().invokeLater (new Runnable() {
+		    public void run() {
+		    	if (message.equals("Your username and/or password do not match!")) {
+		    		UiApplication.getUiApplication().pushScreen(new SettingsScreen());
+			    	while (UiApplication.getUiApplication().getScreenCount() >= 2) {
+			    		UiApplication.getUiApplication().popScreen(UiApplication.getUiApplication().getActiveScreen());
+			    	}
+		    	}
+		    	UiApplication.getUiApplication().pushGlobalScreen(_screen, 1, GLOBAL_MODAL);
+		    }
+		});
+	}
+	
+	public static void errorUnauthorized() {
+		Settings settings = Settings.getInstance();
+		settings.setAuthed(false);
+		Settings.save(settings);
+		BrightBerry.displayAlert("Error", "Your username and/or password do not match!");
+	}
+
+	public static void toBackground() {
+		BrightBerry.background = true;
+	}
+	
+	public static void fromBackground() {
+		BrightBerry.background = false;
+	}
+	
+	public static boolean isBackground() {
+		return BrightBerry.background;
 	}
 }

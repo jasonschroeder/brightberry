@@ -107,23 +107,31 @@ class StreamThread extends Thread {
 			this.httpConnection.setRequestProperty("Authorization", this.settings.getAuthHeader());
 			this.httpConnection.setRequestProperty("x-rim-transcode-content", "none");
 			this.httpInput = this.httpConnection.openInputStream();
-			StringBuffer buffer = new StringBuffer();
-			System.out.println("URL: " + this.url);
-			System.out.println("Encoding: " + this.httpConnection.getEncoding());
-
-			int ch = 0;
-			while (ch != -1) {
-				ch = this.httpInput.read();
-				buffer.append((char)ch);
-			}
-
-			this.serverResponse = buffer.toString();
-			System.out.println("Server Response: " + this.serverResponse);
-			if (this.serverResponse.startsWith("[]")) {
-				this.screen.noPosts();
+			int rc = this.httpConnection.getResponseCode();
+			if (rc == 503) {
+				BrightBerry.displayAlert("Error", "BrightKite is too busy at the moment try again later");
+			} else if (rc == 401 || rc == 403) {
+				BrightBerry.errorUnauthorized();
 			} else {
-				Stream[] places = parseJSON(this.serverResponse);
-				this.screen.updateStream(places);
+				StringBuffer buffer = new StringBuffer();
+				int ch = 0;
+				while (ch != -1) {
+					ch = this.httpInput.read();
+					buffer.append((char)ch);
+				}
+				this.serverResponse = buffer.toString();
+				if (this.serverResponse.startsWith("[]")) {
+					this.screen.noPosts();
+				} else {
+					Stream[] places = parseJSON(this.serverResponse);
+					this.screen.updateStream(places);
+				}
+			}
+			if (this.httpInput != null) {
+				this.httpInput.close();
+			}
+			if (this.httpConnection != null) {
+				this.httpConnection.close();
 			}
 		} catch (IOException ex) {
 			ex.printStackTrace();

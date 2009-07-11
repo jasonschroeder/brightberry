@@ -43,7 +43,6 @@ import net.rim.device.api.ui.container.MainScreen;
 
 public class PlacemarkScreen extends MainScreen {
 	MenuItem updateItem;
-	MenuItem whereAmIItem;
 	Settings settings = Settings.getInstance();
 	String message;
 	PlacemarkScreen screen = this;
@@ -61,9 +60,6 @@ public class PlacemarkScreen extends MainScreen {
 	}
 
 	public PlacemarkScreen() {
-		Thread whereThread = new WhereAmIThread(this.screen);
-	    whereThread.start();
-	    
 		super.setTitle(new LabelField("BrightBerry Placemarks", 1152921504606846980L));
 		
 		this.checkinItem = new MenuItem("Checkin Here", 1, 10) {
@@ -138,15 +134,7 @@ public class PlacemarkScreen extends MainScreen {
 			}
 		};
 		
-		this.whereAmIItem = new MenuItem("Where Am I", 8, 10) {
-			public void run() {
-				Thread whereThread = new WhereAmIThread(PlacemarkScreen.this.screen);
-				whereThread.start();
-			}
-		};
-		
 		addMenuItem(this.updateItem);
-		addMenuItem(this.whereAmIItem);
 		addMenuItem(MenuItem.separator(9));
 		
 		if (settings.getPlacemarks() != null) {
@@ -154,11 +142,15 @@ public class PlacemarkScreen extends MainScreen {
 			this.list.setSize(settings.getPlacemarks().length);
 			this.list.setCallback(new PlacemarkCallback(settings.getPlacemarks()));
 			this.list.setRowHeight((int)(ListField.ROW_HEIGHT_FONT*2));
+			this.list.setSearchable(true);
 			add(this.list);
 		} else {
 			RichTextField noresults = new RichTextField("You have no placemarks set", 45035996273704960L);
 			add(noresults);
 		}
+		
+		LabelField locationLabel = new LabelField("You're checked in @ " + BrightBerry.getCurrentPlace());
+		setStatus(locationLabel);
 	}
 
 	public void updateStatus(String message) {
@@ -169,16 +161,6 @@ public class PlacemarkScreen extends MainScreen {
 				if (UiApplication.getUiApplication().getActiveScreen() == PlacemarkScreen.this) {
 					UiApplication.getUiApplication().popScreen(PlacemarkScreen.this);
 				}
-			}
-		});
-	}
-
-	public void updateLocation(String message) {
-		this.message = message;
-		UiApplication.getUiApplication().invokeLater(new Runnable() {
-			public void run() {
-				LabelField locationLabel = new LabelField("You're checked in @ " + PlacemarkScreen.this.message);
-				PlacemarkScreen.this.setStatus(locationLabel);
 			}
 		});
 	}

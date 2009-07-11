@@ -41,6 +41,24 @@ src\img\icon_private.gif
 src\img\icon_public.gif
 src\img\icon_settings.gif
 src\img\listArrow.png
+src\me\regexp\CharacterArrayCharacterIterator.java
+src\me\regexp\CharacterCaseMap.java
+src\me\regexp\CharacterClassMap1.java
+src\me\regexp\CharacterClassMap2.java
+src\me\regexp\CharacterClassMap3.java
+src\me\regexp\CharacterClassMap4.java
+src\me\regexp\CharacterIterator.java
+src\me\regexp\RE.java
+src\me\regexp\ReaderCharacterIterator.java
+src\me\regexp\RECharacter.java
+src\me\regexp\RECompiler.java
+src\me\regexp\REDebugCompiler.java
+src\me\regexp\REProgram.java
+src\me\regexp\RESyntaxException.java
+src\me\regexp\REUtil.java
+src\me\regexp\StreamCharacterIterator.java
+src\me\regexp\StringCharacterIterator.java
+src\me\regexp\StringReader.java
 src\mobi\bbhn\brightberry\AboutScreen.java
 src\mobi\bbhn\brightberry\AvatarThread.java
 src\mobi\bbhn\brightberry\BkObjectScreen.java
@@ -144,4 +162,4 @@ Title=BrightBerry
 Type=0
 UserData=|src
 Vendor=Hallgren Networks
-Version=0.2.7
+Version=0.2.8

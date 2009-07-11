@@ -102,6 +102,11 @@ public class BlockUserThread extends Thread {
 					((DirectMessageSentScreen) this.screen).callBlocked(true);
 				}
 			} else {
+				if (rc == 503) {
+					BrightBerry.displayAlert("Error", "BrightKite is too busy at the moment try again later");
+				} else if (rc == 401 || rc == 403) {
+					BrightBerry.errorUnauthorized();
+				}
 				if (this.caller.equals("FriendsScreen")) {
 					((FriendsScreen) this.screen).callBlocked(false);
 				} else if (this.caller.equals("DirectMessageRcvScreen")) {
@@ -109,6 +114,15 @@ public class BlockUserThread extends Thread {
 				} else if (this.caller.equals("DirectMessageSentScreen")) {
 					((DirectMessageSentScreen) this.screen).callBlocked(false);
 				}
+			}
+			if (this.httpConnection != null) {
+				this.httpConnection.close();
+			}
+			if (this.httpInput != null) {
+				this.httpInput.close();
+			}
+			if (this.httpOutput != null) {
+				this.httpOutput.close();
 			}
 			System.out.println("Post was: " + this.poststring);
 			System.out.println("Auth was: "+ Settings.getInstance().getAuthHeader());
