@@ -77,40 +77,50 @@ public class BrightBerry extends UiApplication {
 	private static boolean background = true;
 	
 	public static void main(String[] args) {
-		Store store = Session.getDefaultInstance().getStore();
-		store.addFolderListener(new FolderListener() {
-			   public void messagesAdded(FolderEvent e) {
-				   if (e.getMessage().isInbound() == true) {
-						try {
-							Address from = e.getMessage().getFrom();
-							if (from.getAddr().toString().endsWith("no-reply@brightkite.com")) {
-								Alert.startVibrate(3000);
-								System.out.println("Brightkite Message!!!");
-								RE r = new RE("http://brightkite.com/objects/[A-za-z0-9]$");
-								boolean matched = r.match(e.getMessage().getBodyText());
-								System.out.println("Object Match" + matched);
-							}
-						} catch (MessagingException e1) {
-						}
-						System.out.println("New email is inbound");
-						System.out.println("Subject is: " + e.getMessage().getSubject());
-				   }
-			   }
-
-				public void messagesRemoved(FolderEvent e) {
-					System.out.println("Message Deleted");
-					System.out.println("Subject is: " + e.getMessage().getSubject());
-				}
-			});
-		
-        amir.addMenuItem(locationToAddMenuItem, imagemenu, app);
-        
-		BrightBerry instance = new BrightBerry();
-		instance.checkPermissions();
-		instance.checkPermissions();
-		instance.enterEventDispatcher();
+	        if (args.length > 0 && args[0].equals("auto-start")) {
+	                startup(); 
+	        } else {
+        		BrightBerry instance = new BrightBerry();
+        		instance.checkPermissions();
+        		instance.checkPermissions();
+        		instance.enterEventDispatcher();
+	        }
+	}
+	
+	private static void startup() {
+	    addFolderListeners();
+	    amir.addMenuItem(locationToAddMenuItem, imagemenu, app);
 	}
 
+	private static void addFolderListeners() {
+	    Store store = Session.getDefaultInstance().getStore();
+            store.addFolderListener(new FolderListener() {
+                       public void messagesAdded(FolderEvent e) {
+                               if (e.getMessage().isInbound() == true) {
+                                            try {
+                                                    Address from = e.getMessage().getFrom();
+                                                    if (from.getAddr().toString().endsWith("no-reply@brightkite.com")) {
+                                                            Alert.startVibrate(3000);
+                                                            System.out.println("Brightkite Message!!!");
+                                                            RE r = new RE("http://brightkite.com/objects/[A-za-z0-9]$");
+                                                            boolean matched = r.match(e.getMessage().getBodyText());
+                                                            System.out.println("Object Match" + matched);
+                                                    }
+                                            } catch (MessagingException e1) {
+                                            }
+                                            System.out.println("New email is inbound");
+                                            System.out.println("Subject is: " + e.getMessage().getSubject());
+                               }
+                       }
+
+                            public void messagesRemoved(FolderEvent e) {
+                                    System.out.println("Message Deleted");
+                                    System.out.println("Subject is: " + e.getMessage().getSubject());
+                            }
+                    });
+
+	}
+	
 	public BrightBerry() {
 		pushScreen(new BrightBerryMain());
 	}
